@@ -1,0 +1,151 @@
+/**
+ * Avy Main Application Entry Point
+ * Vanilla JS SPA with custom routing
+ */
+
+// Import router
+import router from './router.js';
+
+// Import controllers
+import landingController from './controllers/landingController.js';
+import loginController from './controllers/loginController.js';
+import dashboardController from './controllers/dashboardController.js';
+import jobBoardController from './controllers/jobBoardController.js';
+import jobDetailController from './controllers/jobDetailController.js';
+import companiesController from './controllers/companiesController.js';
+import profileController from './controllers/profileController.js';
+import postJobController from './controllers/postJobController.js';
+import candidatesController from './controllers/candidatesController.js';
+import adminUsersController from './controllers/adminUsersController.js';
+import adminAnalyticsController from './controllers/adminAnalyticsController.js';
+import notFoundController from './controllers/notFoundController.js';
+
+// Import services (make available globally)
+import authService from './services/authService.js';
+
+// Make router globally available
+window.router = router;
+window.authService = authService;
+
+/**
+ * Initialize application
+ */
+function initApp() {
+    console.log('%c🚀 Avy Application Started', 'color: #667eea; font-size: 16px; font-weight: bold;');
+    console.log('%c📦 Phase 1: Frontend Only Mode', 'color: #764ba2; font-size: 12px;');
+    
+    // Register routes
+    registerRoutes();
+    
+    // Initialize router (will handle initial navigation)
+    console.log('✅ Router initialized');
+}
+
+/**
+ * Register all application routes
+ */
+function registerRoutes() {
+    // Public routes
+    router.addRoute('/', landingController, false);
+    router.addRoute('/login', loginController, false);
+    
+    // Protected routes (require authentication)
+    router.addRoute('/dashboard', dashboardController, true);
+    
+    // Job-related routes (Bloom module - Student/Alumni)
+    router.addRoute('/jobs', jobBoardController, true);
+    router.addRoute('/jobs/:id', jobDetailController, true);
+    router.addRoute('/companies', companiesController, true);
+    router.addRoute('/profile', profileController, true, ['student', 'alumni']);
+    
+    // Employer routes (Evergreen module)
+    router.addRoute('/employer/post-job', postJobController, true, ['employer']);
+    router.addRoute('/employer/candidates', candidatesController, true, ['employer']);
+    router.addRoute('/employer/jobs', createPlaceholderController('My Jobs', 'Manage your job postings'), true, ['employer']);
+    
+    // Admin routes (Meridian module)
+    router.addRoute('/admin/users', adminUsersController, true, ['admin']);
+    router.addRoute('/admin/jobs', createPlaceholderController('Job Management', 'Manage all job postings'), true, ['admin']);
+    router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
+    
+    // 404 route (must be last)
+    router.addRoute('/404', notFoundController, false);
+    
+    console.log('✅ Routes registered');
+}
+
+/**
+ * Create placeholder controller for routes not yet implemented
+ */
+function createPlaceholderController(title, description) {
+    return async function() {
+        const app = document.getElementById('app');
+        const user = authService.getCurrentUser();
+        
+        app.innerHTML = `
+            <nav class="bg-white shadow-md">
+                <div class="container mx-auto px-4 py-4">
+                    <div class="flex justify-between items-center">
+                        <div class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                            Avy
+                        </div>
+                        <div class="flex items-center space-x-6">
+                            <a href="/dashboard" data-link class="text-gray-600 hover:text-purple-600 transition">
+                                <i class="fas fa-home mr-1"></i> Dashboard
+                            </a>
+                            <a href="/jobs" data-link class="text-gray-600 hover:text-purple-600 transition">
+                                <i class="fas fa-briefcase mr-1"></i> Jobs
+                            </a>
+                            <a href="/profile" data-link class="text-gray-600 hover:text-purple-600 transition">
+                                <i class="fas fa-user mr-1"></i> Profile
+                            </a>
+                            ${user.role === 'employer' ? `
+                                <a href="/companies" data-link class="text-gray-600 hover:text-purple-600 transition">
+                                    <i class="fas fa-building mr-1"></i> Company
+                                </a>
+                            ` : ''}
+                            <button id="logoutBtn" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="container mx-auto px-4 py-20 text-center">
+                <div class="max-w-2xl mx-auto fade-in">
+                    <div class="text-6xl mb-6">🚧</div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">${title}</h1>
+                    <p class="text-xl text-gray-600 mb-8">${description}</p>
+                    <div class="p-6 bg-blue-50 rounded-lg">
+                        <p class="text-blue-900 font-semibold mb-2">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Coming Soon
+                        </p>
+                        <p class="text-blue-700 text-sm">
+                            This feature is currently under development and will be available in a future version.
+                        </p>
+                    </div>
+                    <a href="/dashboard" data-link class="btn btn-primary mt-8">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                authService.logout();
+            });
+        }
+    };
+}
+
+// Initialize app when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}

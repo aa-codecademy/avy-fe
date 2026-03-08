@@ -1,0 +1,409 @@
+/**
+ * Post Job Controller (Employer)
+ * Job announcement form based on Avy User Requirements
+ */
+import authService from '../services/authService.js';
+import mockDataService from '../services/mockDataService.js';
+
+export default async function postJobController() {
+    const app = document.getElementById('app');
+    const user = authService.getCurrentUser();
+    
+    if (!user || user.role !== 'employer') {
+        window.router.navigate('/dashboard');
+        return;
+    }
+    
+    const company = await mockDataService.getCompanyById(user.companyId);
+    const activeJobs = (await mockDataService.getAllJobs({ companyId: company.id, status: 'active' })).length;
+    
+    app.innerHTML = `
+        ${renderHeader(user)}
+        
+        <div class="bg-gray-50 min-h-screen py-8">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto fade-in">
+                    <!-- Page Header -->
+                    <div class="mb-8">
+                        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                            <i class="fas fa-plus-circle text-purple-600 mr-3"></i>
+                            Post a New Job
+                        </h1>
+                        <p class="text-gray-600">
+                            ${company.name} | Active Jobs: ${activeJobs} / ${company.jobPostingLimit}
+                        </p>
+                    </div>
+                    
+                    ${activeJobs >= company.jobPostingLimit ? `
+                        <div class="card bg-red-50 border-2 border-red-300 mb-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-exclamation-triangle text-red-600 text-3xl mr-4"></i>
+                                <div>
+                                    <h3 class="text-xl font-bold text-red-900 mb-1">Job Posting Limit Reached</h3>
+                                    <p class="text-red-700">
+                                        You've reached your subscription limit of ${company.jobPostingLimit} active job postings.
+                                        Please upgrade your plan or deactivate an existing job to post a new one.
+                                    </p>
+                                    <button class="btn btn-primary mt-3">
+                                        <i class="fas fa-crown mr-2"></i> Upgrade Subscription
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <form id="jobPostForm" ${activeJobs >= company.jobPostingLimit ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>
+                        <!-- Basic Information -->
+                        <div class="card mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Basic Information
+                            </h2>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="form-label">Job Title *</label>
+                                    <input type="text" id="jobTitle" required class="form-input" 
+                                           placeholder="e.g., Senior Frontend Developer" />
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label">Employment Type *</label>
+                                    <select id="employmentType" required class="form-input">
+                                        <option value="">Select type...</option>
+                                        <option value="full-time">Full-time</option>
+                                        <option value="part-time">Part-time</option>
+                                        <option value="internship">Internship</option>
+                                        <option value="contract">Contract</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label">Work Mode *</label>
+                                    <select id="workMode" required class="form-input">
+                                        <option value="">Select mode...</option>
+                                        <option value="onsite">On-site</option>
+                                        <option value="remote">Remote</option>
+                                        <option value="hybrid">Hybrid</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label">Location *</label>
+                                    <input type="text" id="location" required class="form-input" 
+                                           placeholder="e.g., Skopje, Macedonia" />
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label">Experience Level *</label>
+                                    <select id="experienceLevel" required class="form-input">
+                                        <option value="">Select level...</option>
+                                        <option value="entry">Entry Level (0-2 years)</option>
+                                        <option value="mid">Mid Level (2-5 years)</option>
+                                        <option value="senior">Senior (5+ years)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Job Description -->
+                        <div class="card mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                                <i class="fas fa-file-alt mr-2"></i>
+                                Job Description
+                            </h2>
+                            
+                            <div class="mb-6">
+                                <label class="form-label">Description *</label>
+                                <textarea id="description" required rows="5" class="form-input" 
+                                          placeholder="Provide a detailed description of the role..."></textarea>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="form-label">Responsibilities *</label>
+                                <textarea id="responsibilities" required rows="4" class="form-input" 
+                                          placeholder="List key responsibilities (one per line)..."></textarea>
+                                <p class="text-xs text-gray-500 mt-1">Separate each responsibility with a new line</p>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="form-label">Qualifications *</label>
+                                <textarea id="qualifications" required rows="4" class="form-input" 
+                                          placeholder="List required qualifications (one per line)..."></textarea>
+                                <p class="text-xs text-gray-500 mt-1">Separate each qualification with a new line</p>
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">Benefits</label>
+                                <textarea id="benefits" rows="3" class="form-input" 
+                                          placeholder="List benefits and perks (one per line)..."></textarea>
+                                <p class="text-xs text-gray-500 mt-1">Optional: Flexible hours, Health insurance, etc.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Skills -->
+                        <div class="card mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                                <i class="fas fa-code mr-2"></i>
+                                Required Skills
+                            </h2>
+                            
+                            <div class="mb-6">
+                                <label class="form-label">Required Skills *</label>
+                                <div class="flex gap-2 mb-3">
+                                    <input type="text" id="requiredSkillInput" class="form-input" 
+                                           placeholder="Add a required skill..." />
+                                    <button type="button" id="addRequiredSkillBtn" class="btn btn-secondary">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div id="requiredSkillsList" class="flex flex-wrap gap-2 min-h-[2rem]">
+                                    <!-- Skills will be added here -->
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">Nice-to-Have Skills</label>
+                                <div class="flex gap-2 mb-3">
+                                    <input type="text" id="niceToHaveSkillInput" class="form-input" 
+                                           placeholder="Add a nice-to-have skill..." />
+                                    <button type="button" id="addNiceToHaveSkillBtn" class="btn btn-secondary">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div id="niceToHaveSkillsList" class="flex flex-wrap gap-2 min-h-[2rem]">
+                                    <!-- Skills will be added here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Salary & Deadline -->
+                        <div class="card mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                                <i class="fas fa-dollar-sign mr-2"></i>
+                                Compensation & Timeline
+                            </h2>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="form-label">Minimum Salary (EUR)</label>
+                                    <input type="number" id="salaryMin" class="form-input" 
+                                           placeholder="e.g., 800" min="0" />
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label">Maximum Salary (EUR)</label>
+                                    <input type="number" id="salaryMax" class="form-input" 
+                                           placeholder="e.g., 1200" min="0" />
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label">Application Deadline *</label>
+                                    <input type="date" id="deadline" required class="form-input" 
+                                           min="${new Date().toISOString().split('T')[0]}" />
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label">Priority (for Featured badge)</label>
+                                    <select id="priority" class="form-input">
+                                        <option value="normal">Normal</option>
+                                        <option value="high">High (Featured)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit -->
+                        <div class="card bg-purple-50 border-2 border-purple-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-purple-900 font-semibold">
+                                        <i class="fas fa-info-circle mr-2"></i>
+                                        Fields marked with * are required
+                                    </p>
+                                    <p class="text-purple-700 text-sm mt-1">
+                                        Job will be active immediately after posting
+                                    </p>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button type="button" class="btn btn-secondary" onclick="window.router.navigate('/employer/jobs')">
+                                        <i class="fas fa-times mr-2"></i> Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary text-lg px-8">
+                                        <i class="fas fa-paper-plane mr-2"></i> Post Job
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    setupEventListeners(user, company);
+    
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => authService.logout());
+    }
+}
+
+function renderHeader(user) {
+    return `
+        <nav class="bg-white shadow-md">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                        Avy
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <a href="/dashboard" data-link class="text-gray-600 hover:text-purple-600 transition">
+                            <i class="fas fa-home mr-1"></i> Dashboard
+                        </a>
+                        <a href="/employer/jobs" data-link class="text-gray-600 hover:text-purple-600 transition">
+                            <i class="fas fa-briefcase mr-1"></i> My Jobs
+                        </a>
+                        <a href="/employer/post-job" data-link class="text-purple-600 font-semibold">
+                            <i class="fas fa-plus-circle mr-1"></i> Post Job
+                        </a>
+                        <a href="/employer/candidates" data-link class="text-gray-600 hover:text-purple-600 transition">
+                            <i class="fas fa-users mr-1"></i> Candidates
+                        </a>
+                        <div class="flex items-center space-x-3">
+                            <img src="${user.avatar}" alt="${user.name}" class="w-10 h-10 rounded-full border-2 border-purple-600" />
+                            <button id="logoutBtn" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    `;
+}
+
+function setupEventListeners(user, company) {
+    const requiredSkills = [];
+    const niceToHaveSkills = [];
+    
+    // Required Skills
+    const requiredSkillInput = document.getElementById('requiredSkillInput');
+    const addRequiredSkillBtn = document.getElementById('addRequiredSkillBtn');
+    const requiredSkillsList = document.getElementById('requiredSkillsList');
+    
+    addRequiredSkillBtn.addEventListener('click', () => {
+        const skill = requiredSkillInput.value.trim();
+        if (skill && !requiredSkills.includes(skill)) {
+            requiredSkills.push(skill);
+            renderSkills(requiredSkillsList, requiredSkills, 'required');
+            requiredSkillInput.value = '';
+        }
+    });
+    
+    requiredSkillInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addRequiredSkillBtn.click();
+        }
+    });
+    
+    // Nice-to-Have Skills
+    const niceToHaveSkillInput = document.getElementById('niceToHaveSkillInput');
+    const addNiceToHaveSkillBtn = document.getElementById('addNiceToHaveSkillBtn');
+    const niceToHaveSkillsList = document.getElementById('niceToHaveSkillsList');
+    
+    addNiceToHaveSkillBtn.addEventListener('click', () => {
+        const skill = niceToHaveSkillInput.value.trim();
+        if (skill && !niceToHaveSkills.includes(skill)) {
+            niceToHaveSkills.push(skill);
+            renderSkills(niceToHaveSkillsList, niceToHaveSkills, 'niceToHave');
+            niceToHaveSkillInput.value = '';
+        }
+    });
+    
+    niceToHaveSkillInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addNiceToHaveSkillBtn.click();
+        }
+    });
+    
+    function renderSkills(container, skills, type) {
+        if (skills.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-sm">No skills added yet</p>';
+            return;
+        }
+        
+        container.innerHTML = skills.map(skill => `
+            <span class="px-3 py-2 ${type === 'required' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'} rounded-lg font-semibold">
+                ${skill}
+                <button type="button" onclick="removeSkill_${type}('${skill}')" class="ml-2 hover:opacity-75">
+                    <i class="fas fa-times"></i>
+                </button>
+            </span>
+        `).join('');
+    }
+    
+    // Global remove functions
+    window.removeSkill_required = (skill) => {
+        const index = requiredSkills.indexOf(skill);
+        if (index > -1) {
+            requiredSkills.splice(index, 1);
+            renderSkills(requiredSkillsList, requiredSkills, 'required');
+        }
+    };
+    
+    window.removeSkill_niceToHave = (skill) => {
+        const index = niceToHaveSkills.indexOf(skill);
+        if (index > -1) {
+            niceToHaveSkills.splice(index, 1);
+            renderSkills(niceToHaveSkillsList, niceToHaveSkills, 'niceToHave');
+        }
+    };
+    
+    // Form submission
+    document.getElementById('jobPostForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (requiredSkills.length === 0) {
+            alert('Please add at least one required skill');
+            return;
+        }
+        
+        const formData = {
+            title: document.getElementById('jobTitle').value,
+            description: document.getElementById('description').value,
+            responsibilities: document.getElementById('responsibilities').value.split('\n').filter(r => r.trim()),
+            qualifications: document.getElementById('qualifications').value.split('\n').filter(q => q.trim()),
+            benefits: document.getElementById('benefits').value.split('\n').filter(b => b.trim()),
+            employmentType: document.getElementById('employmentType').value,
+            location: document.getElementById('location').value,
+            workMode: document.getElementById('workMode').value,
+            experienceLevel: document.getElementById('experienceLevel').value,
+            requiredSkills: requiredSkills,
+            niceToHaveSkills: niceToHaveSkills,
+            salaryMin: parseInt(document.getElementById('salaryMin').value) || null,
+            salaryMax: parseInt(document.getElementById('salaryMax').value) || null,
+            deadline: document.getElementById('deadline').value,
+            priority: document.getElementById('priority').value,
+            companyId: company.id,
+            status: 'active',
+            postedDate: new Date().toISOString().split('T')[0]
+        };
+        
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Posting Job...';
+        
+        try {
+            await mockDataService.createJob(formData);
+            alert('Job posted successfully!');
+            window.router.navigate('/employer/jobs');
+        } catch (error) {
+            alert('Failed to post job. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Post Job';
+        }
+    });
+}
