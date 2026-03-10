@@ -14,6 +14,7 @@ Avy by Avenga Academy - A web platform connecting students, alumni, and companie
 
 - Modern web browser with ES6+ support (Chrome, Firefox, Safari, Edge)
 - Local web server for development (e.g., Live Server, Python HTTP server, or any static file server)
+- **VS Code users:** Accept the recommended extensions (Prettier, ESLint) when prompted so format-on-save and linting work out of the box.
 
 ## 🛠️ Installation
 
@@ -249,6 +250,8 @@ export default new MyService();
 - Use meaningful variable and function names
 - Comment complex logic
 - Prefer `const` over `let`, avoid `var`
+
+**Tooling:** The repo uses EditorConfig (indent, line endings), Prettier (formatting), and ESLint (basic lint). With the recommended VS Code extensions, saving a file will auto-format and apply safe fixes. Keep the project clean by committing only formatted, lint-clean code.
 
 ## 🐛 Troubleshooting
 

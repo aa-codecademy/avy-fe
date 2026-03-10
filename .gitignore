@@ -15,15 +15,34 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
+*.iml
+*.ipr
+*.iws
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+.cursor
+
+# OS
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN
 
 # Environment files
 .env
 .env.local
+.env.*.local
 .env.production
+.env.development
