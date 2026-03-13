@@ -26,32 +26,34 @@ This is a pure vanilla JavaScript application that runs directly in the browser.
 
 2. Start a local web server:
 
-   **Option 1: VS Code Live Server Extension**
-   - Install the "Live Server" extension in VS Code
-   - Right-click on `index.html` and select "Open with Live Server"
+    **Option 1: VS Code Live Server Extension**
+    - Install the "Live Server" extension in VS Code
+    - Right-click on `index.html` and select "Open with Live Server"
 
-   **Option 2: Python HTTP Server**
-   ```bash
-   python -m http.server 8000
-   ```
+    **Option 2: Python HTTP Server**
 
-   **Option 3: Node.js http-server (if you have Node.js)**
-   ```bash
-   npx http-server -p 8000
-   ```
+    ```bash
+    python -m http.server 8000
+    ```
+
+    **Option 3: Node.js http-server (if you have Node.js)**
+
+    ```bash
+    npx http-server -p 8000
+    ```
 
 3. Open your browser and navigate to `http://localhost:8000` (or the port your server uses)
 
 ## 🏃 Running the Application
 
 Simply open `index.html` through any web server. The application will:
+
 - Load Tailwind CSS from CDN
 - Load Font Awesome from CDN
 - Initialize the custom router
 - Start on the landing page
 
 **No build process required!**
-
 
 ## 📁 Project Structure
 
@@ -90,18 +92,21 @@ avy-fe/
 ## 🎨 Architecture
 
 ### Custom SPA Router
+
 - Hash-less routing using History API
 - Route protection with authentication checks
 - Role-based access control
 - Automatic link interception for SPA navigation
 
 ### Authentication System
+
 - JWT token storage in localStorage
 - Phase 1: Mock authentication (email pattern determines role)
 - Phase 2: Real backend API integration
 - Automatic role detection and redirection
 
 ### Component-Based Architecture (React-like)
+
 - **Controllers as Components**: Each page is a JavaScript function that renders HTML
 - **Template Literals for Views**: HTML embedded in JavaScript using template strings
 - **No Separate Templates**: No .html files for individual pages (all dynamic)
@@ -109,6 +114,7 @@ avy-fe/
 - **Benefits**: Type-safe variables, easy props passing, scales to real frameworks
 
 ### Module Pattern
+
 - ES6 modules for clean code organization
 - Service layer for business logic (authService, mockDataService)
 - Controller layer for page rendering (one controller per page)
@@ -120,6 +126,7 @@ avy-fe/
 ### Three Platform Modules
 
 **🌱 Bloom (Student & Alumni)**
+
 - Profile management with CV builder
 - Job board with advanced filters
 - Direct applications to companies
@@ -127,6 +134,7 @@ avy-fe/
 - Application tracking
 
 **🏢 Evergreen (Company)**
+
 - Company profile management
 - Job posting capabilities
 - Candidate search and filtering
@@ -134,6 +142,7 @@ avy-fe/
 - Subscription plans (Basic, Advanced, Premium)
 
 **⚙️ Meridian (Admin)**
+
 - User management
 - Job moderation
 - Platform analytics
@@ -148,10 +157,10 @@ The app uses mock JWT-based authentication with the following user roles:
 - **Employer** - `company@avy.com` or `employer@avy.com`
 - **Admin** - `admin@avy.com` (or any email with "admin")
 
-**Phase 1:** Any password works. Role is determined by email pattern.  
+**Phase 1:** Any password works. Role is determined by email pattern.
 **Phase 2:** Real authentication with backend validation.
 
-**Phase 1:** Any password works. Role is determined by email pattern.  
+**Phase 1:** Any password works. Role is determined by email pattern.
 **Phase 2:** Real authentication with backend validation.
 
 ## 🌐 API Integration
@@ -165,6 +174,7 @@ The mock data service can be easily replaced with real API calls in Phase 2!
 ## 🎯 Development Phases
 
 ### Phase 1: Frontend Only ✅ Current
+
 - ✅ Complete UI/UX with vanilla JavaScript
 - ✅ Mock authentication system
 - ✅ All pages and navigation (12+ controllers)
@@ -178,6 +188,7 @@ The mock data service can be easily replaced with real API calls in Phase 2!
 - ✅ Admin pages (User Management, Analytics)
 
 ### Phase 2: Backend Integration (Future)
+
 - 🔄 Connect to Node.js or .NET backend
 - 🔄 Replace mock data service with real API calls
 - 🔄 Database persistence (PostgreSQL/MongoDB)
@@ -193,13 +204,14 @@ The mock data service can be easily replaced with real API calls in Phase 2!
 2. **Start a local web server** (see Installation section)
 3. **Open in browser** at `http://localhost:8000` (or your server's port)
 4. **Try demo login:**
-   - Email: `student@avy.com` (or `admin@avy.com`, `company@avy.com`)
-   - Password: Any password (Phase 1 demo mode)
+    - Email: `student@avy.com` (or `admin@avy.com`, `company@avy.com`)
+    - Password: Any password (Phase 1 demo mode)
 5. **Explore the dashboard** based on your role!
 
 ## 🎓 Learning Resources
 
 This project demonstrates:
+
 - Modern vanilla JavaScript (ES6+)
 - ES Modules and imports
 - SPA routing without frameworks
@@ -214,6 +226,7 @@ This project demonstrates:
 ### Adding New Pages
 
 1. Create controller in `assets/js/controllers/`:
+
 ```javascript
 export default async function myPageController() {
     const app = document.getElementById('app');
@@ -222,6 +235,7 @@ export default async function myPageController() {
 ```
 
 2. Register route in `assets/js/main.js`:
+
 ```javascript
 import myPageController from './controllers/myPageController.js';
 router.addRoute('/my-page', myPageController, true); // true = requires auth
@@ -230,6 +244,7 @@ router.addRoute('/my-page', myPageController, true); // true = requires auth
 ### Adding New Services
 
 Create a service file in `assets/js/services/`:
+
 ```javascript
 import apiService from './apiService.js';
 
@@ -255,13 +270,13 @@ export default new MyService();
 
 ## 🐛 Troubleshooting
 
-**Issue:** Page shows blank or modules don't load  
+**Issue:** Page shows blank or modules don't load
 **Solution:** Make sure you're using a web server (http://), not opening file:// directly
 
-**Issue:** Router not working  
+**Issue:** Router not working
 **Solution:** Ensure all links use `data-link` attribute or navigate via `window.router.navigate()`
 
-**Issue:** CORS errors in Phase 2  
+**Issue:** CORS errors in Phase 2
 **Solution:** Configure backend CORS to allow your frontend origin
 
 ## 📄 License
@@ -270,12 +285,18 @@ Copyright © 2026 Avenga Academy
 
 ---
 
-**Knowledge that matters** 🎓  
-Avy - Connecting Students with Opportunities  
+**Knowledge that matters** 🎓
+Avy - Connecting Students with Opportunities
 Phase 1: Frontend Only | Phase 2: Full Stack Integration
 
 ## 📚 Additional Documentation
 
-- **[Boilerplate Implementation Summary](../../docs/Boilerplate_Implementation_Summary.md)** - Complete technical details and architecture
-- **[Quick Start Guide](../../docs/Quick_Start_Guide.md)** - Getting started in 5 minutes with test accounts
-- **[User Requirements](../../docs/Avy_UR.txt)** - Full platform specifications
+- **[Boilerplate Implementation Summary](./docs/Boilerplate_Implementation_Summary.md)** - Complete technical details and architecture
+- **[Quick Start Guide](./docs/Quick_Start_Guide.md)** - Getting started in 5 minutes with test accounts
+- **[User Requirements](./docs/Avy_UR.md)** - Full platform specifications
+
+### Branching & Git
+
+- **[Branching strategy - The story](./docs/Branching%20strategy%20-%20The%20story.md)** - Why we branch and how we work
+- **[Branching strategy - Resolving conflicts](./docs/Branching%20strategy%20-%20Resolving%20conflicts.md)** - How to resolve merge conflicts
+- **[Branching strategy - Using Github Desktop](./docs/Branching%20strategy%20-%20Using%20Github%20Desktop.md)** - Using GitHub Desktop for branching
