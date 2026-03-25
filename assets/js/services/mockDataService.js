@@ -282,7 +282,7 @@ class MockDataService {
                 responsibilities: 'Create test plans, perform manual and automated testing, report bugs, ensure quality standards.',
                 qualifications: 'Experience with testing methodologies, automation tools (Selenium/Cypress), attention to detail.',
                 benefits: 'Flexible schedule, remote-first culture, training budget.',
-                employmentType: 'full-time',
+                employmentType: 'freelance',
                 location: 'Skopje',
                 workMode: 'remote',
                 experienceLevel: 'junior',
@@ -318,20 +318,50 @@ class MockDataService {
             jobs = jobs.filter(j => j.experienceLevel === filters.experienceLevel);
         }
         if (filters.search) {
-            const search = filters.search.toLowerCase();
-            jobs = jobs.filter(j => 
-                j.title.toLowerCase().includes(search) ||
-                j.description.toLowerCase().includes(search)
-            );
+            const search = filters.search.toLowerCase().trim();
+            jobs = jobs.filter((j) => {
+                const company = this.companies.find((c) => c.id === j.companyId);
+                const companyName = (company?.name || '').toLowerCase();
+                const industry = (company?.industry || '').toLowerCase();
+                const skillMatch = [...j.requiredSkills, ...j.niceToHaveSkills].some((s) =>
+                    s.toLowerCase().includes(search)
+                );
+                return (
+                    j.title.toLowerCase().includes(search) ||
+                    j.description.toLowerCase().includes(search) ||
+                    (j.location && j.location.toLowerCase().includes(search)) ||
+                    companyName.includes(search) ||
+                    industry.includes(search) ||
+                    skillMatch
+                );
+            });
+        }
+        if (filters.industry) {
+            jobs = jobs.filter((j) => {
+                const company = this.companies.find((c) => c.id === j.companyId);
+                return company?.industry === filters.industry;
+            });
         }
         if (filters.skills && filters.skills.length > 0) {
-            jobs = jobs.filter(j => 
-                filters.skills.some(skill => 
-                    j.requiredSkills.includes(skill) || j.niceToHaveSkills.includes(skill)
+            const need = filters.skills.map((s) => s.toLowerCase().trim()).filter(Boolean);
+            jobs = jobs.filter((j) =>
+                need.some((skill) =>
+                    j.requiredSkills.some(
+                        (rs) =>
+                            rs.toLowerCase() === skill ||
+                            rs.toLowerCase().includes(skill) ||
+                            skill.includes(rs.toLowerCase())
+                    ) ||
+                    j.niceToHaveSkills.some(
+                        (ns) =>
+                            ns.toLowerCase() === skill ||
+                            ns.toLowerCase().includes(skill) ||
+                            skill.includes(ns.toLowerCase())
+                    )
                 )
             );
         }
-        
+
         return jobs;
     }
     

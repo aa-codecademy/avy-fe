@@ -4,6 +4,7 @@
  */
 import authService from '../services/authService.js';
 import mockDataService from '../services/mockDataService.js';
+import { renderAppHeader } from '../views/appHeader.js';
 
 export default async function postJobController() {
     const app = document.getElementById('app');
@@ -15,10 +16,14 @@ export default async function postJobController() {
     }
     
     const company = await mockDataService.getCompanyById(user.companyId);
+    if (!company) {
+        window.router.navigate('/dashboard');
+        return;
+    }
     const activeJobs = (await mockDataService.getAllJobs({ companyId: company.id, status: 'active' })).length;
     
     app.innerHTML = `
-        ${renderHeader(user)}
+        ${renderAppHeader(user, window.location.pathname)}
         
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
@@ -74,6 +79,7 @@ export default async function postJobController() {
                                         <option value="full-time">Full-time</option>
                                         <option value="part-time">Part-time</option>
                                         <option value="internship">Internship</option>
+                                        <option value="freelance">Freelance</option>
                                         <option value="contract">Contract</option>
                                     </select>
                                 </div>
@@ -212,6 +218,26 @@ export default async function postJobController() {
                                 </div>
                             </div>
                         </div>
+
+                        <div class="card mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                                <i class="fas fa-file-signature mr-2"></i>
+                                Application method
+                            </h2>
+                            <p class="text-gray-600 text-sm mb-4">
+                                Choose whether candidates use Easy Apply or must attach a CV.
+                            </p>
+                            <div class="space-y-3">
+                                <label class="flex items-start gap-3 cursor-pointer">
+                                    <input type="radio" name="applicationMode" value="easy_apply" checked class="mt-1" />
+                                    <span><strong>Easy Apply</strong> — quick apply using the candidate profile on the platform</span>
+                                </label>
+                                <label class="flex items-start gap-3 cursor-pointer">
+                                    <input type="radio" name="applicationMode" value="cv_required" class="mt-1" />
+                                    <span><strong>CV required</strong> — candidates must upload a CV document</span>
+                                </label>
+                            </div>
+                        </div>
                         
                         <!-- Submit -->
                         <div class="card bg-purple-50 border-2 border-purple-200">
@@ -247,40 +273,6 @@ export default async function postJobController() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => authService.logout());
     }
-}
-
-function renderHeader(user) {
-    return `
-        <nav class="bg-white shadow-md">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex justify-between items-center">
-                    <div class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                        Avy
-                    </div>
-                    <div class="flex items-center space-x-6">
-                        <a href="/dashboard" data-link class="text-gray-600 hover:text-purple-600 transition">
-                            <i class="fas fa-home mr-1"></i> Dashboard
-                        </a>
-                        <a href="/employer/jobs" data-link class="text-gray-600 hover:text-purple-600 transition">
-                            <i class="fas fa-briefcase mr-1"></i> My Jobs
-                        </a>
-                        <a href="/employer/post-job" data-link class="text-purple-600 font-semibold">
-                            <i class="fas fa-plus-circle mr-1"></i> Post Job
-                        </a>
-                        <a href="/employer/candidates" data-link class="text-gray-600 hover:text-purple-600 transition">
-                            <i class="fas fa-users mr-1"></i> Candidates
-                        </a>
-                        <div class="flex items-center space-x-3">
-                            <img src="${user.avatar}" alt="${user.name}" class="w-10 h-10 rounded-full border-2 border-purple-600" />
-                            <button id="logoutBtn" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-sign-out-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    `;
 }
 
 function setupEventListeners(user, company) {
@@ -389,7 +381,8 @@ function setupEventListeners(user, company) {
             priority: document.getElementById('priority').value,
             companyId: company.id,
             status: 'active',
-            postedDate: new Date().toISOString().split('T')[0]
+            postedDate: new Date().toISOString().split('T')[0],
+            applicationMode: document.querySelector('input[name="applicationMode"]:checked').value
         };
         
         const submitBtn = e.target.querySelector('button[type="submit"]');

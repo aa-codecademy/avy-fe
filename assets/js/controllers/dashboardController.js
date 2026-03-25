@@ -3,91 +3,84 @@
  * Role-specific dashboards for Student, Alumni, Employer, and Admin
  */
 import authService from '../services/authService.js';
+import mockDataService from '../services/mockDataService.js';
+import { renderAppHeader } from '../views/appHeader.js';
 
 export default async function dashboardController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
-    
+
     if (!user) {
         window.router.navigate('/login');
         return;
     }
-    
-    // Render based on user role
+
+    const path = window.location.pathname;
+
     switch (user.role) {
         case 'student':
         case 'alumni':
-            renderStudentDashboard(app, user);
+            await renderStudentDashboard(app, user, path);
             break;
         case 'employer':
-            renderEmployerDashboard(app, user);
+            renderEmployerDashboard(app, user, path);
             break;
         case 'admin':
-            renderAdminDashboard(app, user);
+            renderAdminDashboard(app, user, path);
             break;
         default:
-            renderStudentDashboard(app, user);
+            await renderStudentDashboard(app, user, path);
     }
 }
 
-function renderHeader(user) {
-    return `
-        <nav class="bg-white shadow-md">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-2">
-                        <div class="text-2xl font-bold text-brand-primary">Avy</div>
-                        <span class="text-sm text-gray-500">by Avenga Academy</span>
-                    </div>
-                    <div class="flex items-center space-x-6">
-                        <a href="/dashboard" data-link class="text-gray-600 hover-text-brand transition">
-                            <i class="fas fa-home mr-1"></i> Dashboard
-                        </a>
-                        <a href="/jobs" data-link class="text-gray-600 hover-text-brand transition">
-                            <i class="fas fa-briefcase mr-1"></i> Jobs
-                        </a>
-                        <a href="/profile" data-link class="text-gray-600 hover-text-brand transition">
-                            <i class="fas fa-user mr-1"></i> Profile
-                        </a>
-                        ${user.role === 'employer' ? `
-                            <a href="/companies" data-link class="text-gray-600 hover-text-brand transition">
-                                <i class="fas fa-building mr-1"></i> Company
-                            </a>
-                        ` : ''}
-                        <div class="flex items-center space-x-3">
-                            <img src="${user.avatar}" alt="${user.name}" class="w-10 h-10 rounded-full border-2 border-brand-primary" />
-                            <div>
-                                <p class="text-sm font-semibold text-gray-800">${user.name}</p>
-                                <p class="text-xs text-gray-500 capitalize">${user.role}</p>
-                            </div>
-                            <button id="logoutBtn" class="text-red-600 hover:text-red-800 ml-2">
-                                <i class="fas fa-sign-out-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    `;
-}
-
-function renderStudentDashboard(app, user) {
+async function renderStudentDashboard(app, user, path) {
     const moduleName = user.role === 'alumni' ? 'Bloom (Alumni)' : 'Bloom (Student)';
-    
+    const companies = await mockDataService.getAllCompanies();
+    const companyMap = Object.fromEntries(companies.map((c) => [c.id, c]));
+    let allJobs = await mockDataService.getAllJobs({ status: 'active' });
+    const latestJobs = [...allJobs]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5);
+
     app.innerHTML = `
-        ${renderHeader(user)}
+        ${renderAppHeader(user, path)}
         
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
-                <!-- Welcome Section -->
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
                         Welcome back, ${user.name}! 👋
                     </h1>
                     <p class="text-gray-600">${moduleName} - Your Career Development Hub</p>
                 </div>
+
+                <div class="card mb-8">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-search text-purple-600 mr-2"></i>
+                        Find your next role
+                    </h2>
+                    <p class="text-gray-600 text-sm mb-4">Search jobs by title, company, location, or skills — same search as the job board.</p>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" id="dashJobSearch" class="form-input flex-1" placeholder="Keywords, job title, company, location..." />
+                        <button type="button" id="dashJobSearchBtn" class="btn btn-primary whitespace-nowrap">
+                            <i class="fas fa-search mr-2"></i> Search jobs
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-clock text-indigo-600 mr-2"></i>
+                        Latest listings
+                    </h2>
+                    <div class="space-y-3">
+                        ${renderLatestListingRows(latestJobs, companyMap)}
+                    </div>
+                    <a href="/jobs" data-link class="text-indigo-600 hover:text-indigo-800 font-semibold mt-4 inline-block">
+                        View all jobs <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
                 
-                <!-- Stats Cards -->
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -131,7 +124,6 @@ function renderStudentDashboard(app, user) {
                 </div>
                 
                 <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Recent Applications -->
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-clipboard-list text-purple-600 mr-2"></i>
@@ -145,7 +137,6 @@ function renderStudentDashboard(app, user) {
                         </a>
                     </div>
                     
-                    <!-- Recommended Jobs -->
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-briefcase text-indigo-600 mr-2"></i>
@@ -162,20 +153,67 @@ function renderStudentDashboard(app, user) {
             </div>
         </div>
     `;
-    
-    // Add logout handler
+
     document.getElementById('logoutBtn').addEventListener('click', () => {
         authService.logout();
     });
+
+    document.getElementById('dashJobSearchBtn').addEventListener('click', () => {
+        const q = document.getElementById('dashJobSearch').value.trim();
+        if (q) {
+            sessionStorage.setItem('avy_job_search', q);
+        } else {
+            sessionStorage.removeItem('avy_job_search');
+        }
+        window.router.navigate('/jobs');
+    });
+
+    bindLatestJobClicks();
 }
 
-function renderEmployerDashboard(app, user) {
+function renderLatestListingRows(jobs, companyMap) {
+    if (jobs.length === 0) {
+        return '<p class="text-gray-500">No active listings yet.</p>';
+    }
+    const now = Date.now();
+    return jobs
+        .map((job) => {
+            const company = companyMap[job.companyId] || {};
+            const isNew = now - new Date(job.createdAt) < 3 * 24 * 60 * 60 * 1000;
+            return `
+            <div class="card hover:shadow-lg transition cursor-pointer py-4" role="link" tabindex="0" data-job-id="${job.id}">
+                <div class="flex justify-between items-start gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">
+                            ${job.title}
+                            ${isNew ? '<span class="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded-full">NEW</span>' : ''}
+                        </h3>
+                        <p class="text-gray-600">${company.name || 'Company'} · ${job.location} · ${job.employmentType}</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+        `;
+        })
+        .join('');
+}
+
+function bindLatestJobClicks() {
+    document.querySelectorAll('[data-job-id]').forEach((el) => {
+        const id = el.getAttribute('data-job-id');
+        el.addEventListener('click', () => window.router.navigate(`/jobs/${id}`));
+        el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') window.router.navigate(`/jobs/${id}`);
+        });
+    });
+}
+
+function renderEmployerDashboard(app, user, path) {
     app.innerHTML = `
-        ${renderHeader(user)}
+        ${renderAppHeader(user, path)}
         
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
-                <!-- Welcome Section -->
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
                         Welcome, ${user.name}! 🏢
@@ -183,7 +221,6 @@ function renderEmployerDashboard(app, user) {
                     <p class="text-gray-600">Evergreen - Company Management Hub</p>
                 </div>
                 
-                <!-- Stats Cards -->
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -227,7 +264,6 @@ function renderEmployerDashboard(app, user) {
                 </div>
                 
                 <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Recent Job Postings -->
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-clipboard-list text-purple-600  mr-2"></i>
@@ -236,13 +272,12 @@ function renderEmployerDashboard(app, user) {
                         <div class="space-y-4">
                             ${renderMockEmployerJobs()}
                         </div>
-                        <button class="btn btn-primary mt-4">
+                        <a href="/employer/post-job" data-link class="btn btn-primary mt-4 inline-flex items-center">
                             <i class="fas fa-plus mr-2"></i>
                             Post New Job
-                        </button>
+                        </a>
                     </div>
                     
-                    <!-- Recent Candidates -->
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-users text-indigo-600 mr-2"></i>
@@ -251,7 +286,7 @@ function renderEmployerDashboard(app, user) {
                         <div class="space-y-4">
                             ${renderMockCandidates()}
                         </div>
-                        <a href="/jobs" data-link class="text-indigo-600 hover:text-indigo-800 font-semibold mt-4 inline-block">
+                        <a href="/employer/candidates" data-link class="text-indigo-600 hover:text-indigo-800 font-semibold mt-4 inline-block">
                             View All Candidates <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
@@ -259,19 +294,18 @@ function renderEmployerDashboard(app, user) {
             </div>
         </div>
     `;
-    
+
     document.getElementById('logoutBtn').addEventListener('click', () => {
         authService.logout();
     });
 }
 
-function renderAdminDashboard(app, user) {
+function renderAdminDashboard(app, user, path) {
     app.innerHTML = `
-        ${renderHeader(user)}
+        ${renderAppHeader(user, path)}
         
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
-                <!-- Welcome Section -->
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
                         Admin Dashboard ⚙️
@@ -279,7 +313,6 @@ function renderAdminDashboard(app, user) {
                     <p class="text-gray-600">Meridian - System Management & Analytics</p>
                 </div>
                 
-                <!-- Stats Cards -->
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -322,28 +355,26 @@ function renderAdminDashboard(app, user) {
                     </div>
                 </div>
                 
-                <!-- Admin Actions -->
                 <div class="grid md:grid-cols-3 gap-8 mb-8">
-                    <div class="card text-center cursor-pointer hover:shadow-xl">
+                    <a href="/admin/users" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-user-cog text-5xl text-purple-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Users</h3>
                         <p class="text-gray-600 mt-2">View and manage user accounts</p>
-                    </div>
+                    </a>
                     
-                    <div class="card text-center cursor-pointer hover:shadow-xl">
+                    <a href="/admin/companies" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-building text-5xl text-indigo-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Companies</h3>
                         <p class="text-gray-600 mt-2">Oversee company profiles</p>
-                    </div>
+                    </a>
                     
-                    <div class="card text-center cursor-pointer hover:shadow-xl">
+                    <a href="/admin/analytics" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-chart-line text-5xl text-green-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Analytics</h3>
                         <p class="text-gray-600 mt-2">View system analytics</p>
-                    </div>
+                    </a>
                 </div>
                 
-                <!-- Recent Activity -->
                 <div class="card">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-history text-purple-600 mr-2"></i>
@@ -356,21 +387,22 @@ function renderAdminDashboard(app, user) {
             </div>
         </div>
     `;
-    
+
     document.getElementById('logoutBtn').addEventListener('click', () => {
         authService.logout();
     });
 }
 
-// Mock data rendering functions
 function renderMockApplications() {
     const applications = [
         { company: 'TechCorp', position: 'Frontend Developer', status: 'Under Review', statusColor: 'yellow' },
         { company: 'InnoSoft', position: 'Full Stack Developer', status: 'Interview', statusColor: 'green' },
         { company: 'DataWorks', position: 'Junior Developer', status: 'Pending', statusColor: 'gray' }
     ];
-    
-    return applications.map(app => `
+
+    return applications
+        .map(
+            (app) => `
         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
             <div>
                 <p class="font-semibold text-gray-800">${app.position}</p>
@@ -380,7 +412,9 @@ function renderMockApplications() {
                 ${app.status}
             </span>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function renderMockJobs() {
@@ -389,13 +423,17 @@ function renderMockJobs() {
         { company: 'StartupX', position: 'DevOps Engineer', type: 'Contract' },
         { company: 'MegaCorp', position: 'Software Engineer', type: 'Full-time' }
     ];
-    
-    return jobs.map(job => `
+
+    return jobs
+        .map(
+            (job) => `
         <div class="p-3 bg-gray-50 rounded hover:bg-gray-100 transition cursor-pointer">
             <p class="font-semibold text-gray-800">${job.position}</p>
             <p class="text-sm text-gray-600">${job.company} • ${job.type}</p>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function renderMockEmployerJobs() {
@@ -404,8 +442,10 @@ function renderMockEmployerJobs() {
         { position: 'Product Manager', applications: 8, status: 'Active' },
         { position: 'UX Designer', applications: 15, status: 'Active' }
     ];
-    
-    return jobs.map(job => `
+
+    return jobs
+        .map(
+            (job) => `
         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
             <div>
                 <p class="font-semibold text-gray-800">${job.position}</p>
@@ -415,7 +455,9 @@ function renderMockEmployerJobs() {
                 ${job.status}
             </span>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function renderMockCandidates() {
@@ -424,8 +466,10 @@ function renderMockCandidates() {
         { name: 'John Doe', position: 'Backend Developer', match: '88%' },
         { name: 'Alice Johnson', position: 'Full Stack Developer', match: '92%' }
     ];
-    
-    return candidates.map(candidate => `
+
+    return candidates
+        .map(
+            (candidate) => `
         <div class="flex justify-between items-center p-3 bg-gray-50 rounded hover:bg-gray-100 transition cursor-pointer">
             <div>
                 <p class="font-semibold text-gray-800">${candidate.name}</p>
@@ -435,7 +479,9 @@ function renderMockCandidates() {
                 ${candidate.match} Match
             </span>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function renderMockActivity() {
@@ -445,8 +491,10 @@ function renderMockActivity() {
         { type: 'application', text: '3 new applications received', time: '1 hour ago' },
         { type: 'company', text: 'Company profile updated: InnoSoft', time: '2 hours ago' }
     ];
-    
-    return activities.map(activity => `
+
+    return activities
+        .map(
+            (activity) => `
         <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded">
             <i class="fas fa-circle text-xs text-purple-600 mt-1"></i>
             <div class="flex-1">
@@ -454,5 +502,7 @@ function renderMockActivity() {
                 <p class="text-xs text-gray-500">${activity.time}</p>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }

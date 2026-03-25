@@ -79,6 +79,12 @@ class AuthService {
                 avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=667eea&color=fff`,
                 createdAt: new Date().toISOString()
             };
+            if (mockUser.role === 'employer') {
+                mockUser.companyId = userData.companyId || 'c1';
+                if (userData.companyName) mockUser.companyName = userData.companyName;
+                if (userData.companyIndustry) mockUser.companyIndustry = userData.companyIndustry;
+                if (userData.companySize) mockUser.companySize = userData.companySize;
+            }
             
             const mockToken = this.generateMockToken();
             
@@ -197,7 +203,7 @@ class AuthService {
             name = 'Student User';
         }
         
-        return {
+        const base = {
             id: Date.now().toString(),
             email,
             name,
@@ -205,6 +211,10 @@ class AuthService {
             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=667eea&color=fff`,
             createdAt: new Date().toISOString()
         };
+        if (role === 'employer') {
+            base.companyId = 'c1';
+        }
+        return base;
     }
 }
 

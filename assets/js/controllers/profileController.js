@@ -4,6 +4,7 @@
  */
 import authService from '../services/authService.js';
 import mockDataService from '../services/mockDataService.js';
+import { renderAppHeader } from '../views/appHeader.js';
 
 export default async function profileController() {
     const app = document.getElementById('app');
@@ -17,7 +18,7 @@ export default async function profileController() {
     const cvProfile = await mockDataService.getCVProfile(user.id);
     
     app.innerHTML = `
-        ${renderHeader(user)}
+        ${renderAppHeader(user, window.location.pathname)}
         
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
@@ -229,40 +230,6 @@ export default async function profileController() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => authService.logout());
     }
-}
-
-function renderHeader(user) {
-    return `
-        <nav class="bg-white shadow-md">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex justify-between items-center">
-                    <div class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                        Avy
-                    </div>
-                    <div class="flex items-center space-x-6">
-                        <a href="/dashboard" data-link class="text-gray-600 hover:text-purple-600 transition">
-                            <i class="fas fa-home mr-1"></i> Dashboard
-                        </a>
-                        <a href="/jobs" data-link class="text-gray-600 hover:text-purple-600 transition">
-                            <i class="fas fa-briefcase mr-1"></i> Jobs
-                        </a>
-                        <a href="/companies" data-link class="text-gray-600 hover:text-purple-600 transition">
-                            <i class="fas fa-building mr-1"></i> Companies
-                        </a>
-                        <a href="/profile" data-link class="text-purple-600 font-semibold">
-                            <i class="fas fa-user mr-1"></i> Profile
-                        </a>
-                        <div class="flex items-center space-x-3">
-                            <img src="${user.avatar}" alt="${user.name}" class="w-10 h-10 rounded-full border-2 border-purple-600" />
-                            <button id="logoutBtn" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-sign-out-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    `;
 }
 
 function renderWorkExperienceList(workExp) {

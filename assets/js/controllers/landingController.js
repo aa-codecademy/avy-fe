@@ -17,10 +17,10 @@ export default async function landingPageController() {
         <nav class="bg-white shadow-md">
             <div class="container mx-auto px-4 py-4">
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-2">
-                        <div class="text-2xl font-bold text-brand-primary">Avy</div>
+                    <a href="/" data-link class="flex items-center space-x-2 hover:opacity-90">
+                        <span class="text-2xl font-bold text-brand-primary">Avy</span>
                         <span class="text-sm text-gray-500">by Avenga Academy</span>
-                    </div>
+                    </a>
                     <div class="space-x-4">
                         <a href="/login" data-link class="text-gray-600 hover-text-brand transition">Login</a>
                         <a href="/login" data-link class="btn btn-primary">Get Started</a>

@@ -17,11 +17,11 @@ class Router {
             this.navigate(window.location.pathname, false);
         });
         
-        // Intercept all link clicks
         document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-link]')) {
+            const link = e.target.closest('[data-link]');
+            if (link) {
                 e.preventDefault();
-                this.navigate(e.target.getAttribute('href'));
+                this.navigate(link.getAttribute('href'));
             }
         });
     }

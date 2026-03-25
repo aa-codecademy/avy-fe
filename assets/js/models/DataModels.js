@@ -109,7 +109,8 @@ export class Job {
         this.responsibilities = data.responsibilities || '';
         this.qualifications = data.qualifications || '';
         this.benefits = data.benefits || '';
-        this.employmentType = data.employmentType || 'full-time'; // full-time, part-time, contract, internship
+        this.employmentType = data.employmentType || 'full-time'; // full-time, part-time, contract, internship, freelance
+        this.applicationMode = data.applicationMode || 'easy_apply'; // easy_apply, cv_required
         this.location = data.location || '';
         this.workMode = data.workMode || 'onsite'; // onsite, remote, hybrid
         this.experienceLevel = data.experienceLevel || 'junior'; // intern, junior, mid, senior

@@ -4,6 +4,7 @@
  */
 import authService from '../services/authService.js';
 import mockDataService from '../services/mockDataService.js';
+import { renderAppHeader } from '../views/appHeader.js';
 
 export default async function jobBoardController() {
     const app = document.getElementById('app');
@@ -23,9 +24,10 @@ export default async function jobBoardController() {
     // Create company lookup map
     const companyMap = {};
     companies.forEach(c => companyMap[c.id] = c);
-    
+    const industries = [...new Set(companies.map((c) => c.industry).filter(Boolean))].sort();
+
     app.innerHTML = `
-        ${renderHeader(user)}
+        ${renderAppHeader(user, window.location.pathname)}
         
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
@@ -55,8 +57,22 @@ export default async function jobBoardController() {
                                         type="text" 
                                         id="searchInput" 
                                         class="form-input" 
-                                        placeholder="Keywords..."
+                                        placeholder="Title, company, location, skills..."
                                     />
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Industry</label>
+                                    <select id="industryFilter" class="form-input">
+                                        <option value="">All industries</option>
+                                        ${industries.map((ind) => `<option value="${ind}">${ind}</option>`).join('')}
+                                    </select>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Skills</label>
+                                    <input type="text" id="skillsFilter" class="form-input" placeholder="e.g. React, SQL" />
+                                    <p class="text-xs text-gray-500 mt-1">Comma-separated</p>
                                 </div>
                                 
                                 <!-- Employment Type -->
@@ -66,6 +82,7 @@ export default async function jobBoardController() {
                                         <option value="">All</option>
                                         <option value="full-time">Full-time</option>
                                         <option value="part-time">Part-time</option>
+                                        <option value="freelance">Freelance</option>
                                         <option value="contract">Contract</option>
                                         <option value="internship">Internship</option>
                                     </select>
@@ -156,40 +173,6 @@ export default async function jobBoardController() {
     }
 }
 
-function renderHeader(user) {
-    return `
-        <nav class="bg-white shadow-md">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex justify-between items-center">
-                    <div class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                        Avy
-                    </div>
-                    <div class="flex items-center space-x-6">
-                        <a href="/dashboard" data-link class="text-gray-600 hover:text-purple-600 transition">
-                            <i class="fas fa-home mr-1"></i> Dashboard
-                        </a>
-                        <a href="/jobs" data-link class="text-purple-600 font-semibold">
-                            <i class="fas fa-briefcase mr-1"></i> Jobs
-                        </a>
-                        <a href="/companies" data-link class="text-gray-600 hover:text-purple-600 transition">
-                            <i class="fas fa-building mr-1"></i> Companies
-                        </a>
-                        <a href="/profile" data-link class="text-gray-600 hover:text-purple-600 transition">
-                            <i class="fas fa-user mr-1"></i> Profile
-                        </a>
-                        <div class="flex items-center space-x-3">
-                            <img src="${user.avatar}" alt="${user.name}" class="w-10 h-10 rounded-full border-2 border-purple-600" />
-                            <button id="logoutBtn" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-sign-out-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    `;
-}
-
 function renderJobGrid(jobs, companyMap) {
     if (jobs.length === 0) {
         return '';
@@ -264,6 +247,8 @@ function renderJobGrid(jobs, companyMap) {
 
 function setupEventListeners(allJobs, companyMap) {
     const searchInput = document.getElementById('searchInput');
+    const industryFilter = document.getElementById('industryFilter');
+    const skillsFilter = document.getElementById('skillsFilter');
     const employmentTypeFilter = document.getElementById('employmentTypeFilter');
     const workModeFilter = document.getElementById('workModeFilter');
     const experienceLevelFilter = document.getElementById('experienceLevelFilter');
@@ -271,17 +256,32 @@ function setupEventListeners(allJobs, companyMap) {
     const applyFiltersBtn = document.getElementById('applyFiltersBtn');
     const clearFiltersBtn = document.getElementById('clearFiltersBtn');
     const sortBy = document.getElementById('sortBy');
-    
+
+    const pendingSearch = sessionStorage.getItem('avy_job_search');
+    if (pendingSearch) {
+        searchInput.value = pendingSearch;
+        sessionStorage.removeItem('avy_job_search');
+    }
+
     const applyFilters = async () => {
+        const skillsRaw = skillsFilter.value.trim();
+        const skillsList = skillsRaw
+            ? skillsRaw
+                  .split(',')
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+            : [];
         const filters = {
             status: 'active',
             search: searchInput.value,
+            industry: industryFilter.value,
+            skills: skillsList.length ? skillsList : undefined,
             employmentType: employmentTypeFilter.value,
             workMode: workModeFilter.value,
             experienceLevel: experienceLevelFilter.value,
             companyId: companyFilter.value
         };
-        
+
         const filteredJobs = await mockDataService.getAllJobs(filters);
         
         // Apply sorting
@@ -307,6 +307,8 @@ function setupEventListeners(allJobs, companyMap) {
     
     clearFiltersBtn.addEventListener('click', () => {
         searchInput.value = '';
+        industryFilter.value = '';
+        skillsFilter.value = '';
         employmentTypeFilter.value = '';
         workModeFilter.value = '';
         experienceLevelFilter.value = '';
@@ -317,12 +319,15 @@ function setupEventListeners(allJobs, companyMap) {
     
     sortBy.addEventListener('change', applyFilters);
     
-    // Enter key on search
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             applyFilters();
         }
     });
+
+    if (pendingSearch) {
+        applyFilters();
+    }
 }
 
 function sortJobs(jobs, sortBy) {

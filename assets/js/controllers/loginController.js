@@ -17,9 +17,11 @@ export default async function loginController() {
             <div class="card max-w-md w-full fade-in">
                 <!-- Logo -->
                 <div class="text-center mb-8">
-                    <h1 class="text-4xl font-bold mb-2 text-brand-primary">
-                        Avy
-                    </h1>
+                    <a href="/" data-link class="inline-block">
+                        <h1 class="text-4xl font-bold mb-2 text-brand-primary hover:opacity-90">
+                            Avy
+                        </h1>
+                    </a>
                     <p class="text-gray-600">Sign in to your account</p>
                 </div>
                 
@@ -179,6 +181,29 @@ function showRegisterModal() {
                         <option value="employer">Employer</option>
                     </select>
                 </div>
+
+                <div id="employerFields" class="hidden space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p class="text-sm font-semibold text-gray-700">Company account</p>
+                    <div class="form-group">
+                        <label for="regCompanyName" class="form-label">Company name *</label>
+                        <input type="text" id="regCompanyName" class="form-input" placeholder="Your company name" />
+                    </div>
+                    <div class="form-group">
+                        <label for="regCompanyIndustry" class="form-label">Industry *</label>
+                        <input type="text" id="regCompanyIndustry" class="form-input" placeholder="e.g. Software Development" />
+                    </div>
+                    <div class="form-group">
+                        <label for="regCompanySize" class="form-label">Company size *</label>
+                        <select id="regCompanySize" class="form-input">
+                            <option value="">Select size...</option>
+                            <option value="1-10">1–10 employees</option>
+                            <option value="11-50">11–50 employees</option>
+                            <option value="51-200">51–200 employees</option>
+                            <option value="201-500">201–500 employees</option>
+                            <option value="501+">501+ employees</option>
+                        </select>
+                    </div>
+                </div>
                 
                 <div class="form-group">
                     <label for="regPassword" class="form-label">Password</label>
@@ -201,6 +226,18 @@ function showRegisterModal() {
     `;
     
     document.body.appendChild(modal);
+
+    const regRoleEl = modal.querySelector('#regRole');
+    const employerFieldsEl = modal.querySelector('#employerFields');
+    const toggleEmployerFields = () => {
+        const on = regRoleEl.value === 'employer';
+        employerFieldsEl.classList.toggle('hidden', !on);
+        modal.querySelector('#regCompanyName').required = on;
+        modal.querySelector('#regCompanyIndustry').required = on;
+        modal.querySelector('#regCompanySize').required = on;
+    };
+    regRoleEl.addEventListener('change', toggleEmployerFields);
+    toggleEmployerFields();
     
     // Close modal handler
     const closeModalBtn = modal.querySelector('#closeModalBtn');
@@ -220,13 +257,25 @@ function showRegisterModal() {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const role = document.getElementById('regRole').value;
         const userData = {
             name: document.getElementById('regName').value,
             email: document.getElementById('regEmail').value,
-            role: document.getElementById('regRole').value,
+            role,
             password: document.getElementById('regPassword').value
         };
-        
+        if (role === 'employer') {
+            userData.companyName = document.getElementById('regCompanyName').value.trim();
+            userData.companyIndustry = document.getElementById('regCompanyIndustry').value.trim();
+            userData.companySize = document.getElementById('regCompanySize').value;
+            if (!userData.companyName || !userData.companyIndustry || !userData.companySize) {
+                const errorMsg = modal.querySelector('#regErrorMessage');
+                errorMsg.textContent = 'Please complete company name, industry, and size.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+        }
+
         try {
             await window.authService.register(userData);
             document.body.removeChild(modal);
