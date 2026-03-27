@@ -2,9 +2,9 @@
  * Companies Controller
  * Browse and search companies
  */
-import authService from '../services/authService.js';
-import mockDataService from '../services/mockDataService.js';
-import { renderAppHeader } from '../views/appHeader.js';
+import authService from '../../services/authService.js';
+import mockDataService from '../../services/mockDataService.js';
+import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function companiesController() {
     const app = document.getElementById('app');
@@ -23,7 +23,6 @@ export default async function companiesController() {
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
                 <div class="fade-in">
-                    <!-- Page Header -->
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-building text-purple-600 mr-3"></i>
@@ -32,7 +31,6 @@ export default async function companiesController() {
                         <p class="text-gray-600">Discover companies hiring Avy talent</p>
                     </div>
                     
-                    <!-- Search -->
                     <div class="mb-6">
                         <input 
                             type="text" 
@@ -42,12 +40,10 @@ export default async function companiesController() {
                         />
                     </div>
                     
-                    <!-- Companies Grid -->
                     <div id="companiesGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         ${renderCompaniesGrid(companies)}
                     </div>
                     
-                    <!-- Empty State -->
                     <div id="emptyState" class="hidden text-center py-20">
                         <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
                         <h3 class="text-2xl font-bold text-gray-600 mb-2">No companies found</h3>
@@ -58,7 +54,6 @@ export default async function companiesController() {
         </div>
     `;
     
-    // Search functionality
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();

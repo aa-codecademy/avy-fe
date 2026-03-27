@@ -10,14 +10,14 @@ import router from './router.js';
 import landingController from './controllers/landingController.js';
 import loginController from './controllers/loginController.js';
 import dashboardController from './controllers/dashboardController.js';
-import jobBoardController from './controllers/jobBoardController.js';
-import jobDetailController from './controllers/jobDetailController.js';
-import companiesController from './controllers/companiesController.js';
-import profileController from './controllers/profileController.js';
-import postJobController from './controllers/postJobController.js';
-import candidatesController from './controllers/candidatesController.js';
-import adminUsersController from './controllers/adminUsersController.js';
-import adminAnalyticsController from './controllers/adminAnalyticsController.js';
+import jobBoardController from './controllers/bloom/jobBoardController.js';
+import jobDetailController from './controllers/bloom/jobDetailController.js';
+import companiesController from './controllers/bloom/companiesController.js';
+import profileController from './controllers/bloom/profileController.js';
+import postJobController from './controllers/evergreen/postJobController.js';
+import candidatesController from './controllers/evergreen/candidatesController.js';
+import adminUsersController from './controllers/meridian/adminUsersController.js';
+import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
 import notFoundController from './controllers/notFoundController.js';
 
 // Import services (make available globally)

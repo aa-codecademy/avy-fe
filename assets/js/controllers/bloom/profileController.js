@@ -2,9 +2,9 @@
  * Profile/CV Controller
  * CV Form for students and alumni based on Avy User Requirements
  */
-import authService from '../services/authService.js';
-import mockDataService from '../services/mockDataService.js';
-import { renderAppHeader } from '../views/appHeader.js';
+import authService from '../../services/authService.js';
+import mockDataService from '../../services/mockDataService.js';
+import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function profileController() {
     const app = document.getElementById('app');
@@ -23,7 +23,6 @@ export default async function profileController() {
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
-                    <!-- Page Header -->
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-user-circle text-purple-600 mr-3"></i>
@@ -32,7 +31,6 @@ export default async function profileController() {
                         <p class="text-gray-600">Manage your professional profile</p>
                     </div>
                     
-                    <!-- Profile Information Card -->
                     <div class="card mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
@@ -45,7 +43,6 @@ export default async function profileController() {
                         </div>
                         
                         <div class="grid md:grid-cols-2 gap-6">
-                            <!-- Photo Upload -->
                             <div class="md:col-span-2 flex items-center gap-4">
                                 <img src="${user.avatar}" alt="${user.name}" class="w-24 h-24 rounded-full border-4 border-purple-200" />
                                 <div>
@@ -116,7 +113,6 @@ export default async function profileController() {
                         </button>
                     </div>
                     
-                    <!-- Work Experience -->
                     <div class="card mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
@@ -133,7 +129,6 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <!-- Education -->
                     <div class="card mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
@@ -150,7 +145,6 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <!-- Academy Attendance -->
                     <div class="card mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
@@ -167,7 +161,6 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <!-- Skills -->
                     <div class="card mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
@@ -190,7 +183,6 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <!-- Languages -->
                     <div class="card mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
@@ -207,7 +199,6 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <!-- Save All -->
                     <div class="card bg-purple-50 border-2 border-purple-200">
                         <div class="text-center">
                             <p class="text-purple-900 font-semibold mb-4">
@@ -333,13 +324,11 @@ function renderLanguagesList(languages) {
 }
 
 function setupEventListeners(user, cvProfile) {
-    // Save Personal Info
     document.getElementById('savePersonalInfoBtn').addEventListener('click', async () => {
         const btn = document.getElementById('savePersonalInfoBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
         
-        // Collect data and save (mock)
         await new Promise(resolve => setTimeout(resolve, 500));
         
         btn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
@@ -349,7 +338,6 @@ function setupEventListeners(user, cvProfile) {
         }, 2000);
     });
     
-    // Add Skill
     const skillInput = document.getElementById('skillInput');
     document.getElementById('addSkillBtn').addEventListener('click', () => {
         const skill = skillInput.value.trim();
@@ -366,13 +354,11 @@ function setupEventListeners(user, cvProfile) {
         }
     });
     
-    // Global functions for removing items (attach to window)
     window.removeSkill = (skill) => {
         cvProfile.skills = cvProfile.skills.filter(s => s !== skill);
         document.getElementById('skillsList').innerHTML = renderSkillsList(cvProfile.skills);
     };
     
-    // Save Complete CV
     document.getElementById('saveCVBtn').addEventListener('click', async () => {
         const btn = document.getElementById('saveCVBtn');
         btn.disabled = true;

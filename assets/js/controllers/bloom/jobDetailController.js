@@ -2,9 +2,9 @@
  * Job Detail Controller
  * Shows job details and application form
  */
-import authService from '../services/authService.js';
-import mockDataService from '../services/mockDataService.js';
-import { renderAppHeader } from '../views/appHeader.js';
+import authService from '../../services/authService.js';
+import mockDataService from '../../services/mockDataService.js';
+import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function jobDetailController(params = {}) {
     const app = document.getElementById('app');
@@ -15,10 +15,8 @@ export default async function jobDetailController(params = {}) {
         return;
     }
     
-    // Get jobId from params
     const jobId = params.id;
     
-    // Load data
     const [job, company, userApplications] = await Promise.all([
         mockDataService.getJobById(jobId),
         mockDataService.getCompanyById(jobId ? (await mockDataService.getJobById(jobId))?.companyId : null),
@@ -39,17 +37,14 @@ export default async function jobDetailController(params = {}) {
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
                 <div class="fade-in">
-                    <!-- Back Button -->
                     <button onclick="window.router.navigate('/jobs')" class="mb-6 text-gray-600 hover:text-purple-600 transition">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Back to Jobs
                     </button>
                     
                     <div class="grid lg:grid-cols-3 gap-6">
-                        <!-- Main Content -->
                         <div class="lg:col-span-2">
                             <div class="card mb-6">
-                                <!-- Job Header -->
                                 <div class="flex items-start gap-4 mb-6">
                                     <img src="${company.logo}" alt="${company.name}" class="w-20 h-20 rounded-lg" />
                                     <div class="flex-1">
@@ -72,7 +67,6 @@ export default async function jobDetailController(params = {}) {
                                     </div>
                                 </div>
                                 
-                                <!-- Salary -->
                                 ${job.salaryRange.min && job.salaryRange.max ? `
                                     <div class="mb-6 p-4 bg-green-50 rounded-lg">
                                         <p class="text-green-800 font-semibold">
@@ -82,25 +76,21 @@ export default async function jobDetailController(params = {}) {
                                     </div>
                                 ` : ''}
                                 
-                                <!-- Description -->
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">About the Job</h2>
                                     <p class="text-gray-700 leading-relaxed">${job.description}</p>
                                 </div>
                                 
-                                <!-- Responsibilities -->
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Responsibilities</h2>
                                     <div class="text-gray-700 leading-relaxed whitespace-pre-line">${job.responsibilities}</div>
                                 </div>
                                 
-                                <!-- Qualifications -->
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Required Qualifications</h2>
                                     <div class="text-gray-700 leading-relaxed whitespace-pre-line">${job.qualifications}</div>
                                 </div>
                                 
-                                <!-- Required Skills -->
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Required Skills</h2>
                                     <div class="flex flex-wrap gap-2">
@@ -112,7 +102,6 @@ export default async function jobDetailController(params = {}) {
                                     </div>
                                 </div>
                                 
-                                <!-- Nice to Have Skills -->
                                 ${job.niceToHaveSkills.length > 0 ? `
                                     <div class="mb-6">
                                         <h2 class="text-2xl font-bold text-gray-800 mb-3">Nice to Have</h2>
@@ -126,7 +115,6 @@ export default async function jobDetailController(params = {}) {
                                     </div>
                                 ` : ''}
                                 
-                                <!-- Benefits -->
                                 ${job.benefits ? `
                                     <div class="mb-6">
                                         <h2 class="text-2xl font-bold text-gray-800 mb-3">Benefits</h2>
@@ -135,7 +123,6 @@ export default async function jobDetailController(params = {}) {
                                 ` : ''}
                             </div>
                             
-                            <!-- Application Form -->
                             ${user.role !== 'employer' && !hasApplied ? `
                                 <div class="card">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-4">
@@ -187,9 +174,7 @@ export default async function jobDetailController(params = {}) {
                             ` : ''}
                         </div>
                         
-                        <!-- Sidebar -->
                         <div class="lg:col-span-1">
-                            <!-- Job Info -->
                             <div class="card mb-6 sticky top-4">
                                 <h3 class="text-xl font-bold text-gray-800 mb-4">Job Information</h3>
                                 
@@ -237,7 +222,6 @@ export default async function jobDetailController(params = {}) {
                                 
                                 <hr class="my-4" />
                                 
-                                <!-- Company Info -->
                                 <h3 class="text-xl font-bold text-gray-800 mb-3">About ${company.name}</h3>
                                 <p class="text-gray-700 text-sm mb-3">${company.description}</p>
                                 <a href="/companies/${company.id}" data-link class="text-purple-600 hover:text-purple-800 text-sm font-semibold">
@@ -259,7 +243,6 @@ export default async function jobDetailController(params = {}) {
         </div>
     `;
     
-    // Event listeners
     const applicationForm = document.getElementById('applicationForm');
     if (applicationForm && user.role !== 'employer') {
         applicationForm.addEventListener('submit', async (e) => {
@@ -278,7 +261,6 @@ export default async function jobDetailController(params = {}) {
                     coverLetter: coverLetter
                 });
                 
-                // Show success and reload
                 alert('Application submitted successfully!');
                 window.location.reload();
             } catch (error) {
@@ -294,4 +276,3 @@ export default async function jobDetailController(params = {}) {
         logoutBtn.addEventListener('click', () => authService.logout());
     }
 }
-

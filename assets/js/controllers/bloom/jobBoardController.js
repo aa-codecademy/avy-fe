@@ -2,9 +2,9 @@
  * Job Board Controller
  * Displays job listings with filters and search
  */
-import authService from '../services/authService.js';
-import mockDataService from '../services/mockDataService.js';
-import { renderAppHeader } from '../views/appHeader.js';
+import authService from '../../services/authService.js';
+import mockDataService from '../../services/mockDataService.js';
+import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function jobBoardController() {
     const app = document.getElementById('app');
@@ -15,13 +15,11 @@ export default async function jobBoardController() {
         return;
     }
     
-    // Load initial data
     const [jobs, companies] = await Promise.all([
         mockDataService.getAllJobs({ status: 'active' }),
         mockDataService.getAllCompanies()
     ]);
     
-    // Create company lookup map
     const companyMap = {};
     companies.forEach(c => companyMap[c.id] = c);
     const industries = [...new Set(companies.map((c) => c.industry).filter(Boolean))].sort();
@@ -32,7 +30,6 @@ export default async function jobBoardController() {
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
                 <div class="fade-in">
-                    <!-- Page Header -->
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-briefcase text-purple-600 mr-3"></i>
@@ -42,7 +39,6 @@ export default async function jobBoardController() {
                     </div>
                     
                     <div class="grid lg:grid-cols-4 gap-6">
-                        <!-- Filters Sidebar -->
                         <div class="lg:col-span-1">
                             <div class="card sticky top-4">
                                 <h2 class="text-xl font-bold text-gray-800 mb-4">
@@ -50,7 +46,6 @@ export default async function jobBoardController() {
                                     Filters
                                 </h2>
                                 
-                                <!-- Search -->
                                 <div class="mb-4">
                                     <label class="form-label">Search</label>
                                     <input 
@@ -75,7 +70,6 @@ export default async function jobBoardController() {
                                     <p class="text-xs text-gray-500 mt-1">Comma-separated</p>
                                 </div>
                                 
-                                <!-- Employment Type -->
                                 <div class="mb-4">
                                     <label class="form-label">Employment Type</label>
                                     <select id="employmentTypeFilter" class="form-input">
@@ -88,7 +82,6 @@ export default async function jobBoardController() {
                                     </select>
                                 </div>
                                 
-                                <!-- Work Mode -->
                                 <div class="mb-4">
                                     <label class="form-label">Work Mode</label>
                                     <select id="workModeFilter" class="form-input">
@@ -99,7 +92,6 @@ export default async function jobBoardController() {
                                     </select>
                                 </div>
                                 
-                                <!-- Experience Level -->
                                 <div class="mb-4">
                                     <label class="form-label">Experience Level</label>
                                     <select id="experienceLevelFilter" class="form-input">
@@ -111,7 +103,6 @@ export default async function jobBoardController() {
                                     </select>
                                 </div>
                                 
-                                <!-- Company -->
                                 <div class="mb-4">
                                     <label class="form-label">Company</label>
                                     <select id="companyFilter" class="form-input">
@@ -130,9 +121,7 @@ export default async function jobBoardController() {
                             </div>
                         </div>
                         
-                        <!-- Job Listings -->
                         <div class="lg:col-span-3">
-                            <!-- Results Header -->
                             <div class="flex justify-between items-center mb-4">
                                 <p class="text-gray-600">
                                     <span id="jobCount">${jobs.length}</span> jobs found
@@ -145,12 +134,10 @@ export default async function jobBoardController() {
                                 </select>
                             </div>
                             
-                            <!-- Job Grid -->
                             <div id="jobGrid" class="space-y-4">
                                 ${renderJobGrid(jobs, companyMap)}
                             </div>
                             
-                            <!-- Empty State -->
                             <div id="emptyState" class="hidden text-center py-20">
                                 <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
                                 <h3 class="text-2xl font-bold text-gray-600 mb-2">No jobs found</h3>
@@ -163,10 +150,8 @@ export default async function jobBoardController() {
         </div>
     `;
     
-    // Add event listeners
     setupEventListeners(jobs, companyMap);
     
-    // Logout handler
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => authService.logout());
@@ -186,7 +171,6 @@ function renderJobGrid(jobs, companyMap) {
         return `
             <div class="card hover:shadow-xl transition cursor-pointer" onclick="window.router.navigate('/jobs/${job.id}')">
                 <div class="flex items-start gap-4">
-                    <!-- Company Logo -->
                     <img src="${company.logo}" alt="${company.name}" class="w-16 h-16 rounded-lg" />
                     
                     <div class="flex-1">
@@ -284,10 +268,8 @@ function setupEventListeners(allJobs, companyMap) {
 
         const filteredJobs = await mockDataService.getAllJobs(filters);
         
-        // Apply sorting
         sortJobs(filteredJobs, sortBy.value);
         
-        // Update grid
         const jobGrid = document.getElementById('jobGrid');
         const emptyState = document.getElementById('emptyState');
         const jobCount = document.getElementById('jobCount');

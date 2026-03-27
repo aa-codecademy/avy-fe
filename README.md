@@ -23,25 +23,12 @@ Avy by Avenga Academy - A web platform connecting students, alumni, and companie
 This is a pure vanilla JavaScript application that runs directly in the browser. No npm install, no build step, no dependencies!
 
 1. Clone the repository (or if you're using the submodule, it's already cloned)
-
 2. Start a local web server:
-
-    **Option 1: VS Code Live Server Extension**
-    - Install the "Live Server" extension in VS Code
-    - Right-click on `index.html` and select "Open with Live Server"
-
+  **Option 1: VS Code Live Server Extension**
+  - Install the "Live Server" extension in VS Code
+  - Right-click on `index.html` and select "Open with Live Server"
     **Option 2: Python HTTP Server**
-
-    ```bash
-    python -m http.server 8000
-    ```
-
     **Option 3: Node.js http-server (if you have Node.js)**
-
-    ```bash
-    npx http-server -p 8000
-    ```
-
 3. Open your browser and navigate to `http://localhost:8000` (or the port your server uses)
 
 ## 🏃 Running the Application
@@ -204,7 +191,7 @@ The mock data service can be easily replaced with real API calls in Phase 2!
 2. **Start a local web server** (see Installation section)
 3. **Open in browser** at `http://localhost:8000` (or your server's port)
 4. **Try demo login:**
-    - Email: `student@avy.com` (or `admin@avy.com`, `company@avy.com`)
+  - Email: `student@avy.com` (or `admin@avy.com`, `company@avy.com`)
     - Password: Any password (Phase 1 demo mode)
 5. **Explore the dashboard** based on your role!
 
@@ -234,7 +221,7 @@ export default async function myPageController() {
 }
 ```
 
-2. Register route in `assets/js/main.js`:
+1. Register route in `assets/js/main.js`:
 
 ```javascript
 import myPageController from './controllers/myPageController.js';
@@ -300,3 +287,4 @@ Phase 1: Frontend Only | Phase 2: Full Stack Integration
 - **[Branching strategy - The story](./docs/Branching%20strategy%20-%20The%20story.md)** - Why we branch and how we work
 - **[Branching strategy - Resolving conflicts](./docs/Branching%20strategy%20-%20Resolving%20conflicts.md)** - How to resolve merge conflicts
 - **[Branching strategy - Using Github Desktop](./docs/Branching%20strategy%20-%20Using%20Github%20Desktop.md)** - Using GitHub Desktop for branching
+
