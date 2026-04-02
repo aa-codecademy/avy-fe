@@ -1,6 +1,6 @@
 # User Stories — Students & Company
 
-*Source: User stories Students.docx (original student-facing content was in Macedonian; translated for consistency.)*
+_Source: User stories Students.docx (original student-facing content was in Macedonian; translated for consistency.)_
 
 ## Student
 
@@ -125,13 +125,12 @@
 ### Personalized notifications
 
 - As a platform user, I want to choose whether I receive notifications for a personalized experience over time:
-
-  - Messages
-  - Interview invitation
-  - Status for the job I applied to
-  - Successful application
-  - Successful password change
-  - Successful registration
+    - Messages
+    - Interview invitation
+    - Status for the job I applied to
+    - Successful application
+    - Successful password change
+    - Successful registration
 
 **Acceptance criteria**
 
@@ -239,11 +238,10 @@
 - As a company, I want to open, edit, or close job announcements so that I can recruit suitable staff.
 - I want to write listings in a predefined form so that they are easy to understand.
 - As a company, I want notifications for:
-
-  - Successful registration
-  - Successful password change
-  - Successful candidate application for a published posting
-  - Each incoming application
+    - Successful registration
+    - Successful password change
+    - Successful candidate application for a published posting
+    - Each incoming application
 
 - As a company, I want to see all students who applied to a posting so that I can review candidates.
 - As a company, I want to search students by skills so that I can recruit those who match the requirements.
