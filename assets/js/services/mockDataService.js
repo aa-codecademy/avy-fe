@@ -646,6 +646,46 @@ class MockDataService {
                 coverLetter: 'Excited about the internship opportunity...',
                 appliedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             }),
+            new Application({
+                id: 'a4',
+                jobId: 'j1',
+                userId: '3',
+                status: 'interview',
+                coverLetter: 'I have strong skills in React and JavaScript...',
+                appliedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Application({
+                id: 'a5',
+                jobId: 'j1',
+                userId: '4',
+                status: 'rejected',
+                coverLetter: 'Looking forward to contributing to your team...',
+                appliedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Application({
+                id: 'a6',
+                jobId: 'j2',
+                userId: '5',
+                status: 'under_review',
+                coverLetter: 'My backend development experience aligns well...',
+                appliedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Application({
+                id: 'a7',
+                jobId: 'j4',
+                userId: '6',
+                status: 'pending',
+                coverLetter: 'Excited to work on data analytics projects...',
+                appliedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Application({
+                id: 'a8',
+                jobId: 'j4',
+                userId: '7',
+                status: 'hired',
+                coverLetter: 'I have extensive experience with data analysis...',
+                appliedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
         ];
     }
 
@@ -865,6 +905,54 @@ class MockDataService {
     async getAnalytics() {
         await this.simulateDelay();
         return this.analytics;
+    }
+
+    async getJobApplicationAnalytics(jobId) {
+        await this.simulateDelay();
+        
+        const job = this.jobs.find(j => j.id === jobId);
+        if (!job) return null;
+        
+        const applications = this.applications.filter(a => a.jobId === jobId);
+        const company = this.companies.find(c => c.id === job.companyId);
+        
+        // Status breakdown
+        const statusBreakdown = {
+            pending: applications.filter(a => a.status === 'pending').length,
+            under_review: applications.filter(a => a.status === 'under_review').length,
+            interview: applications.filter(a => a.status === 'interview').length,
+            rejected: applications.filter(a => a.status === 'rejected').length,
+            hired: applications.filter(a => a.status === 'hired').length,
+        };
+        
+        // Application mode breakdown
+        const easyApplyCount = applications.length; // All current applications are easy apply
+        const fullApplicationCount = 0; // No full applications in current mock data
+        
+        return {
+            job: {
+                id: job.id,
+                title: job.title,
+                companyName: company?.name || 'Unknown Company',
+                applicationMode: job.applicationMode,
+                createdAt: job.createdAt,
+                status: job.status,
+            },
+            totalApplications: applications.length,
+            statusBreakdown,
+            applicationModeBreakdown: {
+                easyApply: easyApplyCount,
+                fullApplication: fullApplicationCount,
+            },
+            recentApplications: applications
+                .sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt))
+                .slice(0, 5)
+                .map(app => ({
+                    id: app.id,
+                    appliedAt: app.appliedAt,
+                    status: app.status,
+                })),
+        };
     }
 
     /**
