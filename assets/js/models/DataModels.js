@@ -118,7 +118,7 @@ export class Job {
         this.niceToHaveSkills = data.niceToHaveSkills || [];
         this.salaryRange = data.salaryRange || { min: 0, max: 0, currency: 'EUR' };
         this.applicationDeadline = data.applicationDeadline || '';
-        this.status = data.status || 'active'; // active, paused, closed
+        this.status = data.status || 'pending'; // pending, active, paused, closed
         this.views = data.views || 0;
         this.applications = data.applications || 0;
         this.isPriority = data.isPriority || false; // Premium feature
