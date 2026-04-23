@@ -36,6 +36,7 @@ export default async function dashboardController() {
 async function renderStudentDashboard(app, user, path) {
     const moduleName = user.role === 'alumni' ? 'Bloom (Alumni)' : 'Bloom (Student)';
     const companies = await mockDataService.getAllCompanies();
+    const featuredCompanies = companies.filter((c) => c.featured);
     const companyMap = Object.fromEntries(companies.map((c) => [c.id, c]));
     let allJobs = await mockDataService.getAllJobs({ status: 'active' });
     const latestJobs = [...allJobs]
@@ -66,6 +67,14 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-search mr-2"></i> Search jobs
                         </button>
                     </div>
+                </div>
+
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-star text-yellow-500 mr-2"></i>
+                        Featured Employers
+                    </h2>
+                    ${renderFeaturedCompanies(featuredCompanies)}
                 </div>
 
                 <div class="mb-8">
@@ -206,6 +215,43 @@ function bindLatestJobClicks() {
             if (e.key === 'Enter') window.router.navigate(`/jobs/${id}`);
         });
     });
+}
+
+function renderFeaturedCompanies(companies) {
+    if (!companies || companies.length === 0) {
+        return '<p class="text-gray-500">No featured employers at this time. Check back soon!</p>';
+    }
+
+    const companiesGrid = companies
+        .map((company) => `
+        <div class="card hover:shadow-xl transition cursor-pointer bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between mb-3">
+                    <img src="${company.logo}" alt="${company.name}" class="h-12 w-12 rounded-full object-cover" />
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full flex items-center gap-1">
+                        <i class="fas fa-star"></i> Featured
+                    </span>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-1">${company.name}</h3>
+                <p class="text-sm text-purple-600 font-semibold mb-2">${company.industry}</p>
+                <p class="text-sm text-gray-600 mb-4 flex-grow">${company.description}</p>
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                    <i class="fas fa-map-marker-alt text-purple-600"></i>
+                    <span>${company.locations.join(', ') || 'Various'}</span>
+                </div>
+            </div>
+        </div>
+    `)
+        .join('');
+
+    return `
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+            ${companiesGrid}
+        </div>
+        <a href="/companies" data-link class="text-purple-600 hover:text-purple-800 font-semibold inline-block">
+            Browse all employers <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    `;
 }
 
 function renderEmployerDashboard(app, user, path) {

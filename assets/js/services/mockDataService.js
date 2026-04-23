@@ -122,6 +122,7 @@ class MockDataService {
                 subscriptionPlan: 'premium',
                 jobPostingLimit: 80,
                 jobPostingsUsed: 12,
+                featured: true,
             }),
             new Company({
                 id: 'c2',
@@ -135,6 +136,7 @@ class MockDataService {
                 subscriptionPlan: 'advanced',
                 jobPostingLimit: 30,
                 jobPostingsUsed: 8,
+                featured: false,
             }),
             new Company({
                 id: 'c3',
@@ -149,6 +151,8 @@ class MockDataService {
                 subscriptionPlan: 'basic',
                 jobPostingLimit: 5,
                 jobPostingsUsed: 3,
+                featured: false,
+
             }),
             new Company({
                 id: 'c4',
@@ -162,6 +166,7 @@ class MockDataService {
                 subscriptionPlan: 'advanced',
                 jobPostingLimit: 30,
                 jobPostingsUsed: 15,
+                featured: true,
             }),
         ];
     }
