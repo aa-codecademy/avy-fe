@@ -36,7 +36,7 @@ export default async function dashboardController() {
 async function renderStudentDashboard(app, user, path) {
     const moduleName = user.role === 'alumni' ? 'Bloom (Alumni)' : 'Bloom (Student)';
     const companies = await mockDataService.getAllCompanies();
-    const featuredCompanies = companies.filter((c) => c.featured);
+    const featuredCompanies = companies.filter((c) => c.featured && !c.suspended);
     const companyMap = Object.fromEntries(companies.map((c) => [c.id, c]));
     let allJobs = await mockDataService.getAllJobs({ status: 'active' });
     const latestJobs = [...allJobs]

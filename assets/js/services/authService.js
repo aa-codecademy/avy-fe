@@ -2,6 +2,8 @@
  * Authentication Service
  * Handles user authentication, JWT tokens, and role-based access
  */
+import mockDataService from './mockDataService.js';
+
 class AuthService {
     constructor() {
         this.tokenKey = 'avy_token';
@@ -27,6 +29,15 @@ class AuthService {
             
             // Mock user data based on email pattern
             const mockUser = this.getMockUser(email);
+            
+            // Check if company is suspended (for employer accounts)
+            if (mockUser.role === 'employer' && mockUser.companyId) {
+                const company = await mockDataService.getCompanyById(mockUser.companyId);
+                if (company && company.suspended) {
+                    throw new Error('Your company account has been suspended. Please contact support for assistance.');
+                }
+            }
+            
             const mockToken = this.generateMockToken();
             
             // Store token and user

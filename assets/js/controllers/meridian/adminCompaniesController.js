@@ -118,6 +118,7 @@ export default async function adminCompaniesController() {
                                     <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Subscription Plan</th>
                                     <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Active Jobs</th>
                                     <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Featured</th>
+                                    <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Status</th>
                                     <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Actions</th>
                                 </tr>
                             </thead>
@@ -134,6 +135,7 @@ export default async function adminCompaniesController() {
     setupApplicationFilters(applications, industries);
     bindActionButtons();
     bindFeatureToggleButtons();
+    bindSuspendToggleButtons();
 
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
@@ -257,7 +259,7 @@ function renderCompanyManagementRows(companies) {
     if (!companies.length) {
         return `
             <tr>
-                <td class="px-4 py-6 text-center text-gray-500" colspan="6">
+                <td class="px-4 py-6 text-center text-gray-500" colspan="7">
                     No active companies found.
                 </td>
             </tr>
@@ -268,13 +270,14 @@ function renderCompanyManagementRows(companies) {
         .map((company) => {
             const activeJobs = Math.floor(Math.random() * 20) + 1; // Mock data for active jobs
             const isFeatured = company.featured || false;
+            const isSuspended = company.suspended || false;
             return `
-                <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
+                <tr class="border-b border-gray-200 hover:bg-gray-50 transition ${isSuspended ? 'bg-red-50' : ''}">
                     <td class="px-4 py-4 align-top">
                         <div class="flex items-center gap-3">
-                            <img src="${company.logo}" alt="${company.name}" class="h-8 w-8 rounded-full object-cover" />
+                            <img src="${company.logo}" alt="${company.name}" class="h-8 w-8 rounded-full object-cover ${isSuspended ? 'opacity-50' : ''}" />
                             <div>
-                                <p class="font-semibold text-gray-800">${company.name}</p>
+                                <p class="font-semibold text-gray-800 ${isSuspended ? 'line-through text-gray-500' : ''}">${company.name}</p>
                                 <p class="text-sm text-gray-500">${company.website}</p>
                             </div>
                         </div>
@@ -294,15 +297,34 @@ function renderCompanyManagementRows(companies) {
                         }
                     </td>
                     <td class="px-4 py-4 align-top">
-                        <button 
-                            data-toggle-featured 
-                            data-company-id="${company.id}" 
-                            data-featured="${isFeatured}"
-                            class="btn ${isFeatured ? 'btn-secondary' : 'btn-primary'} text-sm"
-                        >
-                            <i class="fas fa-star mr-1"></i>
-                            ${isFeatured ? 'Unfeature' : 'Feature'}
-                        </button>
+                        ${
+                            isSuspended
+                                ? '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full flex items-center gap-1 w-fit"><i class="fas fa-ban"></i> Suspended</span>'
+                                : '<span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Active</span>'
+                        }
+                    </td>
+                    <td class="px-4 py-4 align-top">
+                        <div class="flex flex-col gap-2">
+                            <button 
+                                data-toggle-featured 
+                                data-company-id="${company.id}" 
+                                data-featured="${isFeatured}"
+                                class="btn ${isFeatured ? 'btn-secondary' : 'btn-primary'} text-sm"
+                                ${isSuspended ? 'disabled' : ''}
+                            >
+                                <i class="fas fa-star mr-1"></i>
+                                ${isFeatured ? 'Unfeature' : 'Feature'}
+                            </button>
+                            <button 
+                                data-toggle-suspend 
+                                data-company-id="${company.id}" 
+                                data-suspended="${isSuspended}"
+                                class="btn ${isSuspended ? 'btn-success' : 'btn-danger'} text-sm"
+                            >
+                                <i class="fas ${isSuspended ? 'fa-play' : 'fa-ban'} mr-1"></i>
+                                ${isSuspended ? 'Unsuspend' : 'Suspend'}
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -334,10 +356,45 @@ function bindFeatureToggleButtons() {
                     const updatedCompanies = await mockDataService.getAllCompanies();
                     document.getElementById('companyManagementTableBody').innerHTML = renderCompanyManagementRows(updatedCompanies);
                     bindFeatureToggleButtons();
+                    bindSuspendToggleButtons();
                 }
             } catch (error) {
                 console.error('Failed to update featured status', error);
                 alert('Unable to update featured status. Please try again.');
+            }
+        });
+    });
+}
+
+function bindSuspendToggleButtons() {
+    const tableBody = document.getElementById('companyManagementTableBody');
+    if (!tableBody) return;
+
+    tableBody.querySelectorAll('button[data-toggle-suspend]').forEach((button) => {
+        button.addEventListener('click', async (event) => {
+            const companyId = event.currentTarget.dataset.companyId;
+            const currentSuspended = event.currentTarget.dataset.suspended === 'true';
+            const newSuspendedStatus = !currentSuspended;
+
+            try {
+                // Update the company's suspended status
+                const company = await mockDataService.getCompanyById(companyId);
+                if (company) {
+                    company.suspended = newSuspendedStatus;
+                    
+                    // Show success message
+                    const action = newSuspendedStatus ? 'suspended' : 'unsuspended';
+                    alert(`Company ${action} successfully!`);
+                    
+                    // Refresh the table
+                    const updatedCompanies = await mockDataService.getAllCompanies();
+                    document.getElementById('companyManagementTableBody').innerHTML = renderCompanyManagementRows(updatedCompanies);
+                    bindFeatureToggleButtons();
+                    bindSuspendToggleButtons();
+                }
+            } catch (error) {
+                console.error('Failed to update suspended status', error);
+                alert('Unable to update suspended status. Please try again.');
             }
         });
     });

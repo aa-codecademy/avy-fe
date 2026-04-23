@@ -149,6 +149,7 @@ export class Company {
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
         this.featured = data.featured || false; // For premium companies to be highlighted
+        this.suspended = data.suspended || false; // For suspended accounts
     }
 }
 
