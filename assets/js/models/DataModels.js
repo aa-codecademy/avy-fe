@@ -229,3 +229,23 @@ export class Analytics {
         this.monthlyGrowth = data.monthlyGrowth || { users: 0, jobs: 0, applications: 0 };
     }
 }
+
+/**
+ * Profile Access Request Model
+ */
+export class ProfileAccessRequest {
+    constructor(data = {}) {
+        this.id = data.id || '';
+        this.employerId = data.employerId || '';
+        this.studentId = data.studentId || '';
+        this.jobId = data.jobId || ''; // Optional - request may be for general access
+        this.requestReason = data.requestReason || '';
+        this.status = data.status || 'pending'; // pending, approved, rejected, expired
+        this.requestedAt = data.requestedAt || new Date().toISOString();
+        this.reviewedAt = data.reviewedAt || '';
+        this.reviewedBy = data.reviewedBy || ''; // Admin user ID
+        this.reviewNotes = data.reviewNotes || '';
+        this.expiresAt = data.expiresAt || ''; // When approved access expires
+        this.accessGranted = data.accessGranted || false;
+    }
+}

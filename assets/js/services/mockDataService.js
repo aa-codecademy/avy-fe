@@ -17,6 +17,7 @@ import {
     SuccessStory,
     Event,
     Analytics,
+    ProfileAccessRequest,
 } from '../models/DataModels.js';
 
 class MockDataService {
@@ -33,6 +34,7 @@ class MockDataService {
         this.companyApplications = this.generateMockCompanyApplications();
         this.jobs = this.generateMockJobs();
         this.applications = this.generateMockApplications();
+        this.profileAccessRequests = this.generateMockProfileAccessRequests();
         this.cvProfiles = this.generateMockCVProfiles();
         this.successStories = this.generateMockSuccessStories();
         this.events = this.generateMockEvents();
@@ -689,6 +691,71 @@ class MockDataService {
         ];
     }
 
+    generateMockProfileAccessRequests() {
+        const now = new Date();
+        return [
+            new ProfileAccessRequest({
+                id: 'par1',
+                employerId: 'employer1',
+                studentId: '1',
+                jobId: 'j1',
+                requestReason: 'Reviewing application for Frontend Developer position',
+                status: 'pending',
+                requestedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new ProfileAccessRequest({
+                id: 'par2',
+                employerId: 'employer2',
+                studentId: '2',
+                jobId: 'j2',
+                requestReason: 'Evaluating candidate for Backend Developer role',
+                status: 'approved',
+                requestedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedAt: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedBy: 'admin1',
+                reviewNotes: 'Approved for 30-day access',
+                expiresAt: new Date(now.getTime() + 25 * 24 * 60 * 60 * 1000).toISOString(),
+                accessGranted: true,
+            }),
+            new ProfileAccessRequest({
+                id: 'par3',
+                employerId: 'employer1',
+                studentId: '3',
+                jobId: '',
+                requestReason: 'General talent scouting for future opportunities',
+                status: 'rejected',
+                requestedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedAt: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedBy: 'admin1',
+                reviewNotes: 'Request too broad, requires specific job context',
+                accessGranted: false,
+            }),
+            new ProfileAccessRequest({
+                id: 'par4',
+                employerId: 'employer3',
+                studentId: '4',
+                jobId: 'j4',
+                requestReason: 'Assessing data analyst candidate qualifications',
+                status: 'pending',
+                requestedAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new ProfileAccessRequest({
+                id: 'par5',
+                employerId: 'employer2',
+                studentId: '5',
+                jobId: 'j2',
+                requestReason: 'Follow-up review after initial screening',
+                status: 'expired',
+                requestedAt: new Date(now.getTime() - 35 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedAt: new Date(now.getTime() - 34 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedBy: 'admin1',
+                reviewNotes: 'Approved for 30-day access',
+                expiresAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                accessGranted: false,
+            }),
+        ];
+    }
+
     async getApplications(filters = {}) {
         await this.simulateDelay();
         let apps = [...this.applications];
@@ -724,6 +791,56 @@ class MockDataService {
             if (notes) this.applications[index].notes = notes;
             this.applications[index].updatedAt = new Date().toISOString();
             return this.applications[index];
+        }
+        return null;
+    }
+
+    /**
+     * PROFILE ACCESS REQUESTS
+     */
+    async getProfileAccessRequests(filters = {}) {
+        await this.simulateDelay();
+        let requests = [...this.profileAccessRequests];
+
+        if (filters.status) {
+            requests = requests.filter((r) => r.status === filters.status);
+        }
+        if (filters.employerId) {
+            requests = requests.filter((r) => r.employerId === filters.employerId);
+        }
+        if (filters.studentId) {
+            requests = requests.filter((r) => r.studentId === filters.studentId);
+        }
+
+        return requests;
+    }
+
+    async getProfileAccessRequestById(id) {
+        await this.simulateDelay();
+        return this.profileAccessRequests.find((r) => r.id === id);
+    }
+
+    async updateProfileAccessRequestStatus(id, status, reviewNotes = '', adminId = '') {
+        await this.simulateDelay();
+        const index = this.profileAccessRequests.findIndex((r) => r.id === id);
+        if (index !== -1) {
+            const request = this.profileAccessRequests[index];
+            request.status = status;
+            request.reviewedAt = new Date().toISOString();
+            request.reviewedBy = adminId;
+            request.reviewNotes = reviewNotes;
+
+            if (status === 'approved') {
+                request.accessGranted = true;
+                // Set expiration to 30 days from now
+                const expiresAt = new Date();
+                expiresAt.setDate(expiresAt.getDate() + 30);
+                request.expiresAt = expiresAt.toISOString();
+            } else {
+                request.accessGranted = false;
+            }
+
+            return request;
         }
         return null;
     }
