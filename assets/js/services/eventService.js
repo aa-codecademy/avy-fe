@@ -16,7 +16,7 @@ class EventService {
      */
     async getEvents() {
         //return await apiService.get('/events'); // For Phase 2
-        await mockDataService.simulateDelay();
+        // await mockDataService.simulateDelay();
 
         return mockDataService.events;
     }
@@ -47,12 +47,11 @@ class EventService {
         await mockDataService.simulateDelay();
 
         const newEvent = new Event({
-            type: 'career-day',
             ...data,
             id: this.generateId('e_'),
             status: 'upcoming',
         });
-        this.events.push(newEvent);
+        mockDataService.events.push(newEvent);
         return newEvent;
     }
 

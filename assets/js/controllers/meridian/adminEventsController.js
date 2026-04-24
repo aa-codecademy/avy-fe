@@ -12,10 +12,455 @@ export default async function adminEventsController() {
     }
 
     app.innerHTML = `
-        ${renderAppHeader(user, window.location.pathname)}
-        Events Controller
+    ${renderAppHeader(user, window.location.pathname)}
+    <div class="container mx-auto px-4 py-8">
+        <div class="fade-in">
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2"><i class="fas fa-chart-gantt text-purple-600 mr-3"></i>Event Management</h1>
+                <p class="text-gray-600">Meridian - Event Management</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="card cursor-pointer transition-all duration-300 hover:bg-green-500 group" id="schedule-event-button">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-xl font-bold transition-colors duration-300 group-hover:text-white">Schedule Event</p></div>
+                        <i class="fas fa-calendar-plus text-4xl text-gray-400 transition-colors duration-300 group-hover:text-white"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6"><h1 class="text-2xl font-bold text-gray-800 mb-2">Current Events</h1></div>
+
+            <div id="event-card-container" class="grid md:grid-cols-3 gap-6 mb-8"></div>
+        </div>
+    </div>
     `;
+
+    const controller = new AdminEventsController();
+    await controller.initializePage();
 
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
+}
+
+class AdminEventsController {
+    constructor() {
+        this.eventService = eventService;
+    }
+
+    async initializePage() {
+        document
+            .getElementById('schedule-event-button')
+            .addEventListener('click', () => this.displayForm());
+        this.displayEventCards();
+    }
+
+    async displayEventCards() {
+        const events = await this.eventService.getEvents();
+        const container = document.getElementById('event-card-container');
+        container.innerHTML = ``;
+        events.forEach((event) => container.appendChild(this.buildEventCard(event)));
+    }
+    buildEventCard(event) {
+        const card = document.createElement('div');
+        card.classList.add('event-card', 'card', 'flex', 'flex-col', 'gap-4', 'cursor-pointer');
+        card.dataset.id = event.id;
+
+        const getEventMetaData = (event) => {
+            const getBarPercentage = (registered, max) => {
+                return Math.min((registered / max) * 100, 100);
+            };
+            const getBarColor = (registered, max) => {
+                const percent = (registered / max) * 100;
+                if (percent >= 90) return 'bg-red-500';
+                if (percent >= 60) return 'bg-yellow-500';
+                return 'bg-green-500';
+            };
+            const getStatusStyle = (status) => {
+                switch (status) {
+                    case 'upcoming':
+                        return 'bg-blue-100 text-blue-700';
+                    case 'cancelled':
+                        return 'bg-red-100 text-red-700';
+                    case 'completed':
+                        return 'bg-green-100 text-green-700';
+                    default:
+                        return 'bg-gray-100 text-gray-700';
+                }
+            };
+
+            return {
+                barPercentage: getBarPercentage(event.registeredCount, event.maxParticipants),
+                barColor: getBarColor(event.registeredCount, event.maxParticipants),
+                statusStyle: getStatusStyle(event.status),
+            };
+        };
+        const eventMetaData = getEventMetaData(event);
+
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
+            this.displayEventOverview(event);
+        });
+
+        card.innerHTML = `
+            <div class="flex items-start justify-between gap-2">
+                <h2 class="text-lg font-bold text-gray-800 leading-tight">${event.title}</h2>
+                <span class="text-xs font-semibold px-2 py-1 ${eventMetaData.statusStyle} rounded-full whitespace-nowrap">${event.status}</span>
+            </div>
+
+            <div><span class="text-xs font-medium bg-purple-100 text-purple-700 px-2 py-1 rounded-full"><i class="fas fa-tag mr-1"></i>${event.type}</span></div>
+
+            <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">${event.description}</p>
+
+            <div class="flex items-center gap-2 text-sm text-gray-700">
+                <i class="fas fa-calendar text-purple-500 w-4"></i><span>${event.date}</span>
+                <i class="fas fa-clock text-purple-500 w-4 ml-2"></i><span>${event.time}</span>
+            </div>
+
+            <div class="flex items-center gap-2 text-sm text-gray-700">${event.isOnline ? `<i class="fas fa-video text-purple-500 w-4"></i><span>Online</span>` : `<i class="fas fa-location-dot text-purple-500 w-4"></i><span>${event.location}</span>`}</div>
+            <div>
+                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span><i class="fas fa-users mr-1 text-purple-500 w-4"></i>Participants</span>
+                    <span>${event.registeredCount}/${event.maxParticipants}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2"><div class="${eventMetaData.barColor} h-2 rounded-full transition-all duration-300" style="width: ${eventMetaData.barPercentage}%"></div></div>
+            </div>
+
+            <div class="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                <div class="flex gap-2">
+                    <button class="edit-button px-3 py-1.5 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors cursor-pointer"><i class="fas fa-pen mr-1"></i>Edit</button>
+                    <button class="cancel-button px-3 py-1.5 text-xs font-medium text-yellow-600 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors cursor-pointer"><i class="fas fa-ban mr-1"></i>Cancel</button>
+                    <button class="delete-button px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"><i class="fas fa-trash mr-1"></i>Delete</button>
+                </div>
+            </div>
+        `;
+
+        card.querySelector('.edit-button').addEventListener('click', () => this.displayForm(event));
+        card.querySelector('.cancel-button').addEventListener('click', async () => {
+            await this.eventService.updateEventStatus(event.id, 'cancelled');
+            await this.displayEventCards();
+        });
+        card.querySelector('.delete-button').addEventListener('click', async () => {
+            await this.eventService.deleteEvent(event.id);
+            await this.displayEventCards();
+        });
+
+        return card;
+    }
+    displayEventOverview(event) {
+        const content = document.createElement('div');
+        content.classList.add('flex', 'flex-col', 'gap-6');
+
+        content.innerHTML = `
+            <div class="flex flex-col gap-3">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide">Event Details</h3>
+
+                <h2 class="text-xl font-bold text-gray-800">${event.title}</h2>
+                <p class="text-sm text-gray-600 leading-relaxed">${event.description}</p>
+
+                <div class="flex items-center gap-2 text-sm text-gray-700">
+                    <i class="fas fa-calendar text-purple-500 w-4"></i><span>${event.date}</span>
+                    <i class="fas fa-clock text-purple-500 w-4 ml-2"></i><span>${event.time}</span>
+                </div>
+
+                <div class="flex items-center gap-2 text-sm text-gray-700">
+                    ${event.isOnline ? `<i class="fas fa-video text-purple-500 w-4"></i><span>Online</span>` : `<i class="fas fa-location-dot text-purple-500 w-4"></i><span>${event.location}</span>`}
+                </div>
+
+                <div class="flex items-center gap-2 text-sm text-gray-700">
+                    <i class="fas fa-users text-purple-500 w-4"></i>
+                    <span>${event.registeredCount}/${event.maxParticipants} registered</span>
+                </div>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div class="flex flex-col gap-3">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide">Registered Participants</h3>
+                <div id="participantsList" class="flex flex-col gap-2 text-sm text-gray-500"><p>Loading...</p></div>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div class="flex flex-col gap-3">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide">Send Notification To All Registered Participants</h3>
+                <textarea id="notification-message" rows="3" placeholder="Write your message..." class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"></textarea>
+                <button id="send-notification-button" class="px-4 py-2 text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 rounded-lg transition-colors cursor-pointer"><i class="fas fa-bell mr-2"></i>Send to All Participants</button>
+            </div>
+        `;
+
+        content.querySelector('#send-notification-button').addEventListener('click', () => {
+            const message = content.getElementById('notification-message').value;
+            if (!message.trim()) return;
+            // notification send api call
+        });
+
+        this.buildModal(content);
+    }
+
+    buildModal(content) {
+        const modal = document.createElement('div');
+        modal.id = 'modal-backdrop';
+        modal.className = 'fixed inset-0 bg-black/50 z-40 flex items-center justify-center fade-id';
+
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-2xl z-50 w-full max-w-2xl mx-4 p-6 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between">
+                    <div id="modal-title"></div>
+                    <button id="modal-close-button" class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"><i class="fas fa-xmark text-xl"></i></button>
+                </div>
+
+                <div id="modal-content"></div>
+            </div>
+        `;
+
+        modal.querySelector('#modal-content').appendChild(content);
+        modal
+            .querySelector('#modal-close-button')
+            .addEventListener('click', () => this.closeModal());
+
+        document.body.appendChild(modal);
+    }
+    closeModal() {
+        const modal = document.getElementById('modal-backdrop');
+        if (modal) modal.remove();
+    }
+
+    displayForm(updateForm = null) {
+        const content = document.createElement('div');
+        content.classList.add('flex', 'flex-col', 'gap-6');
+
+        content.innerHTML = `
+            <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold text-gray-800">
+                <i class="fas ${updateForm ? 'fa-pen text-purple-400' : 'fa-calendar-plus text-green-400'} mr-2"></i>
+                ${updateForm ? 'Update Event' : 'Create Event'}
+            </h2>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <form id="event-form" class="flex flex-col gap-4" novalidate>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-gray-700">Title <span class="text-red-500">*</span></label>
+                <input type="text" id="event-title" value="${updateForm?.title ?? ''}" placeholder="Enter event title" class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                <span class="error-msg hidden text-xs text-red-500 mt-1"></span>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-gray-700">Description</label>
+                <textarea id="event-description" placeholder="Enter event description" rows="3" class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none">${updateForm?.description ?? ''}</textarea>
+                <span class="error-msg hidden text-xs text-red-500 mt-1"></span>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-gray-700">Type <span class="text-red-500">*</span></label>
+                <select id="event-type" class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400">
+                <option value="" disabled ${!updateForm ? 'selected' : ''}>Select event type</option>
+                <option value="career-day"  ${updateForm?.type === 'career-day' ? 'selected' : ''}>Career Day</option>
+                <option value="workshop"    ${updateForm?.type === 'workshop' ? 'selected' : ''}>Workshop</option>
+                <option value="networking"  ${updateForm?.type === 'networking' ? 'selected' : ''}>Networking</option>
+                <option value="internship"  ${updateForm?.type === 'internship' ? 'selected' : ''}>Internship</option>
+                </select>
+                <span class="error-msg hidden text-xs text-red-500 mt-1"></span>
+            </div>
+
+            <div class="flex gap-3">
+                <div class="flex flex-col gap-1 flex-1">
+                <label class="text-sm font-medium text-gray-700">Date <span class="text-red-500">*</span></label>
+                <input type="date" id="event-date" value="${updateForm?.date ?? ''}" class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                <span class="error-msg hidden text-xs text-red-500 mt-1"></span>
+                </div>
+                <div class="flex flex-col gap-1 flex-1">
+                <label class="text-sm font-medium text-gray-700">Time <span class="text-red-500">*</span></label>
+                <input type="time" id="event-time" value="${updateForm?.time ?? ''}" class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                <span class="error-msg hidden text-xs text-red-500 mt-1"></span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <label class="text-sm font-medium text-gray-700">Online Event</label>
+                <div id="online-toggle" class="w-10 h-6 ${updateForm?.isOnline ? 'bg-purple-400' : 'bg-gray-200'} rounded-full cursor-pointer transition-colors duration-200 relative">
+                <div id="online-toggle-knob" class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${updateForm?.isOnline ? 'translate-x-4' : ''}"></div>
+                </div>
+                <span id="online-toggle-label" class="text-sm text-gray-400">${updateForm?.isOnline ? 'Yes' : 'No'}</span>
+            </div>
+
+            <div id="location-field" class="flex flex-col gap-1 ${updateForm?.isOnline ? 'hidden' : ''}">
+                <label class="text-sm font-medium text-gray-700">Location <span class="text-red-500">*</span></label>
+                <input type="text" id="event-location" value="${updateForm?.location ?? ''}" placeholder="Enter event location" class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                <span class="error-msg hidden text-xs text-red-500 mt-1"></span>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-gray-700">Max Participants <span class="text-red-500">*</span></label>
+                <input type="number" id="event-max-participants" value="${updateForm?.maxParticipants ?? ''}" placeholder="Enter max participants" min="1" class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                <span class="error-msg hidden text-xs text-red-500 mt-1"></span>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div class="flex gap-3">
+                <button type="button" id="cancel-modal-button" class="flex-1 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 rounded-lg cursor-pointer">Cancel</button>
+                <button type="submit" class="flex-1 px-4 py-2 text-sm font-medium text-white ${updateForm ? 'bg-purple-500 hover:bg-purple-600' : 'bg-green-500 hover:bg-green-600'} transition-colors duration-200 rounded-lg cursor-pointer">
+                <i class="fas ${updateForm ? 'fa-save' : 'fa-calendar-plus'} mr-2"></i>
+                ${updateForm ? 'Update Event' : 'Create Event'}
+                </button>
+            </div>
+
+            </form>
+        `;
+
+        this.buildModal(content);
+
+        let isOnline = updateForm?.isOnline ?? false;
+
+        const showError = (input, message) => {
+            const errorSpan = input.closest('.flex-col, .flex-1').querySelector('.error-msg');
+            if (!errorSpan) return;
+            errorSpan.textContent = message;
+            errorSpan.classList.remove('hidden');
+            input.classList.add('border-red-400');
+            input.classList.remove('border-gray-200');
+        };
+
+        const clearError = (input) => {
+            const errorSpan = input.closest('.flex-col, .flex-1').querySelector('.error-msg');
+            if (!errorSpan) return;
+            errorSpan.textContent = '';
+            errorSpan.classList.add('hidden');
+            input.classList.remove('border-red-400');
+            input.classList.add('border-gray-200');
+        };
+
+        const validateForm = () => {
+            let valid = true;
+
+            const title = document.getElementById('event-title');
+            const type = document.getElementById('event-type');
+            const date = document.getElementById('event-date');
+            const time = document.getElementById('event-time');
+            const location = document.getElementById('event-location');
+            const maxParticipants = document.getElementById('event-max-participants');
+
+            if (!title.value.trim()) {
+                showError(title, 'Title is required.');
+                valid = false;
+            } else {
+                clearError(title);
+            }
+
+            if (!type.value) {
+                showError(type, 'Please select an event type.');
+                valid = false;
+            } else {
+                clearError(type);
+            }
+
+            if (!date.value) {
+                showError(date, 'Date is required.');
+                valid = false;
+            } else {
+                const selectedDate = new Date(date.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (selectedDate < today) {
+                    showError(date, 'Date cannot be in the past.');
+                    valid = false;
+                } else {
+                    clearError(date);
+                }
+            }
+
+            if (!time.value) {
+                showError(time, 'Time is required.');
+                valid = false;
+            } else {
+                clearError(time);
+            }
+
+            if (!isOnline) {
+                if (!location.value.trim()) {
+                    showError(location, 'Location is required for in-person events.');
+                    valid = false;
+                } else {
+                    clearError(location);
+                }
+            }
+
+            if (!maxParticipants.value) {
+                showError(maxParticipants, 'Max participants is required.');
+                valid = false;
+            } else if (updateForm && Number(maxParticipants.value) < updateForm.registeredCount) {
+                showError(
+                    maxParticipants,
+                    `Cannot be less than current registrations (${updateForm.registeredCount}).`
+                );
+                valid = false;
+            } else {
+                clearError(maxParticipants);
+            }
+
+            return valid;
+        };
+
+        const resolveEventStatus = (date, time) => {
+            const now = new Date();
+            const eventStart = new Date(`${date}T${time}`);
+            const eventEnd = new Date(eventStart.getTime() + 2 * 60 * 60 * 1000); // 2 Hours
+
+            if (now < eventStart) return 'upcoming';
+            if (now >= eventStart && now < eventEnd) return 'ongoing';
+            return 'completed';
+        };
+
+        document.getElementById('online-toggle').addEventListener('click', () => {
+            isOnline = !isOnline;
+            const toggle = document.getElementById('online-toggle');
+            const knob = document.getElementById('online-toggle-knob');
+            const label = document.getElementById('online-toggle-label');
+            const locationField = document.getElementById('location-field');
+
+            toggle.classList.toggle('bg-purple-400', isOnline);
+            toggle.classList.toggle('bg-gray-200', !isOnline);
+            knob.classList.toggle('translate-x-4', isOnline);
+            label.textContent = isOnline ? 'Yes' : 'No';
+            locationField.classList.toggle('hidden', isOnline);
+        });
+
+        document
+            .getElementById('cancel-modal-button')
+            .addEventListener('click', () => this.closeModal());
+
+        document.getElementById('event-form').onsubmit = async (e) => {
+            e.preventDefault();
+
+            if (!validateForm()) return; // stop if any field fails
+
+            const dateValue = document.getElementById('event-date').value;
+            const timeValue = document.getElementById('event-time').value;
+
+            const data = {
+                title: document.getElementById('event-title').value,
+                description: document.getElementById('event-description').value,
+                type: document.getElementById('event-type').value,
+                date: dateValue,
+                time: timeValue,
+                location: isOnline ? '' : document.getElementById('event-location').value,
+                maxParticipants: Number(document.getElementById('event-max-participants').value),
+                isOnline: isOnline,
+                status: resolveEventStatus(dateValue, timeValue),
+            };
+
+            if (updateForm) {
+                await eventService.updateEvent(updateForm.id, data);
+            } else {
+                await eventService.createEvent(data);
+            }
+
+            this.closeModal();
+            this.displayEventCards();
+        };
+    }
 }

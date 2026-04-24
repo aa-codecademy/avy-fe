@@ -201,7 +201,7 @@ export class Event {
         this.location = data.location || '';
         this.isOnline = data.isOnline || false;
         this.maxParticipants = data.maxParticipants || 0;
-        this.registeredCount = data.registeredCount || 0;
+        this.registeredCount = data.registeredCount || 15;
         this.organizerId = data.organizerId || '';
         this.status = data.status || 'upcoming'; // upcoming, ongoing, completed, cancelled
         this.createdAt = data.createdAt || new Date().toISOString();
