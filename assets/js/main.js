@@ -16,6 +16,7 @@ import companiesController from './controllers/bloom/companiesController.js';
 import profileController from './controllers/bloom/profileController.js';
 import postJobController from './controllers/evergreen/postJobController.js';
 import candidatesController from './controllers/evergreen/candidatesController.js';
+import companyProfileController from './controllers/evergreen/companyProfileController.js';
 import adminUsersController from './controllers/meridian/adminUsersController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
 import notFoundController from './controllers/notFoundController.js';
@@ -32,12 +33,15 @@ window.authService = authService;
  * Initialize application
  */
 function initApp() {
-    console.log('%c🚀 Avy Application Started', 'color: #667eea; font-size: 16px; font-weight: bold;');
+    console.log(
+        '%c🚀 Avy Application Started',
+        'color: #667eea; font-size: 16px; font-weight: bold;'
+    );
     console.log('%c📦 Phase 1: Frontend Only Mode', 'color: #764ba2; font-size: 12px;');
-    
+
     // Register routes
     registerRoutes();
-    
+
     // Initialize router (will handle initial navigation)
     console.log('✅ Router initialized');
 }
@@ -49,35 +53,49 @@ function registerRoutes() {
     // Public routes
     router.addRoute('/', landingController, false);
     router.addRoute('/login', loginController, false);
-    
+
     // Protected routes (require authentication)
     router.addRoute('/dashboard', dashboardController, true);
-    
+
     // Job-related routes (Bloom module - Student/Alumni)
     router.addRoute('/jobs', jobBoardController, true);
     router.addRoute('/jobs/:id', jobDetailController, true);
     router.addRoute('/companies', companiesController, true);
     router.addRoute('/profile', profileController, true, ['student', 'alumni']);
-    
+
     // Employer routes (Evergreen module)
     router.addRoute('/employer/post-job', postJobController, true, ['employer']);
     router.addRoute('/employer/candidates', candidatesController, true, ['employer']);
-    router.addRoute('/employer/jobs', createPlaceholderController('My Jobs', 'Manage your job postings'), true, ['employer']);
-    
+    router.addRoute(
+        '/employer/jobs',
+        createPlaceholderController('My Jobs', 'Manage your job postings'),
+        true,
+        ['employer']
+    );
+    router.addRoute('/employer/company-profile', companyProfileController, true, ['employer']);
+
     // Admin routes (Meridian module)
     router.addRoute('/admin/users', adminUsersController, true, ['admin']);
-    router.addRoute('/admin/jobs', createPlaceholderController('Job Management', 'Manage all job postings'), true, ['admin']);
+    router.addRoute(
+        '/admin/jobs',
+        createPlaceholderController('Job Management', 'Manage all job postings'),
+        true,
+        ['admin']
+    );
     router.addRoute(
         '/admin/companies',
-        createPlaceholderController('Company Management', 'Oversee employer accounts and verifications'),
+        createPlaceholderController(
+            'Company Management',
+            'Oversee employer accounts and verifications'
+        ),
         true,
         ['admin']
     );
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
-    
+
     // 404 route (must be last)
     router.addRoute('/404', notFoundController, false);
-    
+
     console.log('✅ Routes registered');
 }
 
@@ -85,13 +103,13 @@ function registerRoutes() {
  * Create placeholder controller for routes not yet implemented
  */
 function createPlaceholderController(title, description) {
-    return async function() {
+    return async function () {
         const app = document.getElementById('app');
         const user = authService.getCurrentUser();
 
         app.innerHTML = `
             ${renderAppHeader(user, window.location.pathname)}
-            
+
             <div class="container mx-auto px-4 py-20 text-center">
                 <div class="max-w-2xl mx-auto fade-in">
                     <div class="text-6xl mb-6">🚧</div>
@@ -113,7 +131,7 @@ function createPlaceholderController(title, description) {
                 </div>
             </div>
         `;
-        
+
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
