@@ -643,11 +643,6 @@ class MockDataService {
         ];
     }
 
-    async getEvents() {
-        await this.simulateDelay();
-        return this.events;
-    }
-
     /**
      * ANALYTICS
      */
