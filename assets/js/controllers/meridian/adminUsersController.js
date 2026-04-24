@@ -9,15 +9,15 @@ import { renderAppHeader } from '../../views/appHeader.js';
 export default async function adminUsersController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
-    
+
     if (!user || user.role !== 'admin') {
         window.router.navigate('/dashboard');
         return;
     }
-    
+
     const allUsers = await mockDataService.getAllUsers();
     const analytics = await mockDataService.getAnalytics();
-    
+
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
@@ -57,20 +57,21 @@ export default async function adminUsersController() {
             </div>
         </div>
     `;
-    
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 }
 
 function renderUsersTable(users) {
-    return users.map((user) => {
-        const roleColors = {
-            student: 'bg-blue-100 text-blue-800',
-            alumni: 'bg-green-100 text-green-800',
-            employer: 'bg-orange-100 text-orange-800',
-            admin: 'bg-purple-100 text-purple-800'
-        };
-        return `
+    return users
+        .map((user) => {
+            const roleColors = {
+                student: 'bg-blue-100 text-blue-800',
+                alumni: 'bg-green-100 text-green-800',
+                employer: 'bg-orange-100 text-orange-800',
+                admin: 'bg-purple-100 text-purple-800',
+            };
+            return `
             <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
                 <td class="px-4 py-4">
                     <div class="flex items-center">
@@ -88,11 +89,14 @@ function renderUsersTable(users) {
                     </span>
                 </td>
                 <td class="px-4 py-4">
-                    ${user.profileVisibility === 'public'
-                        ? '<span class="text-green-600"><i class="fas fa-eye mr-1"></i> Public</span>'
-                        : '<span class="text-gray-600"><i class="fas fa-lock mr-1"></i> Private</span>'}
+                    ${
+                        user.profileVisibility === 'public'
+                            ? '<span class="text-green-600"><i class="fas fa-eye mr-1"></i> Public</span>'
+                            : '<span class="text-gray-600"><i class="fas fa-lock mr-1"></i> Private</span>'
+                    }
                 </td>
             </tr>
         `;
-    }).join('');
+        })
+        .join('');
 }
