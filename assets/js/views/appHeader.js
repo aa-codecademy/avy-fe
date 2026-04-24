@@ -36,6 +36,7 @@ export function renderAppHeader(user, currentPath = '') {
         links = `
             ${L('/dashboard', 'fa-home', 'Dashboard', ['/dashboard'])}
             ${L('/admin/users', 'fa-users-cog', 'Users', ['/admin/users'])}
+            ${L('/admin/students', 'fa-user-graduate', 'Students', ['/admin/students'])}
             ${L('/admin/jobs', 'fa-briefcase', 'Jobs', ['/admin/jobs'])}
             ${L('/admin/companies', 'fa-building', 'Companies', ['/admin/companies'])}
             ${L('/admin/analytics', 'fa-chart-bar', 'Analytics', ['/admin/analytics'])}

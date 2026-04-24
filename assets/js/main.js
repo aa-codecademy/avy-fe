@@ -18,6 +18,7 @@ import postJobController from './controllers/evergreen/postJobController.js';
 import candidatesController from './controllers/evergreen/candidatesController.js';
 import adminUsersController from './controllers/meridian/adminUsersController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
+import adminStudentsController from './controllers/meridian/adminStudentsController.js';
 import notFoundController from './controllers/notFoundController.js';
 
 // Import services (make available globally)
@@ -66,6 +67,7 @@ function registerRoutes() {
     
     // Admin routes (Meridian module)
     router.addRoute('/admin/users', adminUsersController, true, ['admin']);
+    router.addRoute('/admin/students', adminStudentsController, true, ['admin']);
     router.addRoute('/admin/jobs', createPlaceholderController('Job Management', 'Manage all job postings'), true, ['admin']);
     router.addRoute(
         '/admin/companies',
