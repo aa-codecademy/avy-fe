@@ -153,9 +153,7 @@ class AdminEventsController {
 
         content.innerHTML = `
             <div class="flex flex-col gap-3">
-                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide">Event Details</h3>
-
-                <h2 class="text-xl font-bold text-gray-800">${event.title}</h2>
+                <h2 class="text-xl font-semibold text-gray-800">${event.title}</h2>
                 <p class="text-sm text-gray-600 leading-relaxed">${event.description}</p>
 
                 <div class="flex items-center gap-2 text-sm text-gray-700">
@@ -164,7 +162,11 @@ class AdminEventsController {
                 </div>
 
                 <div class="flex items-center gap-2 text-sm text-gray-700">
-                    ${event.isOnline ? `<i class="fas fa-video text-purple-500 w-4"></i><span>Online</span>` : `<i class="fas fa-location-dot text-purple-500 w-4"></i><span>${event.location}</span>`}
+                    ${
+                        event.isOnline
+                            ? `<i class="fas fa-video text-purple-500 w-4"></i><span>Online</span>`
+                            : `<i class="fas fa-location-dot text-purple-500 w-4"></i><span>${event.location}</span>`
+                    }
                 </div>
 
                 <div class="flex items-center gap-2 text-sm text-gray-700">
@@ -176,8 +178,20 @@ class AdminEventsController {
             <hr class="border-gray-100">
 
             <div class="flex flex-col gap-3">
-                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide">Registered Participants</h3>
-                <div id="participantsList" class="flex flex-col gap-2 text-sm text-gray-500"><p>Loading...</p></div>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide">Registered Participants</h3>
+                    <div class="flex gap-2">
+                    <button id="export-csv-button" class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors cursor-pointer">
+                        <i class="fas fa-file-csv"></i> Export CSV
+                    </button>
+                    <button id="export-excel-button" class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                    </div>
+                </div>
+                <div id="participants-list" class="flex flex-col gap-2 text-sm text-gray-500">
+                    <p>Loading...</p>
+                </div>
             </div>
 
             <hr class="border-gray-100">
@@ -185,20 +199,39 @@ class AdminEventsController {
             <div class="flex flex-col gap-3">
                 <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide">Send Notification To All Registered Participants</h3>
                 <textarea id="notification-message" rows="3" placeholder="Write your message..." class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"></textarea>
-                <button id="send-notification-button" class="px-4 py-2 text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 rounded-lg transition-colors cursor-pointer"><i class="fas fa-bell mr-2"></i>Send to All Participants</button>
+                <button id="send-notification-button" class="px-4 py-2 text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 rounded-lg transition-colors cursor-pointer">
+                    <i class="fas fa-bell mr-2"></i>Send to All Participants
+                </button>
+            </div>
+
+            <div class="flex items-center justify-end">
+                <button id="copy-id-button" class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer">
+                    <i class="fas fa-fingerprint"></i>
+                    <span id="copy-id-label">${event.id}</span>
+                </button>
             </div>
         `;
 
-        content.querySelector('#send-notification-button').addEventListener('click', () => {
-            const message = content.getElementById('notification-message').value;
-            if (!message.trim()) return;
-            // notification send api call
+        content.querySelector('#copy-id-button').addEventListener('click', async () => {
+            await navigator.clipboard.writeText(event.id);
+            const label = content.querySelector('#copy-id-label');
+            label.textContent = 'Copied!';
+            setTimeout(() => (label.textContent = event.id), 1000);
         });
 
-        this.buildModal(content);
+        content.querySelector('#export-csv-button').addEventListener('click', () => {});
+
+        content.querySelector('#export-excel-button').addEventListener('click', () => {});
+
+        content.querySelector('#send-notification-button').addEventListener('click', () => {
+            const message = content.querySelector('#notification-message').value;
+            if (!message.trim()) return;
+        });
+
+        this.buildModal(content, 'Event Details');
     }
 
-    buildModal(content) {
+    buildModal(content, title) {
         const modal = document.createElement('div');
         modal.id = 'modal-backdrop';
         modal.className = 'fixed inset-0 bg-black/50 z-40 flex items-center justify-center fade-id';
@@ -206,7 +239,7 @@ class AdminEventsController {
         modal.innerHTML = `
             <div class="bg-white rounded-2xl shadow-2xl z-50 w-full max-w-2xl mx-4 p-6 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between">
-                    <div id="modal-title"></div>
+                    <div id="modal-title" class="text-xl font-bold text-gray-800">${title}</div>
                     <button id="modal-close-button" class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"><i class="fas fa-xmark text-xl"></i></button>
                 </div>
 
@@ -231,15 +264,6 @@ class AdminEventsController {
         content.classList.add('flex', 'flex-col', 'gap-6');
 
         content.innerHTML = `
-            <div class="flex items-center justify-between">
-            <h2 class="text-xl font-bold text-gray-800">
-                <i class="fas ${updateForm ? 'fa-pen text-purple-400' : 'fa-calendar-plus text-green-400'} mr-2"></i>
-                ${updateForm ? 'Update Event' : 'Create Event'}
-            </h2>
-            </div>
-
-            <hr class="border-gray-100">
-
             <form id="event-form" class="flex flex-col gap-4" novalidate>
 
             <div class="flex flex-col gap-1">
@@ -312,7 +336,7 @@ class AdminEventsController {
             </form>
         `;
 
-        this.buildModal(content);
+        this.buildModal(content, updateForm ? 'Update Event Details' : 'Schedule Event');
 
         let isOnline = updateForm?.isOnline ?? false;
 
@@ -436,7 +460,7 @@ class AdminEventsController {
         document.getElementById('event-form').onsubmit = async (e) => {
             e.preventDefault();
 
-            if (!validateForm()) return; // stop if any field fails
+            if (!validateForm()) return;
 
             const dateValue = document.getElementById('event-date').value;
             const timeValue = document.getElementById('event-time').value;
