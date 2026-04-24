@@ -1,3 +1,4 @@
+
 # Avy Platform - Quick Start Guide
 
 ## 🚀 Getting Started in 5 Minutes
