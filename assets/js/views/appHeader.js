@@ -23,7 +23,9 @@ export function renderAppHeader(user, currentPath = '') {
     `;
 
     const L = (href, icon, label, matchPrefixes) => {
-        const active = matchPrefixes.some((p) => path === p || (p !== '/' && path.startsWith(p + '/')));
+        const active = matchPrefixes.some(
+            (p) => path === p || (p !== '/' && path.startsWith(p + '/'))
+        );
         const cls = active
             ? 'text-purple-600 font-semibold'
             : 'text-gray-600 hover:text-purple-600 transition';
@@ -39,6 +41,7 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/admin/jobs', 'fa-briefcase', 'Jobs', ['/admin/jobs'])}
             ${L('/admin/companies', 'fa-building', 'Companies', ['/admin/companies'])}
             ${L('/admin/analytics', 'fa-chart-bar', 'Analytics', ['/admin/analytics'])}
+            ${L('/admin/events', 'fa-calendar', 'Events', ['/admin/events'])}
         `;
     } else if (role === 'employer') {
         links = `
