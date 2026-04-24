@@ -9,14 +9,14 @@ import { renderAppHeader } from '../../views/appHeader.js';
 export default async function profileController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
-    
+
     if (!user) {
         window.router.navigate('/login');
         return;
     }
-    
+
     const cvProfile = await mockDataService.getCVProfile(user.id);
-    
+
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         
@@ -108,9 +108,44 @@ export default async function profileController() {
                             </div>
                         </div>
                         
-                        <button id="savePersonalInfoBtn" class="btn btn-primary mt-6">
+                <div class="mt-6 flex justify-between items-center flex-wrap gap-3">
+                    <div>
+                        <button id="savePersonalInfoBtn" class="btn btn-primary">
                             <i class="fas fa-save mr-2"></i> Save Personal Information
                         </button>
+                    </div>
+
+                    <div>
+                        <button id="togglePasswordFormBtn" class="btn btn-secondary">
+                            <i class="fas fa-lock mr-2"></i> Change Password
+                        </button>
+                    </div>
+                </div>
+
+                <div id="changePasswordSection" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="form-label">Current Password *</label>
+                            <input type="password" id="currentPassword" class="form-input" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">New Password *</label>
+                            <input type="password" id="newPassword" class="form-input" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Confirm New Password *</label>
+                            <input type="password" id="confirmNewPassword" class="form-input" />
+                        </div>
+                    </div>
+
+                    <button id="savePasswordBtn" class="btn btn-primary mt-4">
+                        <i class="fas fa-check mr-2"></i> Update Password
+                    </button>
+                    <p id="passwordMessage" class="hidden mt-3 text-sm font-medium" aria-live="polite"></p>
+                </div>
+                        
                     </div>
                     
                     <div class="card mb-6">
@@ -214,9 +249,9 @@ export default async function profileController() {
             </div>
         </div>
     `;
-    
+
     setupEventListeners(user, cvProfile);
-    
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => authService.logout());
@@ -227,7 +262,7 @@ function renderWorkExperienceList(workExp) {
     if (workExp.length === 0) {
         return '<p class="text-gray-500 text-center py-4">No work experience added yet</p>';
     }
-    
+
     return workExp.map(exp => `
         <div class="mb-4 p-4 bg-gray-50 rounded-lg">
             <div class="flex justify-between items-start">
@@ -250,7 +285,7 @@ function renderEducationList(education) {
     if (education.length === 0) {
         return '<p class="text-gray-500 text-center py-4">No education added yet</p>';
     }
-    
+
     return education.map(edu => `
         <div class="mb-4 p-4 bg-gray-50 rounded-lg">
             <div class="flex justify-between items-start">
@@ -272,7 +307,7 @@ function renderAcademyList(academies) {
     if (academies.length === 0) {
         return '<p class="text-gray-500 text-center py-4">No academy attendance added yet</p>';
     }
-    
+
     return academies.map(academy => `
         <div class="mb-4 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
             <div class="flex justify-between items-start">
@@ -294,7 +329,7 @@ function renderSkillsList(skills) {
     if (skills.length === 0) {
         return '<p class="text-gray-500 text-sm">No skills added yet</p>';
     }
-    
+
     return skills.map(skill => `
         <span class="px-3 py-2 bg-purple-100 text-purple-800 rounded-lg font-semibold">
             ${skill}
@@ -309,7 +344,7 @@ function renderLanguagesList(languages) {
     if (languages.length === 0) {
         return '<p class="text-gray-500 text-center py-4">No languages added yet</p>';
     }
-    
+
     return languages.map((lang, index) => `
         <div class="mb-3 p-3 bg-gray-50 rounded-lg flex justify-between items-center">
             <div>
@@ -328,16 +363,89 @@ function setupEventListeners(user, cvProfile) {
         const btn = document.getElementById('savePersonalInfoBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
-        
+
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         btn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
         setTimeout(() => {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Personal Information';
         }, 2000);
     });
-    
+
+    const passwordMessage = document.getElementById('passwordMessage');
+
+    function showPasswordMessage(message, type = 'error') {
+        passwordMessage.textContent = message;
+        passwordMessage.className = 'mt-3 text-sm font-medium';
+
+        if (type === 'success') {
+            passwordMessage.classList.add('text-green-600');
+        } else {
+            passwordMessage.classList.add('text-red-600');
+        }
+    }
+
+    function clearPasswordMessage() {
+        passwordMessage.textContent = '';
+        passwordMessage.className = 'hidden mt-3 text-sm font-medium';
+    }
+
+
+    document.getElementById('togglePasswordFormBtn').addEventListener('click', () => {
+        document.getElementById('changePasswordSection').classList.toggle('hidden');
+        clearPasswordMessage();
+    });
+
+    document.getElementById('savePasswordBtn').addEventListener('click', async () => {
+        const currentPassword = document.getElementById('currentPassword').value.trim();
+        const newPassword = document.getElementById('newPassword').value.trim();
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value.trim();
+        const btn = document.getElementById('savePasswordBtn');
+
+        clearPasswordMessage();
+
+        if (!currentPassword || !newPassword || !confirmNewPassword) {
+            showPasswordMessage('Please fill in all password fields.');
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            showPasswordMessage('New passwords do not match.');
+            return;
+        }
+
+        if (currentPassword === newPassword) {
+            showPasswordMessage('New password must be different from current password.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
+
+        try {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            showPasswordMessage('Password updated successfully.', 'success');
+
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i> Password Updated!';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check mr-2"></i> Update Password';
+                document.getElementById('changePasswordSection').classList.add('hidden');
+                clearPasswordMessage();
+            }, 2000);
+        } catch (error) {
+            showPasswordMessage('Failed to update password. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i> Update Password';
+        }
+    });
+
     const skillInput = document.getElementById('skillInput');
     document.getElementById('addSkillBtn').addEventListener('click', () => {
         const skill = skillInput.value.trim();
@@ -347,23 +455,23 @@ function setupEventListeners(user, cvProfile) {
             skillInput.value = '';
         }
     });
-    
+
     skillInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             document.getElementById('addSkillBtn').click();
         }
     });
-    
+
     window.removeSkill = (skill) => {
         cvProfile.skills = cvProfile.skills.filter(s => s !== skill);
         document.getElementById('skillsList').innerHTML = renderSkillsList(cvProfile.skills);
     };
-    
+
     document.getElementById('saveCVBtn').addEventListener('click', async () => {
         const btn = document.getElementById('saveCVBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving CV...';
-        
+
         try {
             await mockDataService.updateCVProfile(user.id, cvProfile);
             btn.innerHTML = '<i class="fas fa-check mr-2"></i> CV Saved Successfully!';
