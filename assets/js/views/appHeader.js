@@ -23,7 +23,9 @@ export function renderAppHeader(user, currentPath = '') {
     `;
 
     const L = (href, icon, label, matchPrefixes) => {
-        const active = matchPrefixes.some((p) => path === p || (p !== '/' && path.startsWith(p + '/')));
+        const active = matchPrefixes.some(
+            (p) => path === p || (p !== '/' && path.startsWith(p + '/'))
+        );
         const cls = active
             ? 'text-purple-600 font-semibold'
             : 'text-gray-600 hover:text-purple-600 transition';
@@ -38,7 +40,9 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/admin/users', 'fa-users-cog', 'Users', ['/admin/users'])}
             ${L('/admin/jobs', 'fa-briefcase', 'Jobs', ['/admin/jobs'])}
             ${L('/admin/companies', 'fa-building', 'Companies', ['/admin/companies'])}
+            ${L('/admin/events', 'fa-calendar-alt', 'Events', ['/admin/events'])}
             ${L('/admin/analytics', 'fa-chart-bar', 'Analytics', ['/admin/analytics'])}
+            ${L('/admin/notifications', 'fa-bell', 'Alerts', ['/admin/notifications'])}
         `;
     } else if (role === 'employer') {
         links = `
@@ -46,12 +50,18 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/employer/jobs', 'fa-briefcase', 'My Jobs', ['/employer/jobs'])}
             ${L('/employer/post-job', 'fa-plus-circle', 'Post Job', ['/employer/post-job'])}
             ${L('/employer/candidates', 'fa-users', 'Candidates', ['/employer/candidates'])}
+            ${L('/employer/messages', 'fa-envelope', 'Messages', ['/employer/messages'])}
+            ${L('/employer/notifications', 'fa-bell', 'Notifications', ['/employer/notifications'])}
         `;
     } else {
         links = `
             ${L('/dashboard', 'fa-home', 'Dashboard', ['/dashboard'])}
             ${L('/jobs', 'fa-briefcase', 'Jobs', ['/jobs'])}
             ${L('/companies', 'fa-building', 'Companies', ['/companies'])}
+            ${L('/applications', 'fa-clipboard-list', 'Applications', ['/applications'])}
+            ${L('/events', 'fa-calendar-alt', 'Events', ['/events'])}
+            ${L('/messages', 'fa-envelope', 'Messages', ['/messages'])}
+            ${L('/notifications', 'fa-bell', 'Notifications', ['/notifications'])}
             ${L('/profile', 'fa-user', 'Profile', ['/profile'])}
         `;
     }
