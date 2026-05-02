@@ -6,24 +6,31 @@
 
 import {
     AcademyAttendance,
-    Analytics,
     Application,
-    Company,
-    CVProfile,
-    Education,
-    Event,
-    Job,
-    Language,
     Message,
     Notification,
-    SuccessStory,
     User,
+    CVProfile,
     WorkExperience,
+    Education,
+    Language,
+    Job,
+    Company,
+    SuccessStory,
+    Event,
+    Analytics,
 } from '../models/DataModels.js';
 
 class MockDataService {
     constructor() {
-        this.initializeMockData();
+        const stored = localStorage.getItem('mockData');
+
+        if (stored) {
+            Object.assign(this, JSON.parse(stored));
+        } else {
+            this.initializeMockData();
+            this.saveToStorage();
+        }
     }
 
     /**
@@ -40,6 +47,25 @@ class MockDataService {
         this.messages = this.generateMockMessages();
         this.notifications = this.generateMockNotifications();
         this.analytics = this.generateMockAnalytics();
+    }
+
+    /**
+     * Save current mock data state to localStorage (for persistence across reloads)
+     */
+    saveToStorage() {
+        localStorage.setItem(
+            'mockData',
+            JSON.stringify({
+                users: this.users,
+                companies: this.companies,
+                jobs: this.jobs,
+                applications: this.applications,
+                cvProfiles: this.cvProfiles,
+                successStories: this.successStories,
+                events: this.events,
+                analytics: this.analytics,
+            })
+        );
     }
 
     /**
@@ -177,6 +203,26 @@ class MockDataService {
     async getCompanyById(id) {
         await this.simulateDelay();
         return this.companies.find((c) => c.id === id);
+    }
+
+    async updateCompany(id, companyData) {
+        await this.simulateDelay();
+
+        const index = this.companies.findIndex((c) => c.id === id);
+
+        if (index !== -1) {
+            this.companies[index] = new Company({
+                ...this.companies[index],
+                ...companyData,
+                updatedAt: new Date().toISOString(),
+            });
+
+            this.saveToStorage();
+
+            return this.companies[index];
+        }
+
+        return null;
     }
 
     /**
