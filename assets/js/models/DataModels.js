@@ -209,6 +209,40 @@ export class Event {
 }
 
 /**
+ * Message Model
+ */
+export class Message {
+    constructor(data = {}) {
+        this.id = data.id || '';
+        this.threadId = data.threadId || ''; // Groups messages into a conversation
+        this.fromUserId = data.fromUserId || '';
+        this.toUserId = data.toUserId || '';
+        this.companyId = data.companyId || ''; // Optional: company context for the thread
+        this.jobId = data.jobId || ''; // Optional: job context for the thread
+        this.subject = data.subject || '';
+        this.body = data.body || '';
+        this.read = data.read || false;
+        this.sentAt = data.sentAt || new Date().toISOString();
+    }
+}
+
+/**
+ * Notification Model
+ */
+export class Notification {
+    constructor(data = {}) {
+        this.id = data.id || '';
+        this.userId = data.userId || ''; // Recipient
+        this.type = data.type || 'info'; // application_status, interview_invitation, message_received, application_submitted, password_changed, registration_success, event_reminder, system_alert, info
+        this.title = data.title || '';
+        this.message = data.message || '';
+        this.link = data.link || ''; // Optional in-app link to navigate to
+        this.read = data.read || false;
+        this.createdAt = data.createdAt || new Date().toISOString();
+    }
+}
+
+/**
  * Analytics Model
  */
 export class Analytics {

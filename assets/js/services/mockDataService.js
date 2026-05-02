@@ -5,15 +5,17 @@
  */
 
 import {
+    AcademyAttendance,
+    Application,
+    Message,
+    Notification,
     User,
     CVProfile,
     WorkExperience,
     Education,
-    AcademyAttendance,
     Language,
     Job,
     Company,
-    Application,
     SuccessStory,
     Event,
     Analytics,
@@ -42,6 +44,8 @@ class MockDataService {
         this.cvProfiles = this.generateMockCVProfiles();
         this.successStories = this.generateMockSuccessStories();
         this.events = this.generateMockEvents();
+        this.messages = this.generateMockMessages();
+        this.notifications = this.generateMockNotifications();
         this.analytics = this.generateMockAnalytics();
     }
 
@@ -550,6 +554,32 @@ class MockDataService {
         return null;
     }
 
+    async getApplicationById(id) {
+        await this.simulateDelay();
+        return this.applications.find((a) => a.id === id);
+    }
+
+    async withdrawApplication(id) {
+        await this.simulateDelay();
+        const index = this.applications.findIndex((a) => a.id === id);
+        if (index !== -1) {
+            this.applications[index].status = 'withdrawn';
+            this.applications[index].updatedAt = new Date().toISOString();
+            return this.applications[index];
+        }
+        return null;
+    }
+
+    async getApplicationsByJobId(jobId) {
+        await this.simulateDelay();
+        const apps = this.applications.filter((a) => a.jobId === jobId);
+        // Join applicant user info for the employer applicants view
+        return apps.map((a) => ({
+            ...a,
+            applicant: this.users.find((u) => u.id === a.userId) || null,
+        }));
+    }
+
     /**
      * CV PROFILES
      */
@@ -692,6 +722,258 @@ class MockDataService {
     async getEvents() {
         await this.simulateDelay();
         return this.events;
+    }
+
+    async getEventById(id) {
+        await this.simulateDelay();
+        return this.events.find((e) => e.id === id);
+    }
+
+    async createEvent(eventData) {
+        await this.simulateDelay();
+        const newEvent = new Event({
+            ...eventData,
+            id: 'e' + (this.events.length + 1),
+        });
+        this.events.push(newEvent);
+        return newEvent;
+    }
+
+    async updateEvent(id, eventData) {
+        await this.simulateDelay();
+        const index = this.events.findIndex((e) => e.id === id);
+        if (index !== -1) {
+            this.events[index] = new Event({ ...this.events[index], ...eventData });
+            return this.events[index];
+        }
+        return null;
+    }
+
+    async deleteEvent(id) {
+        await this.simulateDelay();
+        const index = this.events.findIndex((e) => e.id === id);
+        if (index !== -1) {
+            this.events.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
+
+    async registerForEvent(eventId, userId) {
+        await this.simulateDelay();
+        const event = this.events.find((e) => e.id === eventId);
+        if (!event) return null;
+        if (event.maxParticipants && event.registeredCount >= event.maxParticipants) {
+            return { success: false, reason: 'event_full', event };
+        }
+        event.registeredCount = (event.registeredCount || 0) + 1;
+        return { success: true, event, userId };
+    }
+
+    /**
+     * MESSAGES
+     */
+    generateMockMessages() {
+        const now = Date.now();
+        return [
+            new Message({
+                id: 'm1',
+                threadId: 't1',
+                fromUserId: '1',
+                toUserId: '3',
+                companyId: 'c1',
+                jobId: 'j1',
+                subject: 'Question about Frontend Developer role',
+                body: 'Hi, I would like to know more about the tech stack used at TechCorp.',
+                read: true,
+                sentAt: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Message({
+                id: 'm2',
+                threadId: 't1',
+                fromUserId: '3',
+                toUserId: '1',
+                companyId: 'c1',
+                jobId: 'j1',
+                subject: 'Re: Question about Frontend Developer role',
+                body: 'Hi John, thanks for reaching out! We use React, TypeScript, and Tailwind CSS.',
+                read: false,
+                sentAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Message({
+                id: 'm3',
+                threadId: 't2',
+                fromUserId: '3',
+                toUserId: '2',
+                companyId: 'c1',
+                subject: 'Interview invitation',
+                body: 'Hi Jane, we would like to invite you to an interview for the Senior position.',
+                read: false,
+                sentAt: new Date(now - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+        ];
+    }
+
+    async getMessages(filters = {}) {
+        await this.simulateDelay();
+        let msgs = [...this.messages];
+        if (filters.userId) {
+            msgs = msgs.filter(
+                (m) => m.fromUserId === filters.userId || m.toUserId === filters.userId
+            );
+        }
+        if (filters.threadId) {
+            msgs = msgs.filter((m) => m.threadId === filters.threadId);
+        }
+        if (filters.companyId) {
+            msgs = msgs.filter((m) => m.companyId === filters.companyId);
+        }
+        return msgs.sort((a, b) => new Date(a.sentAt) - new Date(b.sentAt));
+    }
+
+    async getMessageThreads(userId) {
+        await this.simulateDelay();
+        const userMsgs = this.messages.filter(
+            (m) => m.fromUserId === userId || m.toUserId === userId
+        );
+        const threadMap = new Map();
+        userMsgs.forEach((m) => {
+            const existing = threadMap.get(m.threadId);
+            if (!existing || new Date(m.sentAt) > new Date(existing.sentAt)) {
+                threadMap.set(m.threadId, m);
+            }
+        });
+        return Array.from(threadMap.values())
+            .map((lastMsg) => ({
+                threadId: lastMsg.threadId,
+                companyId: lastMsg.companyId,
+                jobId: lastMsg.jobId,
+                lastMessage: lastMsg,
+                unreadCount: userMsgs.filter(
+                    (m) => m.threadId === lastMsg.threadId && m.toUserId === userId && !m.read
+                ).length,
+            }))
+            .sort((a, b) => new Date(b.lastMessage.sentAt) - new Date(a.lastMessage.sentAt));
+    }
+
+    async sendMessage(messageData) {
+        await this.simulateDelay();
+        const newMessage = new Message({
+            ...messageData,
+            id: 'm' + (this.messages.length + 1),
+            threadId: messageData.threadId || 't' + (this.messages.length + 1),
+        });
+        this.messages.push(newMessage);
+        return newMessage;
+    }
+
+    async markMessageAsRead(id) {
+        await this.simulateDelay();
+        const msg = this.messages.find((m) => m.id === id);
+        if (msg) {
+            msg.read = true;
+            return msg;
+        }
+        return null;
+    }
+
+    /**
+     * NOTIFICATIONS
+     */
+    generateMockNotifications() {
+        const now = Date.now();
+        return [
+            new Notification({
+                id: 'n1',
+                userId: '1',
+                type: 'application_status',
+                title: 'Application status updated',
+                message: 'Your application for Frontend Developer at TechCorp is now Under Review.',
+                link: '/applications',
+                read: false,
+                createdAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Notification({
+                id: 'n2',
+                userId: '1',
+                type: 'message_received',
+                title: 'New message',
+                message: 'You have a new message from TechCorp Solutions.',
+                link: '/messages',
+                read: false,
+                createdAt: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Notification({
+                id: 'n3',
+                userId: '1',
+                type: 'event_reminder',
+                title: 'Career Day 2026 is coming up',
+                message: "Don't forget to attend Career Day 2026 next week.",
+                link: '/events',
+                read: true,
+                createdAt: new Date(now - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Notification({
+                id: 'n4',
+                userId: '1',
+                type: 'application_submitted',
+                title: 'Application submitted',
+                message: 'Your application for Data Analyst Intern was successfully submitted.',
+                link: '/applications',
+                read: true,
+                createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Notification({
+                id: 'n5',
+                userId: '3',
+                type: 'system_alert',
+                title: 'New applicant for Frontend Developer',
+                message: 'John Doe has applied to your Frontend Developer posting.',
+                link: '/employer/jobs',
+                read: false,
+                createdAt: new Date(now - 5 * 60 * 60 * 1000).toISOString(),
+            }),
+        ];
+    }
+
+    async getNotifications(userId, options = {}) {
+        await this.simulateDelay();
+        let list = this.notifications.filter((n) => n.userId === userId);
+        if (options.unreadOnly) {
+            list = list.filter((n) => !n.read);
+        }
+        return list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    async getUnreadCount(userId) {
+        await this.simulateDelay();
+        return this.notifications.filter((n) => n.userId === userId && !n.read).length;
+    }
+
+    async createNotification(data) {
+        await this.simulateDelay();
+        const newNotification = new Notification({
+            ...data,
+            id: 'n' + (this.notifications.length + 1),
+        });
+        this.notifications.push(newNotification);
+        return newNotification;
+    }
+
+    async markNotificationAsRead(id) {
+        await this.simulateDelay();
+        const n = this.notifications.find((n) => n.id === id);
+        if (n) {
+            n.read = true;
+            return n;
+        }
+        return null;
+    }
+
+    async markAllAsRead(userId) {
+        await this.simulateDelay();
+        this.notifications.filter((n) => n.userId === userId).forEach((n) => (n.read = true));
+        return true;
     }
 
     /**

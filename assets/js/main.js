@@ -7,18 +7,29 @@
 import router from './router.js';
 
 // Import controllers
-import landingController from './controllers/landingController.js';
-import loginController from './controllers/loginController.js';
-import dashboardController from './controllers/dashboardController.js';
+import applicationsController from './controllers/bloom/applicationsController.js';
+import companiesController from './controllers/bloom/companiesController.js';
+import eventsController from './controllers/bloom/eventsController.js';
 import jobBoardController from './controllers/bloom/jobBoardController.js';
 import jobDetailController from './controllers/bloom/jobDetailController.js';
-import companiesController from './controllers/bloom/companiesController.js';
+import messagesController from './controllers/bloom/messagesController.js';
+import notificationsController from './controllers/bloom/notificationsController.js';
 import profileController from './controllers/bloom/profileController.js';
-import postJobController from './controllers/evergreen/postJobController.js';
+import dashboardController from './controllers/dashboardController.js';
 import candidatesController from './controllers/evergreen/candidatesController.js';
+import jobApplicantsController from './controllers/evergreen/jobApplicantsController.js';
+import employerMessagesController from './controllers/evergreen/messagesController.js';
+import myJobsController from './controllers/evergreen/myJobsController.js';
+import employerNotificationsController from './controllers/evergreen/notificationsController.js';
+import postJobController from './controllers/evergreen/postJobController.js';
+import landingController from './controllers/landingController.js';
+import loginController from './controllers/loginController.js';
 import companyProfileController from './controllers/evergreen/companyProfileController.js';
 import adminUsersController from './controllers/meridian/adminUsersController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
+import adminEventsController from './controllers/meridian/adminEventsController.js';
+import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
+import adminUsersController from './controllers/meridian/adminUsersController.js';
 import notFoundController from './controllers/notFoundController.js';
 
 // Import services (make available globally)
@@ -62,10 +73,19 @@ function registerRoutes() {
     router.addRoute('/jobs/:id', jobDetailController, true);
     router.addRoute('/companies', companiesController, true);
     router.addRoute('/profile', profileController, true, ['student', 'alumni']);
+    router.addRoute('/applications', applicationsController, true, ['student', 'alumni']);
+    router.addRoute('/events', eventsController, true);
+    router.addRoute('/messages', messagesController, true, ['student', 'alumni']);
+    router.addRoute('/notifications', notificationsController, true);
 
     // Employer routes (Evergreen module)
     router.addRoute('/employer/post-job', postJobController, true, ['employer']);
     router.addRoute('/employer/candidates', candidatesController, true, ['employer']);
+    router.addRoute('/employer/jobs', myJobsController, true, ['employer']);
+    router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
+    router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
+    router.addRoute('/employer/notifications', employerNotificationsController, true, ['employer']);
+
     router.addRoute(
         '/employer/jobs',
         createPlaceholderController('My Jobs', 'Manage your job postings'),
@@ -92,6 +112,8 @@ function registerRoutes() {
         ['admin']
     );
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
+    router.addRoute('/admin/events', adminEventsController, true, ['admin']);
+    router.addRoute('/admin/notifications', adminNotificationsController, true, ['admin']);
 
     // 404 route (must be last)
     router.addRoute('/404', notFoundController, false);
