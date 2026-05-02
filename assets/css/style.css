@@ -97,6 +97,11 @@ body {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
+.card.no-hover:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* Loading Spinner */
 .spinner {
     border: 3px solid #f3f3f3;
