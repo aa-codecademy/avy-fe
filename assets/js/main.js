@@ -29,7 +29,6 @@ import adminUsersController from './controllers/meridian/adminUsersController.js
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
 import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
-import adminUsersController from './controllers/meridian/adminUsersController.js';
 import notFoundController from './controllers/notFoundController.js';
 
 // Import services (make available globally)
