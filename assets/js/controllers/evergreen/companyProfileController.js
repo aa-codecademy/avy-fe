@@ -17,7 +17,7 @@ export default async function companyProfileController() {
     }
 
     // Fetch company data
-    const company = await mockDataService.getCompanyById(user.companyId);
+    const company = await apiService.get(`/companies/${user.companyId}`);
     if (!company) {
         app.innerHTML = '<p>Company not found</p>';
         return;
@@ -190,10 +190,10 @@ export default async function companyProfileController() {
             };
 
             try {
-                // In Phase 2, replace with: await apiService.put(`/companies/${company.id}`, updatedCompany);
-                console.log('Saving company profile:', updatedCompany);
+                const saved = await apiService.put(`/companies/${company.id}`, updatedCompany);
+
+                console.log('Saved company:', saved);
                 alert('Company profile updated successfully!');
-                // Optionally reload the page or update the display
             } catch (error) {
                 console.error('Error saving company profile:', error);
                 alert('Error saving company profile');
