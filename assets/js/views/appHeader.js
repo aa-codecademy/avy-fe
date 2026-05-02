@@ -26,9 +26,7 @@ export function renderAppHeader(user, currentPath = '') {
         const active = matchPrefixes.some(
             (p) => path === p || (p !== '/' && path.startsWith(p + '/'))
         );
-        const active = matchPrefixes.some(
-            (p) => path === p || (p !== '/' && path.startsWith(p + '/'))
-        );
+
         const cls = active
             ? 'text-purple-600 font-semibold'
             : 'text-gray-600 hover:text-purple-600 transition';
