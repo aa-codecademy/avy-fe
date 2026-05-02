@@ -73,7 +73,7 @@ export default async function myJobsController() {
                         ${jobs
                             .map(
                                 (job) => `
-                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors" data-job-id="${job.id}">
+                            <tr class="border-b border-gray-100" data-job-id="${job.id}">
                                 <td class="py-4 px-4">
                                     <div class="font-semibold text-gray-800">${job.title}</div>
                                     <div class="text-sm text-gray-500">${job.location || 'No location'}</div>
@@ -117,7 +117,7 @@ export default async function myJobsController() {
     // Render edit form
     const renderEditForm = (job) => {
         return `
-            <div class="card mb-6">
+            <div class="card no-hover mb-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800">
                         <i class="fas fa-edit mr-2"></i>
