@@ -626,7 +626,26 @@ class MockDataService {
                 location: 'Avenga Academy - Skopje',
                 isOnline: false,
                 maxParticipants: 100,
-                registeredCount: 45,
+                registeredUsers: [
+                    new User({
+                        id: 'u1',
+                        name: 'Test User 1',
+                        role: 'student',
+                        email: 'testuser1@gmail.com',
+                    }),
+                    new User({
+                        id: 'u2',
+                        name: 'Test User 2',
+                        role: 'alumni',
+                        email: 'testuser2@gmail.com',
+                    }),
+                    new User({
+                        id: 'u3',
+                        name: 'Test User 3',
+                        role: 'student',
+                        email: 'testuser3@gmail.com',
+                    }),
+                ],
             }),
             new Event({
                 id: 'e2',
@@ -638,9 +657,36 @@ class MockDataService {
                 location: 'Online',
                 isOnline: true,
                 maxParticipants: 50,
-                registeredCount: 32,
+                registeredUsers: [
+                    new User({
+                        id: 'u4',
+                        name: 'Test User 4',
+                        role: 'alumni',
+                        email: 'testuser4@gmail.com',
+                    }),
+                    new User({
+                        id: 'u5',
+                        name: 'Test User 5',
+                        role: 'alumni',
+                        email: 'testuser5@gmail.com',
+                    }),
+                    new User({
+                        id: 'u6',
+                        name: 'Test User 6',
+                        role: 'student',
+                        email: 'testuser6@gmail.com',
+                    }),
+                ],
             }),
         ];
+    }
+    /**
+     * Generates a unique ID using a prefix.
+     * @param {string} prefix - The prefix 'e_' for events, 'r_' from resources
+     * @returns {string} The generated unique ID
+     */
+    generateId(prefix) {
+        return prefix + Date.now().toString(36) + Math.random().toString(36).substring(2, 4);
     }
 
     /**

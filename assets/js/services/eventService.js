@@ -6,7 +6,7 @@
 
 import apiService from './apiService.js';
 import mockDataService from './mockDataService.js';
-import { Event } from '../models/DataModels.js';
+import { Event, EventNotification } from '../models/DataModels.js';
 
 class EventService {
     /* Event Methods */
@@ -48,7 +48,7 @@ class EventService {
 
         const newEvent = new Event({
             ...data,
-            id: this.generateId('e_'),
+            id: mockDataService.generateId('e_'),
             status: 'upcoming',
         });
         mockDataService.events.push(newEvent);
@@ -112,14 +112,21 @@ class EventService {
         event.status = updatedStatus;
     }
 
-    /* Utility */
     /**
-     * Generates a unique ID using a prefix.
-     * @param {string} prefix - The prefix 'e_' for events
-     * @returns {string} The generated unique ID
+     * Creates a new event notification.
+     * @param {Object} data - Notification data used to create the event notification
      */
-    generateId(prefix) {
-        return prefix + Date.now().toString(36) + Math.random().toString(36).substring(2, 4);
+    async createNotification(data) {
+        //return await apiService.post('/events/notifications', data); // For Phase 2
+        await mockDataService.simulateDelay();
+
+        // Simulation for backend logic
+        const notification = new EventNotification({
+            id: mockDataService.generateId('en_'),
+            eventId: data.eventId,
+            message: data.message,
+        });
+        console.log('%c Notification sent successfully!', 'color: #56fc03', notification);
     }
 }
 

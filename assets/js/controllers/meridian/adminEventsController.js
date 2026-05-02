@@ -1,39 +1,69 @@
 import authService from '../../services/authService.js';
 import eventService from '../../services/eventService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
+import modalService from '../../services/modalService.js';
+import mockDataService from '../../services/mockDataService.js';
 
 export default async function adminEventsController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
+
+    const analytics = await mockDataService.getAnalytics();
 
     if (!user || user.role !== 'admin') {
         window.location.navigate('/dashboard');
         return;
     }
 
-    app.innerHTML = `
-    ${renderAppHeader(user, window.location.pathname)}
-    <div class="container mx-auto px-4 py-8">
-        <div class="fade-in">
-            <div class="mb-8">
-                <h1 class="text-4xl font-bold text-gray-800 mb-2"><i class="fas fa-chart-gantt text-purple-600 mr-3"></i>Event Management</h1>
-                <p class="text-gray-600">Meridian - Event Management</p>
-            </div>
+    document.innerHTML = `<div class="spinner"></div>`;
+    setTimeout(300);
+    document.innerHTML = ``;
 
-            <div class="grid md:grid-cols-4 gap-6 mb-8">
-                <div class="card cursor-pointer transition-all duration-300 hover:bg-green-500 group" id="schedule-event-button">
-                    <div class="flex items-center justify-between">
-                        <div><p class="text-xl font-bold transition-colors duration-300 group-hover:text-white">Schedule Event</p></div>
-                        <i class="fas fa-calendar-plus text-4xl text-gray-400 transition-colors duration-300 group-hover:text-white"></i>
+    app.innerHTML = `
+        ${renderAppHeader(user, window.location.pathname)}
+        <div class="container mx-auto px-4 py-8">
+            <div class="fade-in">
+
+                <!-- Page Title -->
+                <div class="relative bg-white shadow-md rounded-2xl mb-6">
+                    <div class="max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                        <h1 class="text-4xl font-bold text-gray-800 mb-2"><i class="fas fa-calendar text-purple-600 mr-3"></i>Platform Event Management</h1>
+                        <p class="text-gray-600">Meridian-Event Management</p>
                     </div>
                 </div>
+
+                <!-- Main Layout -->
+                <div class="flex gap-6">
+
+                    <!-- Left Sidebar -->
+                    <div class="flex flex-col gap-4 w-1/4 h-fit relative bg-white shadow-md rounded-2xl p-5">
+
+                        <!-- Schedule Event -->
+                        <div style="background:var(--color-bg)" class="cursor-pointer transition-all duration-300 hover:bg-green-500 group relative shadow-md rounded-2xl p-5" id="schedule-event-button">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xl font-bold transition-colors duration-300 group-hover:text-white">Schedule Event</p>
+                                <i class="fas fa-calendar-plus text-4xl text-gray-400 transition-colors duration-300 group-hover:text-white"></i>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div style="background:var(--color-bg)" class="flex flex-col gap-2 relative shadow-md rounded-2xl p-5">
+                            <p class="text-sm font-semibold text-gray-500 mb-2">Filters</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Content Area -->
+                    <div class="flex flex-col gap-4 w-3/4">
+                        <div class="relative bg-white shadow-md rounded-2xl p-5">
+                            <h2 class="text-2xl font-bold text-gray-800">Current Events</h2>
+                        </div>
+                        <div id="event-card-container" class="flex flex-col gap-4 relative bg-white shadow-md rounded-2xl p-5"></div>
+                    </div>
+
+                </div>
             </div>
-
-            <div class="mb-6"><h1 class="text-2xl font-bold text-gray-800 mb-2">Current Events</h1></div>
-
-            <div id="event-card-container" class="grid md:grid-cols-3 gap-6 mb-8"></div>
         </div>
-    </div>
     `;
 
     const controller = new AdminEventsController();
@@ -59,12 +89,18 @@ class AdminEventsController {
         const events = await this.eventService.getEvents();
         const container = document.getElementById('event-card-container');
         container.innerHTML = ``;
+        if (events.length === 0) {
+            container.innerHTML = `<h2 class="text-lg font-bold text-gray-800 leading-tight">No scheduled events currently</h2>`;
+            return;
+        }
         events.forEach((event) => container.appendChild(this.buildEventCard(event)));
     }
+
     buildEventCard(event) {
         const card = document.createElement('div');
-        card.classList.add('event-card', 'card', 'flex', 'flex-col', 'gap-4', 'cursor-pointer');
+        card.classList.add('event-card', 'card', 'flex', 'flex-col', 'gap-4');
         card.dataset.id = event.id;
+        card.style.background = 'var(--color-bg)';
 
         const getEventMetaData = (event) => {
             const getBarPercentage = (registered, max) => {
@@ -90,17 +126,15 @@ class AdminEventsController {
             };
 
             return {
-                barPercentage: getBarPercentage(event.registeredCount, event.maxParticipants),
-                barColor: getBarColor(event.registeredCount, event.maxParticipants),
+                barPercentage: getBarPercentage(
+                    event.registeredUsers.length,
+                    event.maxParticipants
+                ),
+                barColor: getBarColor(event.registeredUsers.length, event.maxParticipants),
                 statusStyle: getStatusStyle(event.status),
             };
         };
         const eventMetaData = getEventMetaData(event);
-
-        card.addEventListener('click', (e) => {
-            if (e.target.closest('button')) return;
-            this.displayEventOverview(event);
-        });
 
         card.innerHTML = `
             <div class="flex items-start justify-between gap-2">
@@ -121,7 +155,7 @@ class AdminEventsController {
             <div>
                 <div class="flex justify-between text-xs text-gray-500 mb-1">
                     <span><i class="fas fa-users mr-1 text-purple-500 w-4"></i>Participants</span>
-                    <span>${event.registeredCount}/${event.maxParticipants}</span>
+                    <span>${event.registeredUsers.length}/${event.maxParticipants}</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2"><div class="${eventMetaData.barColor} h-2 rounded-full transition-all duration-300" style="width: ${eventMetaData.barPercentage}%"></div></div>
             </div>
@@ -131,11 +165,14 @@ class AdminEventsController {
                     <button class="edit-button px-3 py-1.5 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors cursor-pointer"><i class="fas fa-pen mr-1"></i>Edit</button>
                     <button class="cancel-button px-3 py-1.5 text-xs font-medium text-yellow-600 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors cursor-pointer"><i class="fas fa-ban mr-1"></i>Cancel</button>
                     <button class="delete-button px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"><i class="fas fa-trash mr-1"></i>Delete</button>
+                    <button class="more-button px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"><i class="fas fa-ellipsis mr-1"></i>More</button>
                 </div>
             </div>
         `;
 
-        card.querySelector('.edit-button').addEventListener('click', () => this.displayForm(event));
+        card.querySelector('.edit-button').addEventListener('click', () => {
+            this.displayForm(event);
+        });
         card.querySelector('.cancel-button').addEventListener('click', async () => {
             await this.eventService.updateEventStatus(event.id, 'cancelled');
             await this.displayEventCards();
@@ -144,16 +181,41 @@ class AdminEventsController {
             await this.eventService.deleteEvent(event.id);
             await this.displayEventCards();
         });
+        card.querySelector('.more-button').addEventListener('click', () =>
+            this.displayEventOverview(event)
+        );
 
         return card;
     }
+
     displayEventOverview(event) {
         const content = document.createElement('div');
         content.classList.add('flex', 'flex-col', 'gap-6');
 
+        const buildRegistrantsList = () => {
+            return event.registeredUsers
+                .map(
+                    (user) => `
+                <div class="grid grid-cols-3 py-2 border-b border-gray-100 hover:bg-gray-50">
+                    <span>${user.name}</span>
+                    <span>${user.email}</span>
+                    <span>${user.role}</span>
+                </div>
+            `
+                )
+                .join('');
+        };
+
         content.innerHTML = `
             <div class="flex flex-col gap-3">
-                <h2 class="text-xl font-semibold text-gray-800">${event.title}</h2>
+                <div class="flex items-center">
+                    <h2 class="text-xl font-semibold text-gray-800 mr-3">${event.title}</h2>
+
+                    <button id="copy-id-button" class="flex items-center w-fit gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer">
+                        <i class="fas fa-fingerprint"></i>
+                        <span id="copy-id-label">${event.id}</span>
+                    </button>
+                </div>
                 <p class="text-sm text-gray-600 leading-relaxed">${event.description}</p>
 
                 <div class="flex items-center gap-2 text-sm text-gray-700">
@@ -171,7 +233,7 @@ class AdminEventsController {
 
                 <div class="flex items-center gap-2 text-sm text-gray-700">
                     <i class="fas fa-users text-purple-500 w-4"></i>
-                    <span>${event.registeredCount}/${event.maxParticipants} registered</span>
+                    <span>${event.registeredUsers.length}/${event.maxParticipants} registered</span>
                 </div>
             </div>
 
@@ -189,8 +251,15 @@ class AdminEventsController {
                     </button>
                     </div>
                 </div>
-                <div id="participants-list" class="flex flex-col gap-2 text-sm text-gray-500">
-                    <p>Loading...</p>
+                <div id="participants-list" class="flex flex-col gap-2 text-sm text-gray-500 max-h-[288px] overflow-y-auto overflow-x-auto">
+                    <div class="min-w-[500px]">
+                        <div class="grid grid-cols-3 font-medium text-gray-700 border-b pb-1">
+                            <span>Name</span>
+                            <span>Email</span>
+                            <span>Role</span>
+                        </div>
+                        ${buildRegistrantsList()}
+                    </div>
                 </div>
             </div>
 
@@ -201,13 +270,6 @@ class AdminEventsController {
                 <textarea id="notification-message" rows="3" placeholder="Write your message..." class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"></textarea>
                 <button id="send-notification-button" class="px-4 py-2 text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 rounded-lg transition-colors cursor-pointer">
                     <i class="fas fa-bell mr-2"></i>Send to All Participants
-                </button>
-            </div>
-
-            <div class="flex items-center justify-end">
-                <button id="copy-id-button" class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer">
-                    <i class="fas fa-fingerprint"></i>
-                    <span id="copy-id-label">${event.id}</span>
                 </button>
             </div>
         `;
@@ -226,37 +288,14 @@ class AdminEventsController {
         content.querySelector('#send-notification-button').addEventListener('click', () => {
             const message = content.querySelector('#notification-message').value;
             if (!message.trim()) return;
+
+            eventService.createNotification({ eventId: event.id, message: message });
+            content.querySelector('#notification-message').value = '';
         });
 
-        this.buildModal(content, 'Event Details');
-    }
-
-    buildModal(content, title) {
-        const modal = document.createElement('div');
-        modal.id = 'modal-backdrop';
-        modal.className = 'fixed inset-0 bg-black/50 z-40 flex items-center justify-center fade-id';
-
-        modal.innerHTML = `
-            <div class="bg-white rounded-2xl shadow-2xl z-50 w-full max-w-2xl mx-4 p-6 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between">
-                    <div id="modal-title" class="text-xl font-bold text-gray-800">${title}</div>
-                    <button id="modal-close-button" class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"><i class="fas fa-xmark text-xl"></i></button>
-                </div>
-
-                <div id="modal-content"></div>
-            </div>
-        `;
-
-        modal.querySelector('#modal-content').appendChild(content);
-        modal
-            .querySelector('#modal-close-button')
-            .addEventListener('click', () => this.closeModal());
-
+        const modal = modalService.renderModal('Event Details');
         document.body.appendChild(modal);
-    }
-    closeModal() {
-        const modal = document.getElementById('modal-backdrop');
-        if (modal) modal.remove();
+        document.getElementById('modal-content').appendChild(content);
     }
 
     displayForm(updateForm = null) {
@@ -336,7 +375,11 @@ class AdminEventsController {
             </form>
         `;
 
-        this.buildModal(content, updateForm ? 'Update Event Details' : 'Schedule Event');
+        const modal = modalService.renderModal(
+            updateForm ? 'Update Event Details' : 'Schedule Event'
+        );
+        document.body.appendChild(modal);
+        document.getElementById('modal-content').appendChild(content);
 
         let isOnline = updateForm?.isOnline ?? false;
 
@@ -455,7 +498,7 @@ class AdminEventsController {
 
         document
             .getElementById('cancel-modal-button')
-            .addEventListener('click', () => this.closeModal());
+            .addEventListener('click', () => modalElement.closeModal());
 
         document.getElementById('event-form').onsubmit = async (e) => {
             e.preventDefault();
@@ -483,7 +526,7 @@ class AdminEventsController {
                 await eventService.createEvent(data);
             }
 
-            this.closeModal();
+            modalService.closeModal();
             this.displayEventCards();
         };
     }
