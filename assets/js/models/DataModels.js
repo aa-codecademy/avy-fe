@@ -12,6 +12,8 @@ export class User {
         this.email = data.email || '';
         this.name = data.name || '';
         this.role = data.role || 'student'; // student, alumni, employer, admin
+        this.adminRoleId = data.adminRoleId || '';
+        this.status = data.status || 'active'; // active, invited, deactivated
         this.companyId = data.companyId || ''; // For employer role
         this.avatar = data.avatar || '';
         this.phone = data.phone || '';
@@ -22,6 +24,7 @@ export class User {
         this.educationDegree = data.educationDegree || '';
         this.currentPosition = data.currentPosition || '';
         this.profileVisibility = data.profileVisibility || 'public'; // public, private
+        this.lastLoginAt = data.lastLoginAt || '';
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
     }
