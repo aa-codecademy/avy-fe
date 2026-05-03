@@ -26,7 +26,11 @@ class MockDataService {
         const stored = localStorage.getItem('mockData');
 
         if (stored) {
-            Object.assign(this, JSON.parse(stored));
+            const data = JSON.parse(stored);
+            Object.assign(this, data);
+
+            if (!this.messages) this.messages = this.generateMockMessages();
+            if (!this.notifications) this.notifications = this.generateMockNotifications();
         } else {
             this.initializeMockData();
             this.saveToStorage();
@@ -63,6 +67,8 @@ class MockDataService {
                 cvProfiles: this.cvProfiles,
                 successStories: this.successStories,
                 events: this.events,
+                messages: this.messages,
+                notifications: this.notifications,
                 analytics: this.analytics,
             })
         );
@@ -965,6 +971,7 @@ class MockDataService {
         const n = this.notifications.find((n) => n.id === id);
         if (n) {
             n.read = true;
+            this.saveToStorage();
             return n;
         }
         return null;
@@ -973,6 +980,7 @@ class MockDataService {
     async markAllAsRead(userId) {
         await this.simulateDelay();
         this.notifications.filter((n) => n.userId === userId).forEach((n) => (n.read = true));
+        this.saveToStorage();
         return true;
     }
 
