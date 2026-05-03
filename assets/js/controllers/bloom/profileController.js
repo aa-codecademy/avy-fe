@@ -9,14 +9,14 @@ import { renderAppHeader } from '../../views/appHeader.js';
 export default async function profileController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
-    
+
     if (!user) {
         window.router.navigate('/login');
         return;
     }
-    
+
     const cvProfile = await mockDataService.getCVProfile(user.id);
-    
+
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         
@@ -39,6 +39,7 @@ export default async function profileController() {
                             </h2>
                             <button id="editPersonalInfoBtn" class="btn btn-secondary text-sm">
                                 <i class="fas fa-edit mr-1"></i> Edit
+
                             </button>
                         </div>
                         
@@ -46,8 +47,8 @@ export default async function profileController() {
                             <div class="md:col-span-2 flex items-center gap-4">
                                 <img src="${user.avatar}" alt="${user.name}" class="w-24 h-24 rounded-full border-4 border-purple-200" />
                                 <div>
-                                    <input type="file" id="photoUpload" class="hidden" accept="image/*" />
-                                    <label for="photoUpload" class="btn btn-secondary text-sm cursor-pointer">
+                                    <input type="file" id="photoUpload" class="hidden" accept="image/*" disabled />
+                                    <label for="photoUpload" id="photoUploadLabel" class="btn btn-secondary text-sm opacity-60 cursor-not-allowed">
                                         <i class="fas fa-camera mr-1"></i> Change Photo
                                     </label>
                                     <p class="text-xs text-gray-500 mt-1">Optional</p>
@@ -56,59 +57,59 @@ export default async function profileController() {
                             
                             <div>
                                 <label class="form-label">Full Name *</label>
-                                <input type="text" id="name" class="form-input" value="${user.name}" />
+                                <input type="text" id="name" class="form-input" value="${user.name}" disabled />
                             </div>
                             
                             <div>
                                 <label class="form-label">Educational Degree *</label>
-                                <input type="text" id="educationDegree" class="form-input" value="${user.educationDegree || ''}" />
+                                <input type="text" id="educationDegree" class="form-input" value="${user.educationDegree || ''}" disabled />
                             </div>
                             
                             <div>
                                 <label class="form-label">Current Position *</label>
-                                <input type="text" id="currentPosition" class="form-input" value="${user.currentPosition || ''}" />
+                                <input type="text" id="currentPosition" class="form-input" value="${user.currentPosition || ''}" disabled />
                             </div>
                             
                             <div>
                                 <label class="form-label">Email *</label>
-                                <input type="email" id="email" class="form-input" value="${user.email}" readonly />
+                                <input type="email" id="email" class="form-input" value="${user.email}" readonly disabled />
                             </div>
                             
                             <div>
                                 <label class="form-label">Phone Number</label>
-                                <input type="tel" id="phone" class="form-input" value="${user.phone || ''}" />
+                                <input type="tel" id="phone" class="form-input" value="${user.phone || ''}" disabled />
                             </div>
                             
                             <div>
                                 <label class="form-label">Date of Birth *</label>
-                                <input type="date" id="dateOfBirth" class="form-input" value="${user.dateOfBirth || ''}" />
+                                <input type="date" id="dateOfBirth" class="form-input" value="${user.dateOfBirth || ''}" disabled />
                             </div>
                             
                             <div>
                                 <label class="form-label">Citizenship</label>
-                                <input type="text" id="citizenship" class="form-input" value="${user.citizenship || ''}" />
+                                <input type="text" id="citizenship" class="form-input" value="${user.citizenship || ''}" disabled />
                             </div>
                             
                             <div>
                                 <label class="form-label">LinkedIn Profile</label>
-                                <input type="url" id="linkedIn" class="form-input" value="${user.linkedIn || ''}" placeholder="https://linkedin.com/in/yourprofile" />
+                                <input type="url" id="linkedIn" class="form-input" value="${user.linkedIn || ''}" placeholder="https://linkedin.com/in/yourprofile" disabled />
                             </div>
                             
                             <div>
                                 <label class="form-label">Portfolio Link</label>
-                                <input type="url" id="portfolio" class="form-input" value="${user.portfolio || ''}" placeholder="https://yourportfolio.com" />
+                                <input type="url" id="portfolio" class="form-input" value="${user.portfolio || ''}" placeholder="https://yourportfolio.com" disabled />
                             </div>
                             
                             <div>
                                 <label class="form-label">Profile Visibility</label>
-                                <select id="profileVisibility" class="form-input">
+                                <select id="profileVisibility" class="form-input" disabled>
                                     <option value="public" ${user.profileVisibility === 'public' ? 'selected' : ''}>Public</option>
                                     <option value="private" ${user.profileVisibility === 'private' ? 'selected' : ''}>Private (Companies need approval)</option>
                                 </select>
                             </div>
                         </div>
                         
-                        <button id="savePersonalInfoBtn" class="btn btn-primary mt-6">
+                        <button id="savePersonalInfoBtn" class="btn btn-primary mt-6" disabled>
                             <i class="fas fa-save mr-2"></i> Save Personal Information
                         </button>
                     </div>
@@ -214,9 +215,9 @@ export default async function profileController() {
             </div>
         </div>
     `;
-    
+
     setupEventListeners(user, cvProfile);
-    
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => authService.logout());
@@ -227,8 +228,10 @@ function renderWorkExperienceList(workExp) {
     if (workExp.length === 0) {
         return '<p class="text-gray-500 text-center py-4">No work experience added yet</p>';
     }
-    
-    return workExp.map(exp => `
+
+    return workExp
+        .map(
+            (exp) => `
         <div class="mb-4 p-4 bg-gray-50 rounded-lg">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
@@ -243,15 +246,19 @@ function renderWorkExperienceList(workExp) {
                 </button>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function renderEducationList(education) {
     if (education.length === 0) {
         return '<p class="text-gray-500 text-center py-4">No education added yet</p>';
     }
-    
-    return education.map(edu => `
+
+    return education
+        .map(
+            (edu) => `
         <div class="mb-4 p-4 bg-gray-50 rounded-lg">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
@@ -265,15 +272,19 @@ function renderEducationList(education) {
                 </button>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function renderAcademyList(academies) {
     if (academies.length === 0) {
         return '<p class="text-gray-500 text-center py-4">No academy attendance added yet</p>';
     }
-    
-    return academies.map(academy => `
+
+    return academies
+        .map(
+            (academy) => `
         <div class="mb-4 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
@@ -287,30 +298,38 @@ function renderAcademyList(academies) {
                 </button>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function renderSkillsList(skills) {
     if (skills.length === 0) {
         return '<p class="text-gray-500 text-sm">No skills added yet</p>';
     }
-    
-    return skills.map(skill => `
+
+    return skills
+        .map(
+            (skill) => `
         <span class="px-3 py-2 bg-purple-100 text-purple-800 rounded-lg font-semibold">
             ${skill}
             <button onclick="removeSkill('${skill}')" class="ml-2 text-purple-600 hover:text-purple-900">
                 <i class="fas fa-times"></i>
             </button>
         </span>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function renderLanguagesList(languages) {
     if (languages.length === 0) {
         return '<p class="text-gray-500 text-center py-4">No languages added yet</p>';
     }
-    
-    return languages.map((lang, index) => `
+
+    return languages
+        .map(
+            (lang, index) => `
         <div class="mb-3 p-3 bg-gray-50 rounded-lg flex justify-between items-center">
             <div>
                 <span class="font-semibold text-gray-800">${lang.language}</span>
@@ -320,24 +339,91 @@ function renderLanguagesList(languages) {
                 <i class="fas fa-trash"></i>
             </button>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
+}
+
+function setPersonalInfoEditEnabled(enabled) {
+    const fieldIds = [
+        'photoUpload',
+        'name',
+        'educationDegree',
+        'currentPosition',
+        'phone',
+        'dateOfBirth',
+        'citizenship',
+        'linkedIn',
+        'portfolio',
+        'profileVisibility',
+    ];
+
+    fieldIds.forEach((id) => {
+        const field = document.getElementById(id);
+        if (field) {
+            field.disabled = !enabled;
+        }
+    });
+
+    const photoLabel = document.getElementById('photoUploadLabel');
+    if (photoLabel) {
+        photoLabel.classList.toggle('opacity-60', !enabled);
+        photoLabel.classList.toggle('cursor-not-allowed', !enabled);
+        photoLabel.classList.toggle('cursor-pointer', enabled);
+    }
+
+    const saveBtn = document.getElementById('savePersonalInfoBtn');
+    if (saveBtn) {
+        saveBtn.disabled = !enabled;
+    }
 }
 
 function setupEventListeners(user, cvProfile) {
+    const editPersonalInfoBtn = document.getElementById('editPersonalInfoBtn');
+    if (editPersonalInfoBtn) {
+        editPersonalInfoBtn.addEventListener('click', () => {
+            setPersonalInfoEditEnabled(true);
+            editPersonalInfoBtn.disabled = true;
+            editPersonalInfoBtn.innerHTML = '<i class="fas fa-edit mr-1"></i> Editing...';
+        });
+    }
+
     document.getElementById('savePersonalInfoBtn').addEventListener('click', async () => {
         const btn = document.getElementById('savePersonalInfoBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
-        
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        btn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+
+        const updatedUserData = {
+            name: document.getElementById('name').value.trim(),
+            educationDegree: document.getElementById('educationDegree').value.trim(),
+            currentPosition: document.getElementById('currentPosition').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            dateOfBirth: document.getElementById('dateOfBirth').value,
+            citizenship: document.getElementById('citizenship').value.trim(),
+            linkedIn: document.getElementById('linkedIn').value.trim(),
+            portfolio: document.getElementById('portfolio').value.trim(),
+            profileVisibility: document.getElementById('profileVisibility').value,
+        };
+
+        try {
+            const updatedUser = authService.updateCurrentUser(updatedUserData) || user;
+            Object.assign(user, updatedUser);
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+        } catch (error) {
+            console.error('Error saving personal info:', error);
+            btn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Personal Information';
+            alert('Failed to save personal information. Please try again.');
+            btn.disabled = false;
+            return;
+        }
+
         setTimeout(() => {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Personal Information';
         }, 2000);
     });
-    
+
     const skillInput = document.getElementById('skillInput');
     document.getElementById('addSkillBtn').addEventListener('click', () => {
         const skill = skillInput.value.trim();
@@ -347,23 +433,23 @@ function setupEventListeners(user, cvProfile) {
             skillInput.value = '';
         }
     });
-    
+
     skillInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             document.getElementById('addSkillBtn').click();
         }
     });
-    
+
     window.removeSkill = (skill) => {
-        cvProfile.skills = cvProfile.skills.filter(s => s !== skill);
+        cvProfile.skills = cvProfile.skills.filter((s) => s !== skill);
         document.getElementById('skillsList').innerHTML = renderSkillsList(cvProfile.skills);
     };
-    
+
     document.getElementById('saveCVBtn').addEventListener('click', async () => {
         const btn = document.getElementById('saveCVBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving CV...';
-        
+
         try {
             await mockDataService.updateCVProfile(user.id, cvProfile);
             btn.innerHTML = '<i class="fas fa-check mr-2"></i> CV Saved Successfully!';
