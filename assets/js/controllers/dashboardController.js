@@ -132,7 +132,7 @@ async function renderStudentDashboard(app, user, path) {
                         <div class="space-y-4">
                             ${renderMockApplications()}
                         </div>
-                        <a href="/jobs" data-link class="text-purple-600 hover:text-purple-800 font-semibold mt-4 inline-block">
+                        <a href="/applications" data-link class="text-purple-600 hover:text-purple-800 font-semibold mt-4 inline-block">
                             View All Applications <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
@@ -395,9 +395,24 @@ function renderAdminDashboard(app, user, path) {
 
 function renderMockApplications() {
     const applications = [
-        { company: 'TechCorp', position: 'Frontend Developer', status: 'Under Review', statusColor: 'yellow' },
-        { company: 'InnoSoft', position: 'Full Stack Developer', status: 'Interview', statusColor: 'green' },
-        { company: 'DataWorks', position: 'Junior Developer', status: 'Pending', statusColor: 'gray' }
+        {
+            company: 'TechCorp',
+            position: 'Frontend Developer',
+            status: 'Under Review',
+            statusColor: 'yellow',
+        },
+        {
+            company: 'InnoSoft',
+            position: 'Full Stack Developer',
+            status: 'Interview',
+            statusColor: 'green',
+        },
+        {
+            company: 'DataWorks',
+            position: 'Junior Developer',
+            status: 'Pending',
+            statusColor: 'gray',
+        },
     ];
 
     return applications
@@ -421,7 +436,7 @@ function renderMockJobs() {
     const jobs = [
         { company: 'CloudTech', position: 'Backend Developer', type: 'Full-time' },
         { company: 'StartupX', position: 'DevOps Engineer', type: 'Contract' },
-        { company: 'MegaCorp', position: 'Software Engineer', type: 'Full-time' }
+        { company: 'MegaCorp', position: 'Software Engineer', type: 'Full-time' },
     ];
 
     return jobs
@@ -440,7 +455,7 @@ function renderMockEmployerJobs() {
     const jobs = [
         { position: 'Senior Developer', applications: 12, status: 'Active' },
         { position: 'Product Manager', applications: 8, status: 'Active' },
-        { position: 'UX Designer', applications: 15, status: 'Active' }
+        { position: 'UX Designer', applications: 15, status: 'Active' },
     ];
 
     return jobs
@@ -464,7 +479,7 @@ function renderMockCandidates() {
     const candidates = [
         { name: 'Jane Smith', position: 'Frontend Developer', match: '95%' },
         { name: 'John Doe', position: 'Backend Developer', match: '88%' },
-        { name: 'Alice Johnson', position: 'Full Stack Developer', match: '92%' }
+        { name: 'Alice Johnson', position: 'Full Stack Developer', match: '92%' },
     ];
 
     return candidates
@@ -489,7 +504,7 @@ function renderMockActivity() {
         { type: 'user', text: 'New user registered: john.doe@example.com', time: '5 min ago' },
         { type: 'job', text: 'New job posted: Senior Developer at TechCorp', time: '15 min ago' },
         { type: 'application', text: '3 new applications received', time: '1 hour ago' },
-        { type: 'company', text: 'Company profile updated: InnoSoft', time: '2 hours ago' }
+        { type: 'company', text: 'Company profile updated: InnoSoft', time: '2 hours ago' },
     ];
 
     return activities
