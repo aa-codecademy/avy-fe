@@ -1,18 +1,34 @@
-
 import authService from '../../services/authService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
-import { saveUserToLocalStorage, saveCVToLocalStorage } from '../../controllers/bloom/profile/profileStorage.js';
 import {
-    renderWorkExperienceList, renderEducationList, renderAcademyList,
-    renderAdditionalEducationList, renderSkillsList, renderLanguagesList
+    saveUserToLocalStorage,
+    saveCVToLocalStorage,
+} from '../../controllers/bloom/profile/profileStorage.js';
+import {
+    renderWorkExperienceList,
+    renderEducationList,
+    renderAcademyList,
+    renderAdditionalEducationList,
+    renderSkillsList,
+    renderLanguagesList,
 } from '../../controllers/bloom/profile/profileRenderer.js';
 import { addModalHTML, showConfirmModal } from '../../controllers/bloom/profile/profileModals.js';
 import {
-    setupWorkExperienceEvents, setupEducationEvents, setupAcademyEvents,
-    setupAdditionalEducationEvents, setupSkillsEvents, setupLanguageEvents, showToast
+    setupWorkExperienceEvents,
+    setupEducationEvents,
+    setupAcademyEvents,
+    setupAdditionalEducationEvents,
+    setupSkillsEvents,
+    setupLanguageEvents,
+    showToast,
 } from '../../controllers/bloom/profile/profileEvents/index.js';
-import { renderSingleDateSelectors, getFullDateFromSelectors, resetGlobalEditingIds, escapeHtml } from '../../controllers/bloom/profile/profileHelpers.js';
+import {
+    renderSingleDateSelectors,
+    getFullDateFromSelectors,
+    resetGlobalEditingIds,
+    escapeHtml,
+} from '../../controllers/bloom/profile/profileHelpers.js';
 
 export default async function profileController() {
     const app = document.getElementById('app');
@@ -220,20 +236,20 @@ function setupEventListeners(user, cvProfile) {
     }
 
     const settingsBtn = document.getElementById('settingsBtn');
-    const settingsModal = document.getElementById('settingsModalContainer');
+    const settingsModal = document.getElementById('settingsModal');
     if (settingsBtn && settingsModal) {
         settingsBtn.addEventListener('click', () => {
-            const visibilitySelect = document.getElementById('settingsProfileVisibility');
+            const visibilitySelect = document.getElementById('modalProfileVisibility');
             if (visibilitySelect) visibilitySelect.value = user.profileVisibility || 'public';
             settingsModal.classList.remove('hidden');
             settingsModal.classList.add('flex');
         });
-        document.getElementById('closeSettingsModalBtn')?.addEventListener('click', () => {
+        document.getElementById('closeSettingsModal')?.addEventListener('click', () => {
             settingsModal.classList.add('hidden');
             settingsModal.classList.remove('flex');
         });
-        document.getElementById('saveSettingsModalBtn')?.addEventListener('click', async () => {
-            const newVisibility = document.getElementById('settingsProfileVisibility').value;
+        document.getElementById('saveSettingsBtn')?.addEventListener('click', async () => {
+            const newVisibility = document.getElementById('modalProfileVisibility').value;
             user.profileVisibility = newVisibility;
             saveUserToLocalStorage(user);
             settingsModal.classList.add('hidden');
@@ -287,11 +303,14 @@ function setupEventListeners(user, cvProfile) {
         passwordMessage.className = 'hidden mt-3 text-sm font-medium';
     }
 
-
-    document.getElementById('togglePasswordFormBtn').addEventListener('click', () => {
-        document.getElementById('changePasswordSection').classList.toggle('hidden');
-        clearPasswordMessage();
-    });
+    const togglePasswordFormBtn = document.getElementById('togglePasswordFormBtn');
+    const changePasswordSection = document.getElementById('changePasswordSection');
+    if (togglePasswordFormBtn && changePasswordSection) {
+        togglePasswordFormBtn.addEventListener('click', () => {
+            changePasswordSection.classList.toggle('hidden');
+            clearPasswordMessage();
+        });
+    }
 
     document.getElementById('savePasswordBtn').addEventListener('click', async () => {
         const currentPassword = document.getElementById('currentPassword').value.trim();
@@ -320,7 +339,7 @@ function setupEventListeners(user, cvProfile) {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise((resolve) => setTimeout(resolve, 2000));
 
             showPasswordMessage('Password updated successfully.', 'success');
 
@@ -342,24 +361,8 @@ function setupEventListeners(user, cvProfile) {
         }
     });
 
-    const skillInput = document.getElementById('skillInput');
-    document.getElementById('addSkillBtn').addEventListener('click', () => {
-        const skill = skillInput.value.trim();
-        if (skill && !cvProfile.skills.includes(skill)) {
-            cvProfile.skills.push(skill);
-            document.getElementById('skillsList').innerHTML = renderSkillsList(cvProfile.skills);
-            skillInput.value = '';
-        }
-    });
-
-    skillInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            document.getElementById('addSkillBtn').click();
-        }
-    });
-
     window.removeSkill = (skill) => {
-        cvProfile.skills = cvProfile.skills.filter(s => s !== skill);
+        cvProfile.skills = cvProfile.skills.filter((s) => s !== skill);
         document.getElementById('skillsList').innerHTML = renderSkillsList(cvProfile.skills);
     };
 
