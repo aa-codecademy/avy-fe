@@ -94,9 +94,47 @@ export default async function profileController() {
                             <div><label class="form-label">LinkedIn Profile</label><input type="url" id="linkedIn" class="form-input" value="${escapeHtml(user.linkedIn || '')}" /></div>
                             <div><label class="form-label">Portfolio Link</label><input type="url" id="portfolio" class="form-input" value="${escapeHtml(user.portfolio || '')}"/></div>
                         </div>
-                        <button id="savePersonalInfoBtn" class="btn btn-primary mt-6"><i class="fas fa-save mr-2"></i> Save Personal Information</button>
+                        
+                <div class="mt-6 flex justify-between items-center flex-wrap gap-3">
+                    <div>
+                        <button id="savePersonalInfoBtn" class="btn btn-primary">
+                            <i class="fas fa-save mr-2"></i> Save Personal Information
+                        </button>
                     </div>
 
+                    <div>
+                        <button id="togglePasswordFormBtn" class="btn btn-secondary">
+                            <i class="fas fa-lock mr-2"></i> Change Password
+                        </button>
+                    </div>
+                </div>
+
+                <div id="changePasswordSection" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="form-label">Current Password *</label>
+                            <input type="password" id="currentPassword" class="form-input" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">New Password *</label>
+                            <input type="password" id="newPassword" class="form-input" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Confirm New Password *</label>
+                            <input type="password" id="confirmNewPassword" class="form-input" />
+                        </div>
+                    </div>
+
+                    <button id="savePasswordBtn" class="btn btn-primary mt-4">
+                        <i class="fas fa-check mr-2"></i> Update Password
+                    </button>
+                    <p id="passwordMessage" class="hidden mt-3 text-sm font-medium" aria-live="polite"></p>
+                </div>
+                        
+                    </div>
+                    
                     <div class="card mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-briefcase mr-2"></i>Work Experience / Volunteering</h2>
@@ -231,6 +269,99 @@ function setupEventListeners(user, cvProfile) {
     setupAdditionalEducationEvents(cvProfile);
     setupSkillsEvents(cvProfile);
     setupLanguageEvents(cvProfile);
+    const passwordMessage = document.getElementById('passwordMessage');
+
+    function showPasswordMessage(message, type = 'error') {
+        passwordMessage.textContent = message;
+        passwordMessage.className = 'mt-3 text-sm font-medium';
+
+        if (type === 'success') {
+            passwordMessage.classList.add('text-green-600');
+        } else {
+            passwordMessage.classList.add('text-red-600');
+        }
+    }
+
+    function clearPasswordMessage() {
+        passwordMessage.textContent = '';
+        passwordMessage.className = 'hidden mt-3 text-sm font-medium';
+    }
+
+
+    document.getElementById('togglePasswordFormBtn').addEventListener('click', () => {
+        document.getElementById('changePasswordSection').classList.toggle('hidden');
+        clearPasswordMessage();
+    });
+
+    document.getElementById('savePasswordBtn').addEventListener('click', async () => {
+        const currentPassword = document.getElementById('currentPassword').value.trim();
+        const newPassword = document.getElementById('newPassword').value.trim();
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value.trim();
+        const btn = document.getElementById('savePasswordBtn');
+
+        clearPasswordMessage();
+
+        if (!currentPassword || !newPassword || !confirmNewPassword) {
+            showPasswordMessage('Please fill in all password fields.');
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            showPasswordMessage('New passwords do not match.');
+            return;
+        }
+
+        if (currentPassword === newPassword) {
+            showPasswordMessage('New password must be different from current password.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
+
+        try {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            showPasswordMessage('Password updated successfully.', 'success');
+
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i> Password Updated!';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check mr-2"></i> Update Password';
+                document.getElementById('changePasswordSection').classList.add('hidden');
+                clearPasswordMessage();
+            }, 2000);
+        } catch (error) {
+            showPasswordMessage('Failed to update password. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i> Update Password';
+        }
+    });
+
+    const skillInput = document.getElementById('skillInput');
+    document.getElementById('addSkillBtn').addEventListener('click', () => {
+        const skill = skillInput.value.trim();
+        if (skill && !cvProfile.skills.includes(skill)) {
+            cvProfile.skills.push(skill);
+            document.getElementById('skillsList').innerHTML = renderSkillsList(cvProfile.skills);
+            skillInput.value = '';
+        }
+    });
+
+    skillInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('addSkillBtn').click();
+        }
+    });
+
+    window.removeSkill = (skill) => {
+        cvProfile.skills = cvProfile.skills.filter(s => s !== skill);
+        document.getElementById('skillsList').innerHTML = renderSkillsList(cvProfile.skills);
+    };
 
     document.getElementById('saveCVBtn').addEventListener('click', async () => {
         const btn = document.getElementById('saveCVBtn');

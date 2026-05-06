@@ -30,6 +30,9 @@ import adminAnalyticsController from './controllers/meridian/adminAnalyticsContr
 import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
 import notFoundController from './controllers/notFoundController.js';
+// feature/forgot-password-at-login [Ognen]
+import resetPasswordController from './controllers/resetPasswordController.js';
+// END Ognen Manevski
 
 // Import services (make available globally)
 import authService from './services/authService.js';
@@ -63,6 +66,9 @@ function registerRoutes() {
     // Public routes
     router.addRoute('/', landingController, false);
     router.addRoute('/login', loginController, false);
+    // feature/forgot-password-at-login [Ognen]
+    router.addRoute('/reset-password', resetPasswordController, false);
+    // END Ognen Manevski
 
     // Protected routes (require authentication)
     router.addRoute('/dashboard', dashboardController, true);
