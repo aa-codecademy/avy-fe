@@ -45,7 +45,8 @@ class MockDataService {
                 linkedIn: 'https://linkedin.com/in/johndoe',
                 portfolio: 'https://johndoe.dev',
                 educationDegree: 'Bachelor in Computer Science',
-                currentPosition: 'Frontend Developer Intern'
+                currentPosition: 'Frontend Developer Intern',
+                profileStatus: 'pending'
             }),
             new User({
                 id: '2',
@@ -85,7 +86,9 @@ class MockDataService {
                 educationDegree: 'Bachelor in Computer Science',
                 currentPosition: 'Backend Developer Intern',
                 profileVisibility: 'public',
-                createdAt: new Date(Date.now() - 240 * 24 * 60 * 60 * 1000).toISOString()
+                createdAt: new Date(Date.now() - 240 * 24 * 60 * 60 * 1000).toISOString(),
+                profileStatus: 'approved',
+                profileStatusUpdatedAt: new Date(Date.now() - 200 * 24 * 60 * 60 * 1000).toISOString()
             }),
             new User({
                 id: '6',
@@ -99,7 +102,9 @@ class MockDataService {
                 educationDegree: 'Bachelor in Software Engineering',
                 currentPosition: 'QA Intern',
                 profileVisibility: 'public',
-                createdAt: new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString()
+                createdAt: new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString(),
+                profileStatus: 'approved',
+                profileStatusUpdatedAt: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString()
             }),
             new User({
                 id: '7',
@@ -113,7 +118,10 @@ class MockDataService {
                 educationDegree: 'Master in Human-Computer Interaction',
                 currentPosition: 'Frontend Developer',
                 profileVisibility: 'private',
-                createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
+                createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+                profileStatus: 'rejected',
+                profileStatusNote: 'LinkedIn and portfolio links appear broken or missing. Please resubmit with verified contact details.',
+                profileStatusUpdatedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
             }),
             new User({
                 id: '8',
@@ -127,7 +135,8 @@ class MockDataService {
                 educationDegree: 'Bachelor in Mathematics',
                 currentPosition: 'Data Analyst Intern',
                 profileVisibility: 'public',
-                createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
+                createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+                profileStatus: 'pending'
             }),
             new User({
                 id: '9',
@@ -141,7 +150,8 @@ class MockDataService {
                 educationDegree: 'Bachelor in Graphic Design',
                 currentPosition: 'UX Designer Intern',
                 profileVisibility: 'public',
-                createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+                createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                profileStatus: 'pending'
             })
         ];
     }
@@ -159,6 +169,19 @@ class MockDataService {
     async getUsersByRole(role) {
         await this.simulateDelay();
         return this.users.filter(u => u.role === role);
+    }
+
+    async updateProfileStatus(userId, status, note = '') {
+        await this.simulateDelay();
+        const user = this.users.find(u => u.id === userId);
+        if (user) {
+            user.profileStatus = status;
+            user.profileStatusNote = note;
+            user.profileStatusUpdatedAt = new Date().toISOString();
+            user.updatedAt = new Date().toISOString();
+            return user;
+        }
+        return null;
     }
 
     async getStudentsWithProfiles() {

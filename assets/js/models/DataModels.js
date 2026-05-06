@@ -22,6 +22,9 @@ export class User {
         this.educationDegree = data.educationDegree || '';
         this.currentPosition = data.currentPosition || '';
         this.profileVisibility = data.profileVisibility || 'public'; // public, private
+        this.profileStatus = data.profileStatus || 'pending'; // pending, approved, rejected
+        this.profileStatusNote = data.profileStatusNote || '';
+        this.profileStatusUpdatedAt = data.profileStatusUpdatedAt || '';
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
     }
