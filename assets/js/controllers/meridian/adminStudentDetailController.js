@@ -41,6 +41,7 @@ export default async function adminStudentDetailController(params = {}) {
                         <!-- Left column -->
                         <div class="lg:col-span-1 space-y-6">
                             ${renderAdminActionsCard(student)}
+                            ${renderAccountStatusCard(student)}
                             ${renderHeroCard(student, cv)}
                             ${renderCompletenessCard(completeness)}
                             ${renderContactCard(student)}
@@ -64,10 +65,10 @@ export default async function adminStudentDetailController(params = {}) {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 
-    setupAdminActions(studentId, student.profileStatus);
+    setupAdminActions(studentId, student.profileStatus, student.accountStatus || 'active');
 }
 
-function setupAdminActions(studentId, currentStatus) {
+function setupAdminActions(studentId, currentProfileStatus, currentAccountStatus) {
     const approveBtn = document.getElementById('approveBtn');
     const rejectBtn = document.getElementById('rejectBtn');
 
@@ -82,6 +83,20 @@ function setupAdminActions(studentId, currentStatus) {
 
     if (rejectBtn) {
         rejectBtn.addEventListener('click', () => showRejectModal(studentId));
+    }
+
+    const suspendBtn = document.getElementById('suspendBtn');
+    const deactivateBtn = document.getElementById('deactivateBtn');
+    const reactivateBtn = document.getElementById('reactivateBtn');
+
+    if (suspendBtn) {
+        suspendBtn.addEventListener('click', () => showSuspendModal(studentId));
+    }
+    if (deactivateBtn) {
+        deactivateBtn.addEventListener('click', () => showDeactivateModal(studentId));
+    }
+    if (reactivateBtn) {
+        reactivateBtn.addEventListener('click', () => showReactivateModal(studentId, currentAccountStatus));
     }
 }
 
@@ -149,6 +164,290 @@ function showRejectModal(studentId) {
         confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Rejecting...';
 
         await mockDataService.updateProfileStatus(studentId, 'rejected', note);
+        close();
+        window.router.navigate('/admin/students/' + studentId);
+    });
+}
+
+function renderAccountStatusCard(student) {
+    const configs = {
+        active: {
+            wrapperCls: 'border border-green-200 bg-green-50',
+            badgeCls:   'bg-green-100 text-green-800',
+            icon:       'fa-check-circle',
+            label:      'Active',
+        },
+        suspended: {
+            wrapperCls: 'border border-orange-200 bg-orange-50',
+            badgeCls:   'bg-orange-100 text-orange-800',
+            icon:       'fa-pause-circle',
+            label:      'Suspended',
+        },
+        deactivated: {
+            wrapperCls: 'border border-red-200 bg-red-50',
+            badgeCls:   'bg-red-100 text-red-800',
+            icon:       'fa-ban',
+            label:      'Deactivated',
+        },
+    };
+
+    const accountStatus = student.accountStatus || 'active';
+    const cfg = configs[accountStatus] || configs.active;
+
+    const updatedAt = student.accountStatusUpdatedAt
+        ? new Date(student.accountStatusUpdatedAt).toLocaleDateString('en-GB', {
+              day: 'numeric', month: 'short', year: 'numeric'
+          })
+        : null;
+
+    const noteBlock = (accountStatus !== 'active' && student.accountStatusNote)
+        ? `<div class="mt-3 p-3 bg-white rounded-lg border ${accountStatus === 'suspended' ? 'border-orange-100' : 'border-red-100'}">
+               <p class="text-xs font-semibold ${accountStatus === 'suspended' ? 'text-orange-700' : 'text-red-700'} mb-1">
+                   <i class="fas fa-sticky-note mr-1"></i>Reason:
+               </p>
+               <p class="text-xs ${accountStatus === 'suspended' ? 'text-orange-600' : 'text-red-600'} leading-relaxed">${student.accountStatusNote}</p>
+           </div>`
+        : '';
+
+    let actions = '';
+    if (accountStatus === 'active') {
+        actions = `
+            <div class="flex gap-2 mt-4">
+                <button id="suspendBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-orange-600 border border-orange-300 bg-white hover:bg-orange-50 transition">
+                    <i class="fas fa-pause-circle"></i> Suspend
+                </button>
+                <button id="deactivateBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition">
+                    <i class="fas fa-ban"></i> Deactivate
+                </button>
+            </div>`;
+    } else if (accountStatus === 'suspended') {
+        actions = `
+            <div class="flex gap-2 mt-4">
+                <button id="reactivateBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-green-600 text-white hover:bg-green-700 transition">
+                    <i class="fas fa-check-circle"></i> Reactivate
+                </button>
+                <button id="deactivateBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition">
+                    <i class="fas fa-ban"></i> Deactivate
+                </button>
+            </div>`;
+    } else {
+        actions = `
+            <div class="mt-4">
+                <button id="reactivateBtn"
+                    class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-green-600 text-white hover:bg-green-700 transition">
+                    <i class="fas fa-check-circle"></i> Reactivate Account
+                </button>
+            </div>`;
+    }
+
+    return `
+        <div class="card ${cfg.wrapperCls}">
+            <h3 class="text-sm font-bold text-gray-700 mb-3">
+                <i class="fas fa-user-lock text-purple-500 mr-2"></i>Account Status
+            </h3>
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.badgeCls}">
+                    <i class="fas ${cfg.icon} mr-1.5"></i>${cfg.label}
+                </span>
+                ${updatedAt ? `<span class="text-xs text-gray-400">Since ${updatedAt}</span>` : ''}
+            </div>
+            ${noteBlock}
+            ${actions}
+        </div>
+    `;
+}
+
+function showSuspendModal(studentId) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-gray-800">
+                    <i class="fas fa-pause-circle text-orange-500 mr-2"></i>Suspend Account
+                </h2>
+                <button id="closeSuspendModal" class="text-gray-400 hover:text-gray-600 text-xl leading-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">
+                The student will lose access to the platform while suspended. You can reactivate the account at any time.
+            </p>
+            <div class="mb-5">
+                <label class="form-label text-sm">
+                    Suspension Reason <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                    id="suspendNote"
+                    class="form-input"
+                    rows="4"
+                    placeholder="e.g. Policy violation, pending investigation..."
+                ></textarea>
+                <p id="suspendNoteError" class="text-xs text-red-500 mt-1 hidden">
+                    <i class="fas fa-exclamation-circle mr-1"></i>Please provide a suspension reason.
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelSuspendBtn" class="flex-1 btn btn-secondary" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
+                    Cancel
+                </button>
+                <button id="confirmSuspendBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition">
+                    <i class="fas fa-pause-circle"></i> Suspend Account
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    document.getElementById('closeSuspendModal').addEventListener('click', close);
+    document.getElementById('cancelSuspendBtn').addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+    document.getElementById('confirmSuspendBtn').addEventListener('click', async () => {
+        const note = document.getElementById('suspendNote').value.trim();
+        const errorEl = document.getElementById('suspendNoteError');
+
+        if (!note) {
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        errorEl.classList.add('hidden');
+        const confirmBtn = document.getElementById('confirmSuspendBtn');
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Suspending...';
+
+        await mockDataService.updateAccountStatus(studentId, 'suspended', note);
+        close();
+        window.router.navigate('/admin/students/' + studentId);
+    });
+}
+
+function showDeactivateModal(studentId) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-gray-800">
+                    <i class="fas fa-ban text-red-500 mr-2"></i>Permanently Deactivate Account
+                </h2>
+                <button id="closeDeactivateModal" class="text-gray-400 hover:text-gray-600 text-xl leading-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p class="text-sm text-red-700 font-semibold">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> This action is permanent.
+                </p>
+                <p class="text-sm text-red-600 mt-1">
+                    The student's account will be permanently deactivated and they will lose all platform access. Reserve this for serious policy violations.
+                </p>
+            </div>
+            <div class="mb-5">
+                <label class="form-label text-sm">
+                    Deactivation Reason <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                    id="deactivateNote"
+                    class="form-input"
+                    rows="4"
+                    placeholder="e.g. Repeated violations of platform terms of service..."
+                ></textarea>
+                <p id="deactivateNoteError" class="text-xs text-red-500 mt-1 hidden">
+                    <i class="fas fa-exclamation-circle mr-1"></i>Please provide a deactivation reason.
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelDeactivateBtn" class="flex-1 btn btn-secondary" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
+                    Cancel
+                </button>
+                <button id="confirmDeactivateBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition">
+                    <i class="fas fa-ban"></i> Deactivate Account
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    document.getElementById('closeDeactivateModal').addEventListener('click', close);
+    document.getElementById('cancelDeactivateBtn').addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+    document.getElementById('confirmDeactivateBtn').addEventListener('click', async () => {
+        const note = document.getElementById('deactivateNote').value.trim();
+        const errorEl = document.getElementById('deactivateNoteError');
+
+        if (!note) {
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        errorEl.classList.add('hidden');
+        const confirmBtn = document.getElementById('confirmDeactivateBtn');
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Deactivating...';
+
+        await mockDataService.updateAccountStatus(studentId, 'deactivated', note);
+        close();
+        window.router.navigate('/admin/students/' + studentId);
+    });
+}
+
+function showReactivateModal(studentId, currentAccountStatus) {
+    const fromSuspended = currentAccountStatus === 'suspended';
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-gray-800">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>Reactivate Account
+                </h2>
+                <button id="closeReactivateModal" class="text-gray-400 hover:text-gray-600 text-xl leading-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 mb-6">
+                ${fromSuspended
+                    ? 'The suspension will be lifted and the student will regain full access to the platform.'
+                    : 'This account was permanently deactivated. Reactivating it will restore the student\'s full access to the platform.'}
+            </p>
+            <div class="flex gap-3">
+                <button id="cancelReactivateBtn" class="flex-1 btn btn-secondary" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
+                    Cancel
+                </button>
+                <button id="confirmReactivateBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-green-600 text-white hover:bg-green-700 transition">
+                    <i class="fas fa-check-circle"></i> Reactivate Account
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    document.getElementById('closeReactivateModal').addEventListener('click', close);
+    document.getElementById('cancelReactivateBtn').addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+    document.getElementById('confirmReactivateBtn').addEventListener('click', async () => {
+        const confirmBtn = document.getElementById('confirmReactivateBtn');
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Reactivating...';
+
+        await mockDataService.updateAccountStatus(studentId, 'active', '');
         close();
         window.router.navigate('/admin/students/' + studentId);
     });
