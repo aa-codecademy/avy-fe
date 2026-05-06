@@ -171,6 +171,16 @@ class MockDataService {
         return this.users.filter(u => u.role === role);
     }
 
+    async updateStudentProfile(userId, profileData) {
+        await this.simulateDelay();
+        const user = this.users.find(u => u.id === userId);
+        if (user) {
+            Object.assign(user, profileData, { updatedAt: new Date().toISOString() });
+            return user;
+        }
+        return null;
+    }
+
     async updateProfileStatus(userId, status, note = '') {
         await this.simulateDelay();
         const user = this.users.find(u => u.id === userId);

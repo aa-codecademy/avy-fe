@@ -255,6 +255,12 @@ function renderAdminActionsCard(student) {
             </div>
             ${noteBlock}
             ${actions}
+            <div class="mt-3 pt-3 border-t border-gray-200">
+                <a href="/admin/students/${student.id}/edit" data-link
+                    class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-purple-600 border border-purple-300 bg-white hover:bg-purple-50 transition">
+                    <i class="fas fa-user-edit"></i> Edit Student Record
+                </a>
+            </div>
         </div>
     `;
 }
