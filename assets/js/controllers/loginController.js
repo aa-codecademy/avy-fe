@@ -74,15 +74,26 @@ export default async function loginController() {
                     </ul>
                 </div>
                 
-                <!-- Register Link -->
+                <!-- Register & Forgot Password Links -->
+                <!-- feature/forgot-password-at-login [Ognen] -->
                 <div class="mt-6 text-center">
-                    <p class="text-gray-600">
+                    <p class="text-sm text-gray-500">
                         Don't have an account? 
                         <button id="showRegisterBtn" class="text-brand-primary hover:underline font-semibold">
                             Register here
                         </button>
                     </p>
+                    <p class="mt-2 text-sm text-gray-500">
+                        Forgot your password?
+                        <button id="showForgotPasswordBtn" class="text-brand-primary hover:underline font-semibold">
+                            Reset here
+                        </button>
+                    </p>
                 </div>
+
+                <hr class="my-6 border-top-gray-300" />
+
+                <!-- END Ognen Manevski -->
                 
                 <!-- Back to Home -->
                 <div class="mt-4 text-center">
@@ -101,6 +112,9 @@ export default async function loginController() {
     const loginButtonText = document.getElementById('loginButtonText');
     const loginSpinner = document.getElementById('loginSpinner');
     const showRegisterBtn = document.getElementById('showRegisterBtn');
+    // feature/forgot-password-at-login [Ognen]
+    const showForgotPasswordBtn = document.getElementById('showForgotPasswordBtn');
+    // END Ognen Manevski
     
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -136,7 +150,128 @@ export default async function loginController() {
     showRegisterBtn.addEventListener('click', () => {
         showRegisterModal();
     });
+
+    // feature/forgot-password-at-login [Ognen]
+    showForgotPasswordBtn.addEventListener('click', () => {
+        showForgotPasswordModal();
+    });
+    // END Ognen Manevski
 }
+
+// feature/forgot-password-at-login [Ognen]
+/**
+ * Shows a 2-step forgot password modal.
+ * Step 1: user enters email and submits.
+ * Step 2: success confirmation with link to /reset-password.
+ * @author Ognen Manevski
+ */
+function showForgotPasswordModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Reset Password</h2>
+                <button id="closeForgotModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Step 1: Email form -->
+            <div id="forgotStep1">
+                <p class="text-sm text-gray-600 mb-4">
+                    Enter the email address linked to your account and we'll send you a reset link.
+                </p>
+                <form id="forgotPasswordForm" class="space-y-4">
+                    <div class="form-group">
+                        <label for="forgotEmail" class="form-label">Email</label>
+                        <input
+                            type="email"
+                            id="forgotEmail"
+                            class="form-input"
+                            placeholder="your.email@example.com"
+                            required
+                        />
+                    </div>
+                    <div id="forgotErrorMessage" class="hidden text-red-600 text-sm p-3 bg-red-50 rounded"></div>
+                    <button type="submit" class="btn btn-primary w-full">
+                        <span id="forgotBtnText">Send Reset Link</span>
+                        <i id="forgotSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 2: Success state (hidden initially) -->
+            <div id="forgotStep2" class="hidden text-center py-4">
+                <div class="mb-4">
+                    <i class="fas fa-envelope-circle-check text-5xl text-green-500"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Check your inbox</h3>
+                <p class="text-sm text-gray-600 mb-6">
+                    If <strong id="forgotEmailConfirm"></strong> is registered, a reset link has been sent.
+                </p>
+                <button id="goToResetPageBtn" class="btn btn-primary w-full mb-4">
+                    <i class="fas fa-key mr-2"></i>
+                    Open Reset Page
+                </button>
+                <button id="closeForgotStep2Btn" class="text-gray-500 hover:text-gray-700 text-sm">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    Back to Sign In
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Close handlers
+    modal.querySelector('#closeForgotModalBtn').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) document.body.removeChild(modal);
+    });
+
+    // Form submit — Step 1 → Step 2
+    const forgotForm = modal.querySelector('#forgotPasswordForm');
+    forgotForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = modal.querySelector('#forgotEmail').value.trim();
+        const errorMsg = modal.querySelector('#forgotErrorMessage');
+        const btnText = modal.querySelector('#forgotBtnText');
+        const spinner = modal.querySelector('#forgotSpinner');
+        const submitBtn = forgotForm.querySelector('button[type="submit"]');
+
+        errorMsg.classList.add('hidden');
+        btnText.textContent = 'Sending...';
+        spinner.classList.remove('hidden');
+        submitBtn.disabled = true;
+
+        try {
+            await authService.requestPasswordReset(email);
+            // Transition to Step 2
+            modal.querySelector('#forgotStep1').classList.add('hidden');
+            modal.querySelector('#forgotEmailConfirm').textContent = email;
+            modal.querySelector('#forgotStep2').classList.remove('hidden');
+        } catch (error) {
+            errorMsg.textContent = error.message || 'Something went wrong. Please try again.';
+            errorMsg.classList.remove('hidden');
+            btnText.textContent = 'Send Reset Link';
+            spinner.classList.add('hidden');
+            submitBtn.disabled = false;
+        }
+    });
+
+    // Step 2 buttons
+    modal.querySelector('#goToResetPageBtn').addEventListener('click', () => {
+        document.body.removeChild(modal);
+        window.router.navigate('/reset-password');
+    });
+    modal.querySelector('#closeForgotStep2Btn').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+}
+// END Ognen Manevski
 
 function showRegisterModal() {
     const modal = document.createElement('div');

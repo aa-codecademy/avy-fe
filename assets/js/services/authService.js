@@ -231,6 +231,83 @@ class AuthService {
         }
         return base;
     }
+
+    // feature/forgot-password-at-login [Ognen]
+    /**
+     * Request a password reset link for the given email.
+     * Phase 1: Generates a mock reset token and stores it in localStorage.
+     * Phase 2: Will POST to /api/auth/forgot-password and send a real email.
+     * @author Ognen Manevski
+     * @param {string} email
+     * @returns {Promise<void>}
+     */
+    async requestPasswordReset(email) {
+        if (!email) {
+            throw new Error('Email is required');
+        }
+
+        // Phase 1: Mock — generate a fake reset token and store it
+        const resetToken = btoa(`reset_${email}_${Date.now()}`);
+        localStorage.setItem('avy_reset_token', resetToken);
+        localStorage.setItem('avy_reset_email', email);
+
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        // Phase 2 implementation (commented out):
+        /*
+        const response = await fetch(`${this.apiBaseUrl}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to send reset link');
+        }
+        */
+    }
+
+    /**
+     * Confirm a password reset using the stored mock token.
+     * Phase 1: Validates token from localStorage and clears reset state.
+     * Phase 2: Will POST to /api/auth/reset-password with token + new password.
+     * @author Ognen Manevski
+     * @param {string} token
+     * @param {string} newPassword
+     * @returns {Promise<void>}
+     */
+    async confirmPasswordReset(token, newPassword) {
+        if (!token || !newPassword) {
+            throw new Error('Token and new password are required');
+        }
+
+        const storedToken = localStorage.getItem('avy_reset_token');
+        if (!storedToken || storedToken !== token) {
+            throw new Error('Invalid or expired reset link');
+        }
+
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        // Phase 1: Clear reset state — password change is mocked
+        localStorage.removeItem('avy_reset_token');
+        localStorage.removeItem('avy_reset_email');
+
+        // Phase 2 implementation (commented out):
+        /*
+        const response = await fetch(`${this.apiBaseUrl}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, newPassword })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to reset password');
+        }
+        */
+    }
+    // END Ognen Manevski
 }
 
 // Export singleton instance
