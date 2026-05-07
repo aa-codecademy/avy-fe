@@ -89,16 +89,18 @@ export default async function profileController() {
                     <div class="card mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-id-card mr-2"></i>Personal Information</h2>
+                            <button id="editProfileBtn" class="btn btn-secondary text-sm"><i class="fas fa-edit mr-1"></i> Edit</button>
                         </div>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div class="md:col-span-2 flex items-center gap-4">
-                                <img id="profileImage" src="${user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=8b5cf6&color=fff'}" alt="${user.name}" class="w-24 h-24 rounded-full border-4 border-purple-200" />
-                                <div>
-                                    <input type="file" id="photoUpload" class="hidden" accept="image/*" />
-                                    <label for="photoUpload" class="btn btn-secondary text-sm cursor-pointer"><i class="fas fa-camera mr-1"></i> Change Photo</label>
-                                    <p class="text-xs text-gray-500 mt-1">Optional</p>
+                        <div id="personalInfoSection">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2 flex items-center gap-4">
+                                    <img id="profileImage" src="${user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=8b5cf6&color=fff'}" alt="${user.name}" class="w-24 h-24 rounded-full border-4 border-purple-200" />
+                                    <div>
+                                        <input type="file" id="photoUpload" class="hidden" accept="image/*" />
+                                        <label id="photoUploadLabel" for="photoUpload" class="btn btn-secondary text-sm cursor-pointer hidden"><i class="fas fa-camera mr-1"></i> Change Photo</label>
+                                        <p class="text-xs text-gray-500 mt-1">Optional</p>
+                                    </div>
                                 </div>
-                            </div>
                             <div><label class="form-label">Full Name *</label><input type="text" id="name" class="form-input" value="${escapeHtml(user.name || '')}"/></div>
                             <div><label class="form-label">Educational Degree *</label><input type="text" id="educationDegree" class="form-input" value="${escapeHtml(user.educationDegree || '')}"/></div>
                             <div><label class="form-label">Current Position *</label><input type="text" id="currentPosition" class="form-input" value="${escapeHtml(user.currentPosition || '')}"/></div>
@@ -111,7 +113,7 @@ export default async function profileController() {
                             <div><label class="form-label">Portfolio Link</label><input type="url" id="portfolio" class="form-input" value="${escapeHtml(user.portfolio || '')}"/></div>
                         </div>
                         
-                <div class="mt-6 flex justify-between items-center flex-wrap gap-3">
+                <div id="personalInfoActions" class="hidden mt-6 mb-10 flex justify-between items-center flex-wrap gap-3">
                     <div>
                         <button id="savePersonalInfoBtn" class="btn btn-primary">
                             <i class="fas fa-save mr-2"></i> Save Personal Information
@@ -256,6 +258,50 @@ function setupEventListeners(user, cvProfile) {
             settingsModal.classList.remove('flex');
         });
     }
+
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const personalInfoSection = document.getElementById('personalInfoSection');
+    let personalInfoEditing = false;
+
+    function setPersonalInfoEditing(enabled) {
+        personalInfoEditing = enabled;
+        if (!personalInfoSection) return;
+
+        personalInfoSection.querySelectorAll('input, select').forEach((field) => {
+            if (field.id === 'email' || field.id === 'savePersonalInfoBtn') return;
+            field.disabled = !enabled;
+        });
+
+        const photoUploadLabel = document.getElementById('photoUploadLabel');
+        const personalInfoActions = document.getElementById('personalInfoActions');
+        const changePasswordSection = document.getElementById('changePasswordSection');
+
+        if (photoUploadLabel) {
+            photoUploadLabel.classList.toggle('hidden', !enabled);
+        }
+
+        if (personalInfoActions) {
+            personalInfoActions.classList.toggle('hidden', !enabled);
+        }
+
+        if (changePasswordSection && !enabled) {
+            changePasswordSection.classList.add('hidden');
+        }
+
+        if (editProfileBtn) {
+            editProfileBtn.innerHTML = enabled
+                ? '<i class="fas fa-times mr-1"></i> Cancel'
+                : '<i class="fas fa-edit mr-1"></i> Edit';
+        }
+    }
+
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', () =>
+            setPersonalInfoEditing(!personalInfoEditing)
+        );
+    }
+
+    setPersonalInfoEditing(false);
 
     document.getElementById('savePersonalInfoBtn').addEventListener('click', async () => {
         const btn = document.getElementById('savePersonalInfoBtn');
