@@ -40,6 +40,9 @@ export default async function jobDetailController(params = {}) {
     }
 
     const hasApplied = userApplications.some((app) => app.jobId === job.id);
+
+    const isEasyApply = (job.applicationMode || 'easy_apply') === 'easy_apply';
+
     const daysUntilDeadline = Math.ceil(
         (new Date(job.applicationDeadline) - new Date()) / (24 * 60 * 60 * 1000)
     );
@@ -60,19 +63,40 @@ export default async function jobDetailController(params = {}) {
                             <div class="card mb-6">
                                 <div class="flex items-start gap-4 mb-6">
                                     <img src="${company.logo}" alt="${company.name}" class="w-20 h-20 rounded-lg" />
+                                    
                                     <div class="flex-1">
-                                        <h1 class="text-3xl font-bold text-gray-800 mb-2">${job.title}</h1>
+                                        <div class="flex items-center gap-3 flex-wrap mb-2">
+                                            <h1 class="text-3xl font-bold text-gray-800">
+                                                ${job.title}
+                                            </h1>
+
+                                            ${
+                                                isEasyApply
+                                                    ? `
+                                                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                                                    <i class="fas fa-bolt mr-1"></i>
+                                                    Easy Apply
+                                                </span>
+                                            `
+                                                    : ''
+                                            }
+                                        </div>
+
                                         <p class="text-xl text-gray-600 mb-3">${company.name}</p>
+
                                         <div class="flex flex-wrap gap-2">
                                             <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
                                                 <i class="fas fa-briefcase mr-1"></i> ${job.employmentType}
                                             </span>
+
                                             <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
                                                 <i class="fas fa-map-marker-alt mr-1"></i> ${job.location}
                                             </span>
+
                                             <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
                                                 <i class="fas fa-laptop-house mr-1"></i> ${job.workMode}
                                             </span>
+
                                             <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">
                                                 <i class="fas fa-chart-line mr-1"></i> ${job.experienceLevel}
                                             </span>
@@ -110,6 +134,7 @@ export default async function jobDetailController(params = {}) {
                                 
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Required Skills</h2>
+
                                     <div class="flex flex-wrap gap-2">
                                         ${job.requiredSkills
                                             .map(
@@ -128,6 +153,7 @@ export default async function jobDetailController(params = {}) {
                                         ? `
                                     <div class="mb-6">
                                         <h2 class="text-2xl font-bold text-gray-800 mb-3">Nice to Have</h2>
+
                                         <div class="flex flex-wrap gap-2">
                                             ${job.niceToHaveSkills
                                                 .map(
@@ -161,8 +187,8 @@ export default async function jobDetailController(params = {}) {
                                     ? `
                                 <div class="card">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                                        <i class="fas fa-paper-plane mr-2"></i>
-                                        Apply for this Position
+                                        <i class="fas ${isEasyApply ? 'fa-bolt' : 'fa-paper-plane'} mr-2"></i>
+                                        ${isEasyApply ? 'Easy Apply' : 'Apply for this Position'}
                                     </h2>
                                     
                                     <form id="applicationForm" class="space-y-4">
@@ -172,9 +198,23 @@ export default async function jobDetailController(params = {}) {
                                                 Your profile information will be automatically shared with the employer
                                             </p>
                                         </div>
+
+                                        ${
+                                            isEasyApply
+                                                ? `
+                                            <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                                                <p class="text-green-800 text-sm">
+                                                    <i class="fas fa-bolt mr-2"></i>
+                                                    Easy Apply enabled — your profile will be submitted instantly.
+                                                </p>
+                                            </div>
+                                        `
+                                                : ''
+                                        }
                                         
                                         <div class="form-group">
                                             <label class="form-label">Cover Letter (Optional)</label>
+
                                             <textarea 
                                                 id="coverLetter" 
                                                 class="form-input" 
@@ -183,78 +223,84 @@ export default async function jobDetailController(params = {}) {
                                             ></textarea>
                                         </div>
                                         
-                                        <div class="form-group">
-                                            <div class="bg-white border border-gray-200 rounded-3xl pt-6 px-6 pb-0 shadow-sm">
-                                                <div class="flex items-start gap-4 mb-6">
-                                                    <div class="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center shrink-0">
-                                                        <i class="far fa-file-alt text-3xl text-purple-600"></i>
-                                                    </div>
-
-                                                    <div>
-                                                        <div class="flex items-center gap-3 mb-1">
-                                                            <h3 class="text-2xl font-bold text-gray-800">
-                                                                Upload CV / Documents
-                                                            </h3>
-
-                                                            <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold">
-                                                                Optional
-                                                            </span>
+                                        ${
+                                            !isEasyApply
+                                                ? `
+                                            <div class="form-group">
+                                                <div class="bg-white border border-gray-200 rounded-3xl pt-6 px-6 pb-0 shadow-sm">
+                                                    <div class="flex items-start gap-4 mb-6">
+                                                        <div class="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center shrink-0">
+                                                            <i class="far fa-file-alt text-3xl text-purple-600"></i>
                                                         </div>
 
-                                                        <p class="text-gray-500">
-                                                            Upload one or more files. You can add and remove documents anytime.
+                                                        <div>
+                                                            <div class="flex items-center gap-3 mb-1">
+                                                                <h3 class="text-2xl font-bold text-gray-800">
+                                                                    Upload CV / Documents
+                                                                </h3>
+
+                                                                <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+                                                                    Required
+                                                                </span>
+                                                            </div>
+
+                                                            <p class="text-gray-500">
+                                                                Upload one or more files. You can add and remove documents anytime.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <input
+                                                        type="file"
+                                                        id="cvUpload"
+                                                        class="hidden"
+                                                        multiple
+                                                        accept=".pdf,.doc,.docx"
+                                                    />
+
+                                                    <label
+                                                        for="cvUpload"
+                                                        id="uploadDropZone"
+                                                        class="block border-2 border-dashed border-purple-400 rounded-2xl p-10 text-center cursor-pointer hover:bg-purple-50 transition"
+                                                    >
+                                                        <i class="fas fa-cloud-upload-alt text-5xl text-purple-600 mb-4"></i>
+
+                                                        <p class="text-lg font-semibold text-gray-800">
+                                                            Drag and drop files here
+                                                        </p>
+
+                                                        <p class="text-gray-500 my-2">or</p>
+
+                                                        <div class="inline-block bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
+                                                            Choose Files
+                                                        </div>
+                                                    </label>
+
+                                                    <p class="text-gray-500 mt-4">
+                                                        <i class="fas fa-info-circle text-purple-600 mr-2"></i>
+                                                        You can upload multiple files (PDF, DOC, DOCX) up to 5MB each.
+                                                    </p>
+
+                                                    <div class="flex justify-between items-center mt-7 mb-4">
+                                                        <h4 id="uploadedDocumentsTitle" class="text-xl font-bold text-gray-800 hidden">
+                                                            Uploaded Documents
+                                                        </h4>
+
+                                                        <p id="uploadedDocumentsSize" class="text-gray-500 hidden">
+                                                            Total size: 0 MB
                                                         </p>
                                                     </div>
+
+                                                    <div id="uploadedDocumentsList" class="space-y-2"></div>
                                                 </div>
-
-                                                <input
-                                                    type="file"
-                                                    id="cvUpload"
-                                                    class="hidden"
-                                                    multiple
-                                                    accept=".pdf,.doc,.docx"
-                                                />
-
-                                                <label
-                                                    for="cvUpload"
-                                                    id="uploadDropZone"
-                                                    class="block border-2 border-dashed border-purple-400 rounded-2xl p-10 text-center cursor-pointer hover:bg-purple-50 transition"
-                                                >
-                                                    <i class="fas fa-cloud-upload-alt text-5xl text-purple-600 mb-4"></i>
-
-                                                    <p class="text-lg font-semibold text-gray-800">
-                                                        Drag and drop files here
-                                                    </p>
-
-                                                    <p class="text-gray-500 my-2">or</p>
-
-                                                    <div class="inline-block bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
-                                                        Choose Files
-                                                    </div>
-                                                </label>
-
-                                                <p class="text-gray-500 mt-4">
-                                                    <i class="fas fa-info-circle text-purple-600 mr-2"></i>
-                                                    You can upload multiple files (PDF, DOC, DOCX) up to 5MB each.
-                                                </p>
-
-                                                <div class="flex justify-between items-center mt-7 mb-4">
-                                                    <h4 id="uploadedDocumentsTitle" class="text-xl font-bold text-gray-800 hidden">
-                                                        Uploaded Documents
-                                                    </h4>
-
-                                                    <p id="uploadedDocumentsSize" class="text-gray-500 hidden">
-                                                        Total size: 0 MB
-                                                    </p>
-                                                </div>
-
-                                                <div id="uploadedDocumentsList" class="space-y-2"></div>
                                             </div>
-                                        </div>
+                                        `
+                                                : ''
+                                        }
                                         
                                         <button type="submit" class="btn btn-primary w-full text-lg">
-                                            <i class="fas fa-paper-plane mr-2"></i>
-                                            Submit Application
+                                            <i class="fas ${isEasyApply ? 'fa-bolt' : 'fa-paper-plane'} mr-2"></i>
+                                            ${isEasyApply ? 'Easy Apply' : 'Submit Application'}
                                         </button>
                                     </form>
                                 </div>
@@ -264,8 +310,15 @@ export default async function jobDetailController(params = {}) {
                                 <div class="card bg-green-50 border-2 border-green-200">
                                     <div class="text-center">
                                         <i class="fas fa-check-circle text-6xl text-green-600 mb-4"></i>
-                                        <h3 class="text-2xl font-bold text-green-800 mb-2">Application Submitted!</h3>
-                                        <p class="text-green-700">You have already applied for this position.</p>
+
+                                        <h3 class="text-2xl font-bold text-green-800 mb-2">
+                                            Application Submitted!
+                                        </h3>
+
+                                        <p class="text-green-700">
+                                            You have already applied for this position.
+                                        </p>
+
                                         <a href="/dashboard" data-link class="btn btn-primary mt-4">
                                             View Your Applications
                                         </a>
@@ -278,11 +331,14 @@ export default async function jobDetailController(params = {}) {
                         
                         <div class="lg:col-span-1">
                             <div class="card mb-6 sticky top-4">
-                                <h3 class="text-xl font-bold text-gray-800 mb-4">Job Information</h3>
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                                    Job Information
+                                </h3>
                                 
                                 <div class="space-y-3 text-sm">
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-calendar-alt w-6 text-purple-600"></i>
+
                                         <div>
                                             <p class="font-semibold">Posted</p>
                                             <p>${new Date(job.createdAt).toLocaleDateString()}</p>
@@ -291,14 +347,19 @@ export default async function jobDetailController(params = {}) {
                                     
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-clock w-6 text-purple-600"></i>
+
                                         <div>
                                             <p class="font-semibold">Deadline</p>
-                                            <p>${new Date(job.applicationDeadline).toLocaleDateString()} (${daysUntilDeadline} days)</p>
+                                            <p>
+                                                ${new Date(job.applicationDeadline).toLocaleDateString()}
+                                                (${daysUntilDeadline} days)
+                                            </p>
                                         </div>
                                     </div>
                                     
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-users w-6 text-purple-600"></i>
+
                                         <div>
                                             <p class="font-semibold">Applicants</p>
                                             <p>${job.applications} applied</p>
@@ -306,15 +367,17 @@ export default async function jobDetailController(params = {}) {
                                     </div>
 
                                     <div class="flex items-center text-gray-700">
-                                        <i class="fas ${(job.applicationMode || 'easy_apply') === 'cv_required' ? 'fa-file-upload' : 'fa-bolt'} w-6 text-purple-600"></i>
+                                        <i class="fas ${isEasyApply ? 'fa-bolt' : 'fa-file-upload'} w-6 text-purple-600"></i>
+
                                         <div>
                                             <p class="font-semibold">Application type</p>
-                                            <p>${(job.applicationMode || 'easy_apply') === 'cv_required' ? 'CV upload required' : 'Easy Apply'}</p>
+                                            <p>${isEasyApply ? 'Easy Apply' : 'CV upload required'}</p>
                                         </div>
                                     </div>
                                     
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-eye w-6 text-purple-600"></i>
+
                                         <div>
                                             <p class="font-semibold">Views</p>
                                             <p>${job.views} views</p>
@@ -324,10 +387,17 @@ export default async function jobDetailController(params = {}) {
                                 
                                 <hr class="my-4" />
                                 
-                                <h3 class="text-xl font-bold text-gray-800 mb-3">About ${company.name}</h3>
-                                <p class="text-gray-700 text-sm mb-3">${company.description}</p>
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">
+                                    About ${company.name}
+                                </h3>
+
+                                <p class="text-gray-700 text-sm mb-3">
+                                    ${company.description}
+                                </p>
+
                                 <a href="/companies/${company.id}" data-link class="text-purple-600 hover:text-purple-800 text-sm font-semibold">
-                                    View Company Profile <i class="fas fa-arrow-right ml-1"></i>
+                                    View Company Profile
+                                    <i class="fas fa-arrow-right ml-1"></i>
                                 </a>
                                 
                                 ${
@@ -335,7 +405,8 @@ export default async function jobDetailController(params = {}) {
                                         ? `
                                     <div class="mt-3">
                                         <a href="${company.website}" target="_blank" class="text-gray-600 hover:text-purple-600 text-sm">
-                                            <i class="fas fa-globe mr-1"></i> ${company.website}
+                                            <i class="fas fa-globe mr-1"></i>
+                                            ${company.website}
                                         </a>
                                     </div>
                                 `
@@ -364,14 +435,17 @@ export default async function jobDetailController(params = {}) {
 
         if (selectedFiles.length === 0) {
             uploadedDocumentsList.innerHTML = '';
-            uploadedDocumentsTitle.classList.add('hidden');
-            uploadedDocumentsSize.classList.add('hidden');
+
+            uploadedDocumentsTitle?.classList.add('hidden');
+            uploadedDocumentsSize?.classList.add('hidden');
+
             return;
         }
 
         const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
 
         uploadedDocumentsTitle.textContent = `Uploaded Documents (${selectedFiles.length}/${MAX_FILES})`;
+
         uploadedDocumentsSize.textContent = `Total size: ${formatFileSize(totalSize)}`;
 
         uploadedDocumentsTitle.classList.remove('hidden');
@@ -427,7 +501,9 @@ export default async function jobDetailController(params = {}) {
             }
 
             const alreadyAdded = selectedFiles.some(
-                (selectedFile) => selectedFile.name === file.name && selectedFile.size === file.size
+                (selectedFile) =>
+                    selectedFile.name === file.name &&
+                    selectedFile.size === file.size
             );
 
             if (alreadyAdded) {
@@ -450,13 +526,16 @@ export default async function jobDetailController(params = {}) {
         }
 
         selectedFiles = [...selectedFiles, ...validFiles.slice(0, availableSlots)];
+
         renderUploadedDocuments();
     }
 
     if (cvUpload) {
         cvUpload.addEventListener('change', () => {
             const files = Array.from(cvUpload.files);
+
             addSelectedFiles(files);
+
             cvUpload.value = '';
         });
     }
@@ -464,6 +543,7 @@ export default async function jobDetailController(params = {}) {
     if (uploadDropZone) {
         uploadDropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
+
             uploadDropZone.classList.add('bg-purple-50', 'border-purple-600');
         });
 
@@ -473,9 +553,11 @@ export default async function jobDetailController(params = {}) {
 
         uploadDropZone.addEventListener('drop', (e) => {
             e.preventDefault();
+
             uploadDropZone.classList.remove('bg-purple-50', 'border-purple-600');
 
             const files = Array.from(e.dataTransfer.files);
+
             addSelectedFiles(files);
         });
     }
@@ -484,30 +566,63 @@ export default async function jobDetailController(params = {}) {
         applicationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            if (!isEasyApply && selectedFiles.length === 0) {
+                alert('Please upload at least one CV/document.');
+                return;
+            }
+
             const coverLetter = document.getElementById('coverLetter').value;
-            const submitBtn = applicationForm.querySelector('button[type="submit"]');
+
+            const submitBtn = applicationForm.querySelector(
+                'button[type="submit"]'
+            );
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+
+            submitBtn.innerHTML = `
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                Submitting...
+            `;
 
             try {
                 await mockDataService.createApplication({
                     jobId: job.id,
                     userId: user.id,
-                    coverLetter: coverLetter,
+                    coverLetter,
+
+                    applicationMode: job.applicationMode || 'easy_apply',
+
+                    documents: selectedFiles.map((file) => ({
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                    })),
                 });
 
-                alert('Application submitted successfully!');
+                alert(
+                    isEasyApply
+                        ? 'Easy Apply submitted successfully!'
+                        : 'Application submitted successfully!'
+                );
+
                 window.location.reload();
             } catch (error) {
                 alert('Failed to submit application. Please try again.');
+
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Submit Application';
+
+                submitBtn.innerHTML = `
+                    <i class="fas ${
+                        isEasyApply ? 'fa-bolt' : 'fa-paper-plane'
+                    } mr-2"></i>
+                    ${isEasyApply ? 'Easy Apply' : 'Submit Application'}
+                `;
             }
         });
     }
 
     const logoutBtn = document.getElementById('logoutBtn');
+
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => authService.logout());
     }
@@ -529,7 +644,10 @@ function getFileBadgeClass(fileName) {
     const extension = getFileExtension(fileName).toLowerCase();
 
     if (extension === 'pdf') return 'bg-red-500';
-    if (extension === 'doc' || extension === 'docx') return 'bg-blue-500';
+
+    if (extension === 'doc' || extension === 'docx') {
+        return 'bg-blue-500';
+    }
 
     return 'bg-green-500';
 }
