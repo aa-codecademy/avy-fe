@@ -40,7 +40,7 @@ export default async function adminStudentDetailController(params = {}) {
 
                         <!-- Left column -->
                         <div class="lg:col-span-1 space-y-6">
-                            ${renderAdminActionsCard(student)}
+                            ${renderAdminActionsCard(student, cv)}
                             ${renderAccountStatusCard(student)}
                             ${renderHeroCard(student, cv)}
                             ${renderCompletenessCard(completeness)}
@@ -471,7 +471,9 @@ function computeCompleteness(student, cv) {
     return { checks, done, total: checks.length, percent: Math.round((done / checks.length) * 100) };
 }
 
-function renderAdminActionsCard(student) {
+function renderAdminActionsCard(student, cv) {
+    const hasProgramme = (cv.academyAttendance || []).length > 0;
+    const programmeBtnLabel = hasProgramme ? 'Change Programme' : 'Assign Programme';
     const configs = {
         pending: {
             wrapperCls: 'border border-amber-200 bg-amber-50',
@@ -554,10 +556,14 @@ function renderAdminActionsCard(student) {
             </div>
             ${noteBlock}
             ${actions}
-            <div class="mt-3 pt-3 border-t border-gray-200">
+            <div class="mt-3 pt-3 border-t border-gray-200 space-y-2">
                 <a href="/admin/students/${student.id}/edit" data-link
                     class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-purple-600 border border-purple-300 bg-white hover:bg-purple-50 transition">
                     <i class="fas fa-user-edit"></i> Edit Student Record
+                </a>
+                <a href="/admin/students/${student.id}/programme" data-link
+                    class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-indigo-600 border border-indigo-300 bg-white hover:bg-indigo-50 transition">
+                    <i class="fas fa-graduation-cap"></i> ${programmeBtnLabel}
                 </a>
             </div>
         </div>

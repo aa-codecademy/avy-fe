@@ -22,6 +22,7 @@ import adminStudentsController from './controllers/meridian/adminStudentsControl
 import adminStudentDetailController from './controllers/meridian/adminStudentDetailController.js';
 import adminStudentEditController from './controllers/meridian/adminStudentEditController.js';
 import adminStudentImportController from './controllers/meridian/adminStudentImportController.js';
+import adminStudentProgrammeController from './controllers/meridian/adminStudentProgrammeController.js';
 import notFoundController from './controllers/notFoundController.js';
 
 // Import services (make available globally)
@@ -73,6 +74,7 @@ function registerRoutes() {
     router.addRoute('/admin/students', adminStudentsController, true, ['admin']);
     router.addRoute('/admin/students/import', adminStudentImportController, true, ['admin']);
     router.addRoute('/admin/students/:id/edit', adminStudentEditController, true, ['admin']);
+    router.addRoute('/admin/students/:id/programme', adminStudentProgrammeController, true, ['admin']);
     router.addRoute('/admin/students/:id', adminStudentDetailController, true, ['admin']);
     router.addRoute('/admin/jobs', createPlaceholderController('Job Management', 'Manage all job postings'), true, ['admin']);
     router.addRoute(
