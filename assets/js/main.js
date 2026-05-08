@@ -84,13 +84,6 @@ function registerRoutes() {
     router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
     router.addRoute('/employer/notifications', employerNotificationsController, true, ['employer']);
-
-    router.addRoute(
-        '/employer/jobs',
-        createPlaceholderController('My Jobs', 'Manage your job postings'),
-        true,
-        ['employer']
-    );
     router.addRoute('/employer/company-profile', companyProfileController, true, ['employer']);
 
     // Admin routes (Meridian module)
