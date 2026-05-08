@@ -269,12 +269,27 @@ function showApplicationDetails(applicationId) {
                     ${
                         app.notes
                             ? `
-                        <div>
-                            <p class="text-sm font-semibold text-gray-700 mb-2">Internal Notes</p>
-                            <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${app.notes}</p>
+                        <div id="notes-section">
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="text-sm font-semibold text-gray-700">Internal Notes</p>
+                                <button class="text-purple-600 hover:text-purple-800 text-sm" id="edit-notes-btn">
+                                    <i class="fas fa-edit mr-1"></i>Edit
+                                </button>
+                            </div>
+                            <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded" id="notes-display">${app.notes}</p>
                         </div>
                     `
-                            : ''
+                            : `
+                        <div id="notes-section">
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="text-sm font-semibold text-gray-700">Internal Notes</p>
+                                <button class="text-purple-600 hover:text-purple-800 text-sm" id="add-notes-btn">
+                                    <i class="fas fa-plus mr-1"></i>Add Notes
+                                </button>
+                            </div>
+                            <p class="text-gray-400 text-sm italic" id="notes-display">No notes added yet.</p>
+                        </div>
+                    `
                     }
                 </div>
             </div>
@@ -282,4 +297,103 @@ function showApplicationDetails(applicationId) {
     `;
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Add event listeners for notes editing
+    const editNotesBtn = document.getElementById('edit-notes-btn');
+    const addNotesBtn = document.getElementById('add-notes-btn');
+    if (editNotesBtn) {
+        editNotesBtn.addEventListener('click', () => showNotesEditor(app.id, app.notes));
+    }
+    if (addNotesBtn) {
+        addNotesBtn.addEventListener('click', () => showNotesEditor(app.id, ''));
+    }
+}
+
+/**
+ * Show notes editor for adding/editing notes
+ */
+function showNotesEditor(applicationId, currentNotes) {
+    const notesSection = document.getElementById('notes-section');
+    const notesDisplay = document.getElementById('notes-display');
+
+    // Replace the display with an editor
+    notesSection.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+            <p class="text-sm font-semibold text-gray-700">Internal Notes</p>
+            <div class="space-x-2">
+                <button class="text-green-600 hover:text-green-800 text-sm" id="save-notes-btn">
+                    <i class="fas fa-save mr-1"></i>Save
+                </button>
+                <button class="text-gray-600 hover:text-gray-800 text-sm" id="cancel-notes-btn">
+                    <i class="fas fa-times mr-1"></i>Cancel
+                </button>
+            </div>
+        </div>
+        <textarea class="w-full p-3 border border-gray-300 rounded text-sm" rows="4" id="notes-editor">${currentNotes}</textarea>
+    `;
+
+    // Add event listeners for save and cancel
+    document
+        .getElementById('save-notes-btn')
+        .addEventListener('click', () => saveNotes(applicationId));
+    document
+        .getElementById('cancel-notes-btn')
+        .addEventListener('click', () => cancelNotesEdit(applicationId, currentNotes));
+}
+
+/**
+ * Save notes for an application
+ */
+async function saveNotes(applicationId) {
+    const notesEditor = document.getElementById('notes-editor');
+    const newNotes = notesEditor.value.trim();
+
+    try {
+        await mockDataService.updateApplicationNotes(applicationId, newNotes);
+        // Refresh the applications data
+        currentApplications = await mockDataService.getApplicationsByJobId(currentJobId);
+        // Close the modal and re-render pipeline
+        document.getElementById('detailsModal')?.remove();
+        renderPipelineView(currentApplications);
+        console.log(`Notes updated for application ${applicationId}`);
+    } catch (error) {
+        console.error('Failed to update notes:', error);
+        alert('Failed to update notes. Please try again.');
+    }
+}
+
+/**
+ * Cancel notes editing and revert to display mode
+ */
+function cancelNotesEdit(applicationId, originalNotes) {
+    const app = currentApplications.find((a) => a.id === applicationId);
+    if (!app) return;
+
+    const notesSection = document.getElementById('notes-section');
+
+    // Revert to display mode
+    notesSection.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+            <p class="text-sm font-semibold text-gray-700">Internal Notes</p>
+            <button class="text-purple-600 hover:text-purple-800 text-sm" id="edit-notes-btn">
+                <i class="fas fa-edit mr-1"></i>Edit
+            </button>
+        </div>
+        <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded" id="notes-display">${originalNotes || 'No notes added yet.'}</p>
+    `;
+
+    // Re-add event listener
+    document
+        .getElementById('edit-notes-btn')
+        .addEventListener('click', () => showNotesEditor(applicationId, originalNotes));
+}
+
+// Add event listeners for notes editing
+const editNotesBtn = document.getElementById('edit-notes-btn');
+const addNotesBtn = document.getElementById('add-notes-btn');
+if (editNotesBtn) {
+    editNotesBtn.addEventListener('click', () => showNotesEditor(app.id, app.notes));
+}
+if (addNotesBtn) {
+    addNotesBtn.addEventListener('click', () => showNotesEditor(app.id, ''));
 }
