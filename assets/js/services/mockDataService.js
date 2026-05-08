@@ -6,7 +6,7 @@
 
 import {
     User, CVProfile, WorkExperience, Education, AcademyAttendance, Language,
-    Job, Company, Application, SuccessStory, Event, Analytics
+    Job, Company, Application, SuccessStory, Event, Analytics, ProfileAccessLog
 } from '../models/DataModels.js';
 
 class MockDataService {
@@ -23,6 +23,7 @@ class MockDataService {
         this.jobs = this.generateMockJobs();
         this.applications = this.generateMockApplications();
         this.cvProfiles = this.generateMockCVProfiles();
+        this.accessLogs = this.generateMockAccessLogs();
         this.successStories = this.generateMockSuccessStories();
         this.events = this.generateMockEvents();
         this.analytics = this.generateMockAnalytics();
@@ -880,6 +881,55 @@ class MockDataService {
         return this.cvProfiles.find(cv => cv.userId === userId) || new CVProfile({ userId });
     }
     
+    /**
+     * PROFILE ACCESS LOGS
+     */
+    generateMockAccessLogs() {
+        const ago = (days, hours = 0, minutes = 0) =>
+            new Date(Date.now() - (days * 86400 + hours * 3600 + minutes * 60) * 1000).toISOString();
+
+        return [
+            // ── Emily Davis (id:'5') — public, approved — most active ──────────
+            new ProfileAccessLog({ id: 'al01', studentId: '5', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'view',    details: 'Viewed full profile including skills and work experience.',                     ipAddress: '82.117.214.5',   timestamp: ago(0,  2) }),
+            new ProfileAccessLog({ id: 'al02', studentId: '5', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'view',    details: 'Viewed profile overview and academy track.',                                    ipAddress: '91.224.15.77',   timestamp: ago(1,  9) }),
+            new ProfileAccessLog({ id: 'al03', studentId: '5', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'export',  details: 'Downloaded CV and profile data for internal recruitment records.',               ipAddress: '82.117.214.5',   timestamp: ago(3, 14) }),
+            new ProfileAccessLog({ id: 'al04', studentId: '5', employerId: 'e5', employerName: 'Sara Petrovic',  companyId: 'c3', companyName: 'DataWorks Analytics',   type: 'view',    details: 'Viewed profile including education and skills sections.',                       ipAddress: '176.53.8.101',   timestamp: ago(7,  10) }),
+            new ProfileAccessLog({ id: 'al05', studentId: '5', employerId: 'e6', employerName: 'Nikola Spasov',  companyId: 'c4', companyName: 'CloudTech Systems',     type: 'view',    details: 'Viewed profile overview during talent search.',                                 ipAddress: '195.202.42.11',  timestamp: ago(15,  8) }),
+            new ProfileAccessLog({ id: 'al06', studentId: '5', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'export',  details: 'Exported student data for shortlisting pipeline.',                              ipAddress: '91.224.15.77',   timestamp: ago(20, 11) }),
+            new ProfileAccessLog({ id: 'al07', studentId: '5', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'view',    details: 'Reviewed profile following job application submission.',                        ipAddress: '82.117.214.5',   timestamp: ago(45,  9) }),
+
+            // ── John Doe (id:'1') — pending review — limited access ───────────
+            new ProfileAccessLog({ id: 'al08', studentId: '1', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'view',    details: 'Viewed profile during candidate shortlisting.',                                 ipAddress: '82.117.214.5',   timestamp: ago(2, 16) }),
+            new ProfileAccessLog({ id: 'al09', studentId: '1', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'view',    details: 'Viewed profile overview.',                                                      ipAddress: '91.224.15.77',   timestamp: ago(10, 13) }),
+
+            // ── James Carter (id:'6') — suspended — historical activity ───────
+            new ProfileAccessLog({ id: 'al10', studentId: '6', employerId: 'e5', employerName: 'Sara Petrovic',  companyId: 'c3', companyName: 'DataWorks Analytics',   type: 'view',    details: 'Viewed full profile before candidate shortlisting.',                            ipAddress: '176.53.8.101',   timestamp: ago(20,  9) }),
+            new ProfileAccessLog({ id: 'al11', studentId: '6', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'view',    details: 'Reviewed profile and skills section.',                                          ipAddress: '82.117.214.5',   timestamp: ago(35, 15) }),
+            new ProfileAccessLog({ id: 'al12', studentId: '6', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'export',  details: 'Downloaded CV for offline review.',                                             ipAddress: '82.117.214.5',   timestamp: ago(35, 16) }),
+
+            // ── Sophia Miller (id:'7') — private, deactivated — full request/grant/deny/revoke flow ──
+            new ProfileAccessLog({ id: 'al13', studentId: '7', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'request', details: 'Requested access to private profile for talent pipeline review.',               ipAddress: '91.224.15.77',   timestamp: ago(30, 10) }),
+            new ProfileAccessLog({ id: 'al14', studentId: '7', employerId: '',   employerName: '',               companyId: '',   companyName: '',                       type: 'grant',   details: 'Admin granted InnoSoft access to view profile for 30 days.',                   ipAddress: '',               timestamp: ago(29, 11) }),
+            new ProfileAccessLog({ id: 'al15', studentId: '7', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'view',    details: 'Viewed profile after access was granted.',                                      ipAddress: '91.224.15.77',   timestamp: ago(28, 14) }),
+            new ProfileAccessLog({ id: 'al16', studentId: '7', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'export',  details: 'Exported profile data following approved access grant.',                        ipAddress: '91.224.15.77',   timestamp: ago(27,  9) }),
+            new ProfileAccessLog({ id: 'al17', studentId: '7', employerId: 'e6', employerName: 'Nikola Spasov',  companyId: 'c4', companyName: 'CloudTech Systems',     type: 'request', details: 'Requested access to private profile.',                                          ipAddress: '195.202.42.11',  timestamp: ago(15, 13) }),
+            new ProfileAccessLog({ id: 'al18', studentId: '7', employerId: '',   employerName: '',               companyId: '',   companyName: '',                       type: 'deny',    details: 'Admin denied CloudTech Systems access — student account under investigation.',  ipAddress: '',               timestamp: ago(15, 14) }),
+            new ProfileAccessLog({ id: 'al19', studentId: '7', employerId: '',   employerName: '',               companyId: '',   companyName: '',                       type: 'revoke',  details: 'All active access grants revoked following account deactivation.',             ipAddress: '',               timestamp: ago(5,   8) }),
+
+            // ── Ryan Brooks (id:'8') — pending — single view ─────────────────
+            new ProfileAccessLog({ id: 'al20', studentId: '8', employerId: 'e5', employerName: 'Sara Petrovic',  companyId: 'c3', companyName: 'DataWorks Analytics',   type: 'view',    details: 'Viewed profile overview.',                                                      ipAddress: '176.53.8.101',   timestamp: ago(5, 17) }),
+
+            // Olivia Chen (id:'9') — no logs intentionally (tests empty state)
+        ];
+    }
+
+    async getProfileAccessLog(studentId) {
+        await this.simulateDelay();
+        return this.accessLogs
+            .filter(l => l.studentId === studentId)
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }
+
     async bulkImportStudents(rows) {
         await this.simulateDelay(600);
         const results = { created: [], failed: [] };
