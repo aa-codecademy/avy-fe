@@ -560,6 +560,18 @@ class MockDataService {
         return null;
     }
 
+    async updateApplicationNotes(id, notes) {
+        await this.simulateDelay();
+        const index = this.applications.findIndex((a) => a.id === id);
+        if (index !== -1) {
+            this.applications[index].notes = notes;
+            this.applications[index].updatedAt = new Date().toISOString();
+            this.saveToStorage();
+            return this.applications[index];
+        }
+        return null;
+    }
+
     async getApplicationById(id) {
         await this.simulateDelay();
         return this.applications.find((a) => a.id === id);
