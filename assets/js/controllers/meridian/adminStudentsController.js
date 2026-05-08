@@ -21,12 +21,18 @@ export default async function adminStudentsController() {
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
                 <div class="fade-in">
-                    <div class="mb-8">
-                        <h1 class="text-4xl font-bold text-gray-800 mb-2">
-                            <i class="fas fa-user-graduate text-purple-600 mr-3"></i>
-                            Student Directory
-                        </h1>
-                        <p class="text-gray-600">Search and filter all registered students</p>
+                    <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                                <i class="fas fa-user-graduate text-purple-600 mr-3"></i>
+                                Student Directory
+                            </h1>
+                            <p class="text-gray-600">Search and filter all registered students</p>
+                        </div>
+                        <a href="/admin/students/import" data-link
+                            class="btn btn-primary flex items-center gap-2 flex-shrink-0">
+                            <i class="fas fa-file-import"></i>Import CSV
+                        </a>
                     </div>
 
                     ${pendingCount > 0 ? `

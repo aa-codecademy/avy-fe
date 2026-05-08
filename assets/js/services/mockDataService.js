@@ -843,6 +843,60 @@ class MockDataService {
         return this.cvProfiles.find(cv => cv.userId === userId) || new CVProfile({ userId });
     }
     
+    async bulkImportStudents(rows) {
+        await this.simulateDelay(600);
+        const results = { created: [], failed: [] };
+
+        for (const row of rows) {
+            const duplicate = this.users.find(u => u.email.toLowerCase() === row.email.toLowerCase());
+            if (duplicate) {
+                results.failed.push({ row, reason: `Email already registered: ${row.email}` });
+                continue;
+            }
+
+            const ids = this.users.map(u => parseInt(u.id)).filter(n => !isNaN(n));
+            const nextId = String(Math.max(0, ...ids) + 1 + results.created.length);
+
+            const newUser = new User({
+                id: nextId,
+                email: row.email,
+                name: row.name,
+                role: 'student',
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(row.name)}&background=667eea&color=fff`,
+                phone: row.phone || '',
+                dateOfBirth: row.dateofbirth || '',
+                citizenship: row.citizenship || '',
+                educationDegree: row.educationdegree || '',
+                profileStatus: 'pending',
+                accountStatus: 'active',
+            });
+
+            this.users.push(newUser);
+
+            const academyAttendance = row.academytrack
+                ? [new AcademyAttendance({
+                    id: 'aa_import_' + nextId,
+                    academyName: row.academyname || 'Avenga Academy',
+                    track: row.academytrack,
+                    startDate: row.academystartdate || '',
+                    endDate: row.academyenddate || '',
+                    status: 'active'
+                })]
+                : [];
+
+            this.cvProfiles.push(new CVProfile({
+                userId: nextId,
+                academyAttendance,
+                skills: [],
+                languages: []
+            }));
+
+            results.created.push(newUser);
+        }
+
+        return results;
+    }
+
     async updateCVProfile(userId, cvData) {
         await this.simulateDelay();
         const index = this.cvProfiles.findIndex(cv => cv.userId === userId);

@@ -40,6 +40,9 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN
 
+# Test files
+test_*.csv
+
 # Environment files
 .env
 .env.local
