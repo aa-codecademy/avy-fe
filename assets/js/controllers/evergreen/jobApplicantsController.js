@@ -18,6 +18,10 @@
  */
 import authService from '../../services/authService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
+import mockDataService from '../../services/mockDataService.js';
+
+let currentJobId = null;
+let currentApplications = [];
 
 export default async function jobApplicantsController(params = {}) {
     const app = document.getElementById('app');
@@ -28,11 +32,11 @@ export default async function jobApplicantsController(params = {}) {
         return;
     }
 
-    const jobId = params.id;
+    currentJobId = params.id;
 
-    // TODO (student task): fetch applicants for job, render pipeline view, support status updates + notes
-    // const job = await mockDataService.getJobById(jobId);
-    // const applicants = await mockDataService.getApplicationsByJobId(jobId);
+    // Fetch job and applicants
+    const job = await mockDataService.getJobById(currentJobId);
+    currentApplications = await mockDataService.getApplicationsByJobId(currentJobId);
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
@@ -45,20 +49,237 @@ export default async function jobApplicantsController(params = {}) {
                         </a>
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-users text-purple-600 mr-3"></i>
-                            Applicants
+                            Applicants Pipeline
                         </h1>
-                        <p class="text-gray-600">Review applicants for job <code class="px-2 py-1 bg-gray-100 rounded">${jobId || 'unknown'}</code></p>
+                        <p class="text-gray-600">
+                            <strong>${job?.title || 'Job'}</strong>
+                            <span class="ml-2 text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full">${currentApplications.length} applicants</span>
+                        </p>
                     </div>
-                    <div class="card text-center py-16">
-                        <i class="fas fa-tools text-6xl text-gray-300 mb-4"></i>
-                        <h3 class="text-2xl font-bold text-gray-600 mb-2">TODO: Applicants pipeline</h3>
-                        <p class="text-gray-500">Implement applicant list, filters, status updates, and internal notes.</p>
+
+                    <!-- Pipeline Container -->
+                    <div id="pipeline-container" class="mb-8">
+                        <!-- Pipeline will be rendered here -->
                     </div>
                 </div>
             </div>
         </div>
     `;
 
+    // Render the pipeline
+    renderPipelineView(currentApplications);
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
+}
+
+/**
+ * Render the hiring pipeline with four stages
+ */
+function renderPipelineView(applications) {
+    const container = document.getElementById('pipeline-container');
+
+    const pipelineStages = [
+        { status: 'pending', label: 'Applied', icon: 'fa-file-alt', color: 'blue' },
+        { status: 'under_review', label: 'Shortlisted', icon: 'fa-star', color: 'yellow' },
+        { status: 'interview', label: 'Interview', icon: 'fa-handshake', color: 'purple' },
+        { status: 'hired', label: 'Hired', icon: 'fa-check-circle', color: 'green' },
+    ];
+
+    const colorMap = {
+        blue: {
+            bg: 'bg-blue-50',
+            border: 'border-blue-200',
+            badge: 'bg-blue-100 text-blue-800',
+            header: 'bg-blue-100',
+        },
+        yellow: {
+            bg: 'bg-yellow-50',
+            border: 'border-yellow-200',
+            badge: 'bg-yellow-100 text-yellow-800',
+            header: 'bg-yellow-100',
+        },
+        purple: {
+            bg: 'bg-purple-50',
+            border: 'border-purple-200',
+            badge: 'bg-purple-100 text-purple-800',
+            header: 'bg-purple-100',
+        },
+        green: {
+            bg: 'bg-green-50',
+            border: 'border-green-200',
+            badge: 'bg-green-100 text-green-800',
+            header: 'bg-green-100',
+        },
+    };
+
+    container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            ${pipelineStages
+                .map((stage) => {
+                    const colors = colorMap[stage.color];
+                    const stageApplicants = applications.filter(
+                        (app) => app.status === stage.status
+                    );
+
+                    return `
+                    <div class="${colors.bg} border-2 ${colors.border} rounded-lg p-4 min-h-96">
+                        <!-- Stage Header -->
+                        <div class="${colors.header} rounded-lg p-3 mb-4">
+                            <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                                <i class="fas ${stage.icon} mr-2"></i>
+                                ${stage.label}
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">${stageApplicants.length} candidate(s)</p>
+                        </div>
+
+                        <!-- Candidates List -->
+                        <div class="space-y-3">
+                            ${
+                                stageApplicants.length > 0
+                                    ? stageApplicants
+                                          .map(
+                                              (app) => `
+                                    <div class="bg-white rounded-lg p-3 border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-move"
+                                         draggable="true"
+                                         data-app-id="${app.id}"
+                                         data-stage="${stage.status}">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-800 text-sm">${app.applicant?.name || 'Unknown'}</p>
+                                                <p class="text-xs text-gray-500 truncate">${app.applicant?.email || ''}</p>
+                                                <p class="text-xs text-gray-400 mt-1">Applied: ${new Date(app.appliedAt).toLocaleDateString()}</p>
+                                            </div>
+                                            <div class="ml-2">
+                                                <button class="text-gray-400 hover:text-gray-600 transition-colors btn-view-details"
+                                                        data-app-id="${app.id}"
+                                                        title="View details">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Status dropdown -->
+                                        <div class="mt-2">
+                                            <select class="w-full text-xs p-1 border border-gray-300 rounded cursor-pointer status-select"
+                                                    data-app-id="${app.id}">
+                                                <option value="">Move to...</option>
+                                                ${pipelineStages
+                                                    .filter((s) => s.status !== stage.status)
+                                                    .map(
+                                                        (s) => `
+                                                    <option value="${s.status}">${s.label}</option>
+                                                `
+                                                    )
+                                                    .join('')}
+                                            </select>
+                                        </div>
+                                    </div>
+                                `
+                                          )
+                                          .join('')
+                                    : `<p class="text-gray-500 text-center py-8 text-sm">No candidates in this stage</p>`
+                            }
+                        </div>
+                    </div>
+                `;
+                })
+                .join('')}
+        </div>
+    `;
+
+    // Add event listeners for status changes
+    document.querySelectorAll('.status-select').forEach((select) => {
+        select.addEventListener('change', async (e) => {
+            const appId = e.target.dataset.appId;
+            const newStatus = e.target.value;
+            if (newStatus) {
+                await handleStatusChange(appId, newStatus);
+            }
+        });
+    });
+
+    // Add event listeners for view details
+    document.querySelectorAll('.btn-view-details').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const appId = e.currentTarget.dataset.appId;
+            showApplicationDetails(appId);
+        });
+    });
+}
+
+/**
+ * Handle status change when candidate is moved to a new stage
+ */
+async function handleStatusChange(applicationId, newStatus) {
+    try {
+        await mockDataService.updateApplicationStatus(applicationId, newStatus);
+        // Refresh applicants and re-render pipeline
+        currentApplications = await mockDataService.getApplicationsByJobId(currentJobId);
+        renderPipelineView(currentApplications);
+        console.log(`Application ${applicationId} moved to ${newStatus}`);
+    } catch (error) {
+        console.error('Failed to update application status:', error);
+        alert('Failed to update application status. Please try again.');
+    }
+}
+
+/**
+ * Show application details modal
+ */
+function showApplicationDetails(applicationId) {
+    const app = currentApplications.find((a) => a.id === applicationId);
+    if (!app) return;
+
+    const modalHTML = `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" id="detailsModal">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto">
+                <div class="bg-purple-600 text-white px-6 py-4 flex justify-between items-center sticky top-0">
+                    <h2 class="text-xl font-bold">${app.applicant?.name || 'Unknown'}</h2>
+                    <button class="text-2xl leading-none hover:text-gray-200" onclick="document.getElementById('detailsModal')?.remove()">×</button>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <p class="text-sm text-gray-500">Email</p>
+                            <p class="font-semibold">${app.applicant?.email || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Status</p>
+                            <p class="font-semibold">${app.status.replace('_', ' ').toUpperCase()}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Applied</p>
+                            <p class="font-semibold">${new Date(app.appliedAt).toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Last Updated</p>
+                            <p class="font-semibold">${new Date(app.updatedAt).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    ${
+                        app.coverLetter
+                            ? `
+                        <div class="mb-6">
+                            <p class="text-sm font-semibold text-gray-700 mb-2">Cover Letter</p>
+                            <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${app.coverLetter}</p>
+                        </div>
+                    `
+                            : ''
+                    }
+                    ${
+                        app.notes
+                            ? `
+                        <div>
+                            <p class="text-sm font-semibold text-gray-700 mb-2">Internal Notes</p>
+                            <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${app.notes}</p>
+                        </div>
+                    `
+                            : ''
+                    }
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
 }

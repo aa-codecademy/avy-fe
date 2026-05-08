@@ -44,7 +44,7 @@ async function renderStudentDashboard(app, user, path) {
 
     app.innerHTML = `
         ${renderAppHeader(user, path)}
-        
+
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
@@ -80,7 +80,7 @@ async function renderStudentDashboard(app, user, path) {
                         View all jobs <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
-                
+
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -91,7 +91,7 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-eye text-4xl text-purple-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -101,7 +101,7 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-file-alt text-4xl text-indigo-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -111,7 +111,7 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-calendar-check text-4xl text-green-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -122,7 +122,7 @@ async function renderStudentDashboard(app, user, path) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
@@ -136,7 +136,7 @@ async function renderStudentDashboard(app, user, path) {
                             View All Applications <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
-                    
+
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-briefcase text-indigo-600 mr-2"></i>
@@ -211,7 +211,7 @@ function bindLatestJobClicks() {
 function renderEmployerDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
-        
+
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
@@ -220,7 +220,7 @@ function renderEmployerDashboard(app, user, path) {
                     </h1>
                     <p class="text-gray-600">Evergreen - Company Management Hub</p>
                 </div>
-                
+
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -231,8 +231,8 @@ function renderEmployerDashboard(app, user, path) {
                             <i class="fas fa-briefcase text-4xl text-purple-200"></i>
                         </div>
                     </div>
-                    
-                    <div class="card">
+
+                    <a href="/employer/jobs" data-link class="card hover:shadow-lg transition cursor-pointer block no-underline text-inherit">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Applications</p>
@@ -240,8 +240,8 @@ function renderEmployerDashboard(app, user, path) {
                             </div>
                             <i class="fas fa-file-alt text-4xl text-indigo-200"></i>
                         </div>
-                    </div>
-                    
+                    </a>
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -251,7 +251,7 @@ function renderEmployerDashboard(app, user, path) {
                             <i class="fas fa-calendar-check text-4xl text-green-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -262,7 +262,7 @@ function renderEmployerDashboard(app, user, path) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
@@ -277,7 +277,7 @@ function renderEmployerDashboard(app, user, path) {
                             Post New Job
                         </a>
                     </div>
-                    
+
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-users text-indigo-600 mr-2"></i>
@@ -303,7 +303,7 @@ function renderEmployerDashboard(app, user, path) {
 function renderAdminDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
-        
+
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
@@ -312,7 +312,7 @@ function renderAdminDashboard(app, user, path) {
                     </h1>
                     <p class="text-gray-600">Meridian - System Management & Analytics</p>
                 </div>
-                
+
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -323,7 +323,7 @@ function renderAdminDashboard(app, user, path) {
                             <i class="fas fa-users text-4xl text-purple-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -333,7 +333,7 @@ function renderAdminDashboard(app, user, path) {
                             <i class="fas fa-building text-4xl text-indigo-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -343,7 +343,7 @@ function renderAdminDashboard(app, user, path) {
                             <i class="fas fa-briefcase text-4xl text-green-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -354,27 +354,27 @@ function renderAdminDashboard(app, user, path) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="grid md:grid-cols-3 gap-8 mb-8">
                     <a href="/admin/users" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-user-cog text-5xl text-purple-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Users</h3>
                         <p class="text-gray-600 mt-2">View and manage user accounts</p>
                     </a>
-                    
+
                     <a href="/admin/companies" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-building text-5xl text-indigo-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Companies</h3>
                         <p class="text-gray-600 mt-2">Oversee company profiles</p>
                     </a>
-                    
+
                     <a href="/admin/analytics" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-chart-line text-5xl text-green-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Analytics</h3>
                         <p class="text-gray-600 mt-2">View system analytics</p>
                     </a>
                 </div>
-                
+
                 <div class="card">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-history text-purple-600 mr-2"></i>
