@@ -7,19 +7,19 @@
 import {
     User,
     CVProfile,
+    WorkExperience,
     Education,
     AcademyAttendance,
     Language,
     Job,
     Company,
     Application,
+    SuccessStory,
     Event,
     Resource,
     Analytics,
     Message,
     Notification,
-    SuccessStory,
-    WorkExperience,
 } from '../models/DataModels.js';
 
 class MockDataService {
@@ -40,6 +40,8 @@ class MockDataService {
         this.events = this.generateMockEvents();
         this.resources = this.generateMockResources();
         this.analytics = this.generateMockAnalytics();
+        this.pendingActions = this.generateMockPendingActions();
+        this.alerts = this.generateMockAlerts();
         this.permissionCatalog = this.generatePermissionCatalog();
         this.adminRoles = this.generateAdminRoles();
         this.notificationTemplates = this.generateNotificationTemplates();
@@ -47,6 +49,8 @@ class MockDataService {
         this.platformSettings = this.generatePlatformSettings();
         this.auditLog = this.generateAuditLog();
         this.complianceExports = [];
+        this.notifications = [];
+        this.messages = [];
     }
 
     /**
@@ -847,82 +851,9 @@ class MockDataService {
         ];
     }
 
-    /**
-     * RESOURCES
-     */
-    generateMockResources() {
-        return [
-            new Resource({
-                id: this.generateId('r_'),
-                title: 'How to Write a Winning CV',
-                description:
-                    'A comprehensive guide covering structure, tone, and the most common mistakes students make. Includes a downloadable template.',
-                type: 'cv-guide',
-                contentBody: 'Your CV is often the first impression you make on an employer...',
-                externalUrl: 'https://www.themuse.com/advice/the-35-best-cv-tips-ever',
-                isGlobal: true,
-                programs: [],
-                status: 'active',
-                viewCount: 142,
-                organizerId: 'admin_01',
-                createdAt: new Date().toISOString(),
-            }),
-            new Resource({
-                id: this.generateId('r_'),
-                title: 'Acing Your First Interview',
-                description:
-                    'Tips and techniques from industry professionals on how to prepare, present yourself, and follow up after an interview.',
-                type: 'interview-prep',
-                contentBody: 'Preparation is the key to interview success...',
-                externalUrl: '',
-                isGlobal: true,
-                programs: [],
-                status: 'active',
-                viewCount: 98,
-                organizerId: 'admin_01',
-                createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            }),
-            new Resource({
-                id: this.generateId('r_'),
-                title: 'Summer Internships 2026',
-                description:
-                    'A curated list of open internship positions across tech, finance, and media sectors available to students this summer.',
-                type: 'article',
-                contentBody:
-                    'The following companies are currently accepting internship applications...',
-                externalUrl: '',
-                isGlobal: false,
-                programs: ['software-engineering', 'data-science'],
-                status: 'active',
-                viewCount: 76,
-                organizerId: 'admin_01',
-                createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-            }),
-            new Resource({
-                id: this.generateId('r_'),
-                title: 'Portfolio Template – Creative Track',
-                description:
-                    'A ready-to-use portfolio template designed for students in design and creative programs.',
-                type: 'portfolio-template',
-                contentBody: 'Download the template and follow the setup instructions...',
-                externalUrl: 'https://www.figma.com',
-                isGlobal: false,
-                programs: ['graphic-design'],
-                status: 'archived',
-                viewCount: 33,
-                organizerId: 'admin_01',
-                createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-            }),
-        ];
-    }
-
-    /**
-     * Generates a unique ID using a prefix.
-     * @param {string} prefix - The prefix 'e_' for events, 'r_' from resources
-     * @returns {string} The generated unique ID
-     */
-    generateId(prefix) {
-        return prefix + Date.now().toString(36) + Math.random().toString(36).substring(2, 4);
+    async getEvents() {
+        await this.simulateDelay();
+        return this.events;
     }
 
     /**
@@ -958,6 +889,108 @@ class MockDataService {
     async getAnalytics() {
         await this.simulateDelay();
         return this.analytics;
+    }
+
+    /**
+     * PENDING ACTIONS
+     */
+    generateMockPendingActions() {
+        return [
+            {
+                id: 'pa1',
+                type: 'profile_approval',
+                description: 'Profile submission from Jane Smith requires review',
+                targetName: 'Jane Smith',
+                targetId: '2',
+                priority: 'high',
+                createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                icon: 'fa-user-check',
+            },
+            {
+                id: 'pa2',
+                type: 'employer_verification',
+                description: 'Company verification pending for TechCorp Solutions',
+                targetName: 'TechCorp Solutions',
+                targetId: 'c1',
+                priority: 'high',
+                createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                icon: 'fa-building',
+            },
+            {
+                id: 'pa3',
+                type: 'job_review',
+                description: 'Job posting "Senior Developer" at InnoSoft awaiting approval',
+                targetName: 'Senior Developer',
+                targetId: 'j2',
+                priority: 'medium',
+                createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+                icon: 'fa-briefcase',
+            },
+            {
+                id: 'pa4',
+                type: 'profile_approval',
+                description: 'Profile submission from John Doe requires review',
+                targetName: 'John Doe',
+                targetId: '1',
+                priority: 'medium',
+                createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+                icon: 'fa-user-check',
+            },
+        ];
+    }
+
+    async getPendingActions() {
+        await this.simulateDelay();
+        return this.pendingActions;
+    }
+
+    /**
+     * ALERTS & NOTICES
+     */
+    generateMockAlerts() {
+        return [
+            {
+                id: 'al1',
+                type: 'error',
+                title: 'Email Send Failed',
+                message: '5 welcome emails failed to send to new registrations',
+                severity: 'error',
+                icon: 'fa-exclamation-circle',
+                timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+            },
+            {
+                id: 'al2',
+                type: 'warning',
+                title: 'Access Request Expiration',
+                message: '3 employer profile access requests expire in 2 days',
+                severity: 'warning',
+                icon: 'fa-clock',
+                timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+            },
+            {
+                id: 'al3',
+                type: 'warning',
+                title: 'Unusual Activity Detected',
+                message: 'Multiple failed login attempts detected from IP 192.168.1.x',
+                severity: 'warning',
+                icon: 'fa-shield-alt',
+                timestamp: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
+            },
+            {
+                id: 'al4',
+                type: 'info',
+                title: 'Database Backup Completed',
+                message: 'Platform database backup completed successfully',
+                severity: 'info',
+                icon: 'fa-check-circle',
+                timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+            },
+        ];
+    }
+
+    async getAlerts() {
+        await this.simulateDelay();
+        return this.alerts;
     }
 
     /**

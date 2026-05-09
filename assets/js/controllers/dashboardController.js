@@ -23,10 +23,10 @@ export default async function dashboardController() {
             await renderStudentDashboard(app, user, path);
             break;
         case 'employer':
-            renderEmployerDashboard(app, user, path);
+            await renderEmployerDashboard(app, user, path);
             break;
         case 'admin':
-            renderAdminDashboard(app, user, path);
+            await renderAdminDashboard(app, user, path);
             break;
         default:
             await renderStudentDashboard(app, user, path);
@@ -208,7 +208,7 @@ function bindLatestJobClicks() {
     });
 }
 
-function renderEmployerDashboard(app, user, path) {
+async function renderEmployerDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
 
@@ -300,7 +300,17 @@ function renderEmployerDashboard(app, user, path) {
     });
 }
 
-function renderAdminDashboard(app, user, path) {
+async function renderAdminDashboard(app, user, path) {
+    const pendingActions = await mockDataService.getPendingActions();
+    const alerts = await mockDataService.getAlerts();
+    const analytics = await mockDataService.getAnalytics();
+    const events = await mockDataService.getEvents();
+
+    const totalStudents = analytics.totalStudents || 245;
+    const activeJobs = analytics.activeJobs || 156;
+    const pendingApprovalsCount = pendingActions.filter((a) => a.priority === 'high').length;
+    const eventsThisMonth = events.length || 2;
+
     app.innerHTML = `
         ${renderAppHeader(user, path)}
 
@@ -317,44 +327,93 @@ function renderAdminDashboard(app, user, path) {
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-gray-600 text-sm">Total Users</p>
-                                <p class="text-3xl font-bold text-purple-600">487</p>
+                                <p class="text-gray-600 text-sm">Total Students</p>
+                                <p class="text-3xl font-bold text-purple-600">${totalStudents}</p>
                             </div>
-                            <i class="fas fa-users text-4xl text-purple-200"></i>
+                            <i class="fas fa-graduation-cap text-4xl text-purple-200"></i>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-gray-600 text-sm">Companies</p>
-                                <p class="text-3xl font-bold text-indigo-600">92</p>
+                                <p class="text-gray-600 text-sm">Active Job Listings</p>
+                                <p class="text-3xl font-bold text-indigo-600">${activeJobs}</p>
                             </div>
-                            <i class="fas fa-building text-4xl text-indigo-200"></i>
+                            <i class="fas fa-briefcase text-4xl text-indigo-200"></i>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-gray-600 text-sm">Job Postings</p>
-                                <p class="text-3xl font-bold text-green-600">234</p>
+                                <p class="text-gray-600 text-sm">Pending Approvals</p>
+                                <p class="text-3xl font-bold text-red-600">${pendingApprovalsCount}</p>
                             </div>
-                            <i class="fas fa-briefcase text-4xl text-green-200"></i>
+                            <i class="fas fa-hourglass-half text-4xl text-red-200"></i>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-gray-600 text-sm">Applications</p>
-                                <p class="text-3xl font-bold text-yellow-600">1,247</p>
+                                <p class="text-gray-600 text-sm">Events This Month</p>
+                                <p class="text-3xl font-bold text-green-600">${eventsThisMonth}</p>
                             </div>
-                            <i class="fas fa-file-alt text-4xl text-yellow-200"></i>
+                            <i class="fas fa-calendar-alt text-4xl text-green-200"></i>
                         </div>
                     </div>
                 </div>
 
+                <div class="grid md:grid-cols-4 gap-6 mb-8">
+                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
+                        <i class="fas fa-user-plus text-4xl text-blue-600 mb-3"></i>
+                        <h3 class="font-bold text-gray-800">Add Student</h3>
+                        <p class="text-gray-600 text-sm mt-1">Register new student</p>
+                    </a>
+
+                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
+                        <i class="fas fa-plus-circle text-4xl text-indigo-600 mb-3"></i>
+                        <h3 class="font-bold text-gray-800">Add Job</h3>
+                        <p class="text-gray-600 text-sm mt-1">Post new job listing</p>
+                    </a>
+
+                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
+                        <i class="fas fa-calendar-check text-4xl text-purple-600 mb-3"></i>
+                        <h3 class="font-bold text-gray-800">Create Event</h3>
+                        <p class="text-gray-600 text-sm mt-1">Schedule new event</p>
+                    </a>
+
+                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
+                        <i class="fas fa-file-import text-4xl text-green-600 mb-3"></i>
+                        <h3 class="font-bold text-gray-800">Add Resource</h3>
+                        <p class="text-gray-600 text-sm mt-1">Create learning material</p>
+                    </a>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="card">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-tasks text-red-600 mr-2"></i>
+                            Pending Actions
+                        </h2>
+                        <div class="space-y-2">
+                            ${renderPendingActionsQueue(pendingActions)}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-bell text-orange-600 mr-2"></i>
+                            Alerts & Notices
+                        </h2>
+                        <div class="space-y-2">
+                            ${renderAlertsSection(alerts)}
+                        </div>
+                    </div>
+                </div>
+
+                
                 <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-8 mb-8">
                     <a href="/admin/users" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-user-cog text-5xl text-purple-600 mb-4"></i>
@@ -538,4 +597,82 @@ function renderMockActivity() {
     `
         )
         .join('');
+}
+
+function renderPendingActionsQueue(actions) {
+    if (actions.length === 0) {
+        return '<p class="text-gray-500 text-center py-4">No pending actions</p>';
+    }
+
+    return actions
+        .map((action) => {
+            const priorityColor =
+                action.priority === 'high'
+                    ? 'red'
+                    : action.priority === 'medium'
+                      ? 'yellow'
+                      : 'gray';
+            const timeAgo = formatTimeAgo(action.createdAt);
+            return `
+        <div class="p-3 bg-gray-50 rounded hover:bg-gray-100 transition border-l-4 border-${priorityColor}-500">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                        <i class="fas ${action.icon} text-${priorityColor}-600"></i>
+                        <p class="font-semibold text-gray-800 text-sm">${action.description}</p>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
+                </div>
+                <span class="px-2 py-1 bg-${priorityColor}-100 text-${priorityColor}-800 text-xs font-semibold rounded whitespace-nowrap">
+                    ${action.priority.charAt(0).toUpperCase() + action.priority.slice(1)}
+                </span>
+            </div>
+        </div>
+    `;
+        })
+        .join('');
+}
+
+function renderAlertsSection(alerts) {
+    if (alerts.length === 0) {
+        return '<p class="text-gray-500 text-center py-4">No system alerts</p>';
+    }
+
+    return alerts
+        .map((alert) => {
+            const severityClass =
+                alert.severity === 'error'
+                    ? 'red'
+                    : alert.severity === 'warning'
+                      ? 'yellow'
+                      : 'green';
+            const timeAgo = formatTimeAgo(alert.timestamp);
+            return `
+        <div class="p-3 bg-${severityClass}-50 rounded border-l-4 border-${severityClass}-500">
+            <div class="flex items-start gap-3">
+                <i class="fas ${alert.icon} text-${severityClass}-600 mt-1"></i>
+                <div class="flex-1">
+                    <p class="font-semibold text-gray-800 text-sm">${alert.title}</p>
+                    <p class="text-xs text-gray-600 mt-1">${alert.message}</p>
+                    <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
+                </div>
+            </div>
+        </div>
+    `;
+        })
+        .join('');
+}
+
+function formatTimeAgo(timestamp) {
+    const now = Date.now();
+    const then = new Date(timestamp).getTime();
+    const diff = now - then;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes} min ago`;
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    return `${days} day${days > 1 ? 's' : ''} ago`;
 }

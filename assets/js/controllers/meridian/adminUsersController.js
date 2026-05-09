@@ -15,6 +15,9 @@ export default async function adminUsersController() {
         return;
     }
 
+    const allUsers = await mockDataService.getAllUsers();
+    const analytics = await mockDataService.getAnalytics();
+
     const state = {
         adminFilter: 'all',
         modalMode: null,
@@ -59,6 +62,7 @@ export default async function adminUsersController() {
 
         app.innerHTML = `
             ${renderAppHeader(user, window.location.pathname)}
+
             <div class="bg-gray-50 min-h-screen py-8">
                 <div class="container mx-auto px-4">
                     <div class="fade-in">
@@ -352,6 +356,7 @@ function renderUsersTable(users) {
     return users
         .map(
             (entry) => `
+>>>>>>> dev-meridian
             <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
                 <td class="px-4 py-4">
                     <div class="flex items-center gap-3">
