@@ -7,19 +7,34 @@
 import router from './router.js';
 
 // Import controllers
-import landingController from './controllers/landingController.js';
-import loginController from './controllers/loginController.js';
-import dashboardController from './controllers/dashboardController.js';
+import applicationsController from './controllers/bloom/applicationsController.js';
+import companiesController from './controllers/bloom/companiesController.js';
+import eventsController from './controllers/bloom/eventsController.js';
 import jobBoardController from './controllers/bloom/jobBoardController.js';
 import jobDetailController from './controllers/bloom/jobDetailController.js';
-import companiesController from './controllers/bloom/companiesController.js';
+import messagesController from './controllers/bloom/messagesController.js';
+import notificationsController from './controllers/bloom/notificationsController.js';
 import profileController from './controllers/bloom/profileController.js';
-import postJobController from './controllers/evergreen/postJobController.js';
+import dashboardController from './controllers/dashboardController.js';
 import candidatesController from './controllers/evergreen/candidatesController.js';
-import adminUsersController from './controllers/meridian/adminUsersController.js';
+import jobApplicantsController from './controllers/evergreen/jobApplicantsController.js';
+import employerMessagesController from './controllers/evergreen/messagesController.js';
+import myJobsController from './controllers/evergreen/myJobsController.js';
+import employerNotificationsController from './controllers/evergreen/notificationsController.js';
+import postJobController from './controllers/evergreen/postJobController.js';
+import landingController from './controllers/landingController.js';
+import loginController from './controllers/loginController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
 import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminResourcesController from './controllers/meridian/adminResourcesController.js';
+import adminAuditLogController from './controllers/meridian/adminAuditLogController.js';
+import adminComplianceController from './controllers/meridian/adminComplianceController.js';
+import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
+import adminPlatformSettingsController from './controllers/meridian/adminPlatformSettingsController.js';
+import adminRolePermissionsController from './controllers/meridian/adminRolePermissionsController.js';
+import adminSettingsController from './controllers/meridian/adminSettingsController.js';
+import adminTemplatesController from './controllers/meridian/adminTemplatesController.js';
+import adminUsersController from './controllers/meridian/adminUsersController.js';
 import notFoundController from './controllers/notFoundController.js';
 
 // Import services (make available globally)
@@ -63,6 +78,10 @@ function registerRoutes() {
     router.addRoute('/jobs/:id', jobDetailController, true);
     router.addRoute('/companies', companiesController, true);
     router.addRoute('/profile', profileController, true, ['student', 'alumni']);
+    router.addRoute('/applications', applicationsController, true, ['student', 'alumni']);
+    router.addRoute('/events', eventsController, true);
+    router.addRoute('/messages', messagesController, true, ['student', 'alumni']);
+    router.addRoute('/notifications', notificationsController, true);
 
     // Employer routes (Evergreen module)
     router.addRoute('/employer/post-job', postJobController, true, ['employer']);
@@ -73,6 +92,10 @@ function registerRoutes() {
         true,
         ['employer']
     );
+    router.addRoute('/employer/jobs', myJobsController, true, ['employer']);
+    router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
+    router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
+    router.addRoute('/employer/notifications', employerNotificationsController, true, ['employer']);
 
     // Admin routes (Meridian module)
     router.addRoute('/admin/users', adminUsersController, true, ['admin']);
@@ -94,6 +117,13 @@ function registerRoutes() {
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/admin/events', adminEventsController, true, ['admin']);
     router.addRoute('/admin/resources', adminResourcesController, true, ['admin']);
+    router.addRoute('/admin/notifications', adminNotificationsController, true, ['admin']);
+    router.addRoute('/admin/settings', adminSettingsController, true, ['admin']);
+    router.addRoute('/admin/settings/roles', adminRolePermissionsController, true, ['admin']);
+    router.addRoute('/admin/settings/templates', adminTemplatesController, true, ['admin']);
+    router.addRoute('/admin/settings/platform', adminPlatformSettingsController, true, ['admin']);
+    router.addRoute('/admin/settings/audit', adminAuditLogController, true, ['admin']);
+    router.addRoute('/admin/settings/compliance', adminComplianceController, true, ['admin']);
 
     // 404 route (must be last)
     router.addRoute('/404', notFoundController, false);

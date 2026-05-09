@@ -310,7 +310,7 @@ function renderAdminDashboard(app, user, path) {
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
                         Admin Dashboard ⚙️
                     </h1>
-                    <p class="text-gray-600">Meridian - System Management & Analytics</p>
+                    <p class="text-gray-600">System management and analytics</p>
                 </div>
 
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
@@ -355,11 +355,17 @@ function renderAdminDashboard(app, user, path) {
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-3 gap-8 mb-8">
+                <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-8 mb-8">
                     <a href="/admin/users" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-user-cog text-5xl text-purple-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Users</h3>
                         <p class="text-gray-600 mt-2">View and manage user accounts</p>
+                    </a>
+
+                    <a href="/admin/settings" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                        <i class="fas fa-sliders-h text-5xl text-red-600 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Settings & Permissions</h3>
+                        <p class="text-gray-600 mt-2">Configure roles, templates, privacy, and exports</p>
                     </a>
 
                     <a href="/admin/companies" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
