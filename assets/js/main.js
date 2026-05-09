@@ -25,8 +25,14 @@ import postJobController from './controllers/evergreen/postJobController.js';
 import landingController from './controllers/landingController.js';
 import loginController from './controllers/loginController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
+import adminAuditLogController from './controllers/meridian/adminAuditLogController.js';
+import adminComplianceController from './controllers/meridian/adminComplianceController.js';
 import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
+import adminPlatformSettingsController from './controllers/meridian/adminPlatformSettingsController.js';
+import adminRolePermissionsController from './controllers/meridian/adminRolePermissionsController.js';
+import adminSettingsController from './controllers/meridian/adminSettingsController.js';
+import adminTemplatesController from './controllers/meridian/adminTemplatesController.js';
 import adminUsersController from './controllers/meridian/adminUsersController.js';
 import notFoundController from './controllers/notFoundController.js';
 
@@ -104,6 +110,12 @@ function registerRoutes() {
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/admin/events', adminEventsController, true, ['admin']);
     router.addRoute('/admin/notifications', adminNotificationsController, true, ['admin']);
+    router.addRoute('/admin/settings', adminSettingsController, true, ['admin']);
+    router.addRoute('/admin/settings/roles', adminRolePermissionsController, true, ['admin']);
+    router.addRoute('/admin/settings/templates', adminTemplatesController, true, ['admin']);
+    router.addRoute('/admin/settings/platform', adminPlatformSettingsController, true, ['admin']);
+    router.addRoute('/admin/settings/audit', adminAuditLogController, true, ['admin']);
+    router.addRoute('/admin/settings/compliance', adminComplianceController, true, ['admin']);
 
     // 404 route (must be last)
     router.addRoute('/404', notFoundController, false);
