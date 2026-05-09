@@ -379,6 +379,18 @@ function renderAdminDashboard(app, user, path) {
                         <h3 class="text-xl font-bold text-gray-800">Analytics</h3>
                         <p class="text-gray-600 mt-2">View system analytics</p>
                     </a>
+
+                    <a href="/admin/events" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                        <i class="fas fa-calendar text-5xl text-red-600 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Events</h3>
+                        <p class="text-gray-600 mt-2">Manage system events</p>
+                    </a>
+
+                    <a href="/admin/resources" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                        <i class="fas fa-newspaper text-5xl text-blue-600 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Resources</h3>
+                        <p class="text-gray-600 mt-2">Manage platform resources</p>
+                    </a>
                 </div>
 
                 <div class="card">

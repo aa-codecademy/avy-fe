@@ -204,9 +204,40 @@ export class Event {
         this.location = data.location || '';
         this.isOnline = data.isOnline || false;
         this.maxParticipants = data.maxParticipants || 0;
-        this.registeredCount = data.registeredCount || 0;
+        this.registeredUsers = data.registeredUsers || [];
         this.organizerId = data.organizerId || '';
         this.status = data.status || 'upcoming'; // upcoming, ongoing, completed, cancelled
+        this.createdAt = data.createdAt || new Date().toISOString();
+    }
+}
+/**
+ * Event Notification Model
+ */
+export class EventNotification {
+    constructor(data = {}) {
+        this.id = data.id || '';
+        this.eventId = data.eventId || '';
+        this.message = data.message || '';
+        this.createdAt = data.createdAt || new Date().toISOString();
+    }
+}
+
+/**
+ * Resource Model
+ */
+export class Resource {
+    constructor(data = {}) {
+        this.id = data.id || '';
+        this.title = data.title || '';
+        this.description = data.description || '';
+        this.type = data.type || 'article'; // cv-guide, interview-prep, protfolio-template
+        this.contentBody = data.contentBody || '';
+        this.externalUrl = data.externalUrl || '';
+        this.isGlobal = data.isGlobal || true;
+        this.programs = data.programs || [];
+        this.status = data.status || 'active'; // archived
+        this.viewCount = data.viewCount || 14;
+        this.organizerId = data.organizerId || '';
         this.createdAt = data.createdAt || new Date().toISOString();
     }
 }

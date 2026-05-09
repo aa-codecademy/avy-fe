@@ -25,9 +25,10 @@ import postJobController from './controllers/evergreen/postJobController.js';
 import landingController from './controllers/landingController.js';
 import loginController from './controllers/loginController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
+import adminEventsController from './controllers/meridian/adminEventsController.js';
+import adminResourcesController from './controllers/meridian/adminResourcesController.js';
 import adminAuditLogController from './controllers/meridian/adminAuditLogController.js';
 import adminComplianceController from './controllers/meridian/adminComplianceController.js';
-import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
 import adminPlatformSettingsController from './controllers/meridian/adminPlatformSettingsController.js';
 import adminRolePermissionsController from './controllers/meridian/adminRolePermissionsController.js';
@@ -85,6 +86,12 @@ function registerRoutes() {
     // Employer routes (Evergreen module)
     router.addRoute('/employer/post-job', postJobController, true, ['employer']);
     router.addRoute('/employer/candidates', candidatesController, true, ['employer']);
+    router.addRoute(
+        '/employer/jobs',
+        createPlaceholderController('My Jobs', 'Manage your job postings'),
+        true,
+        ['employer']
+    );
     router.addRoute('/employer/jobs', myJobsController, true, ['employer']);
     router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
@@ -109,6 +116,7 @@ function registerRoutes() {
     );
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/admin/events', adminEventsController, true, ['admin']);
+    router.addRoute('/admin/resources', adminResourcesController, true, ['admin']);
     router.addRoute('/admin/notifications', adminNotificationsController, true, ['admin']);
     router.addRoute('/admin/settings', adminSettingsController, true, ['admin']);
     router.addRoute('/admin/settings/roles', adminRolePermissionsController, true, ['admin']);
