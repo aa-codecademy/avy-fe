@@ -39,6 +39,11 @@ export class CVProfile {
         this.additionalTraining = data.additionalTraining || [];
         this.skills = data.skills || []; // Array of strings
         this.languages = data.languages || []; // Array of Language
+        // Job recommendation preferences
+        this.workModePreference = data.workModePreference || 'hybrid'; // onsite, remote, hybrid
+        this.locationPreference = data.locationPreference || ''; // Preferred work location
+        this.salaryExpectation = data.salaryExpectation || { min: 0, max: 0, currency: 'EUR' }; // Expected salary range
+        this.yearsOfExperience = data.yearsOfExperience || 0; // Calculated total years of experience
         this.updatedAt = data.updatedAt || new Date().toISOString();
     }
 }
@@ -122,6 +127,11 @@ export class Job {
         this.views = data.views || 0;
         this.applications = data.applications || 0;
         this.isPriority = data.isPriority || false; // Premium feature
+        // Recommendation algorithm analytics
+        this.recommendationViews = data.recommendationViews || 0; // Views from recommendations
+        this.recommendationClicks = data.recommendationClicks || 0; // Clicks from recommendations
+        this.recommendationApplications = data.recommendationApplications || 0; // Applications from recommendations
+        this.averageMatchScore = data.averageMatchScore || 0; // Average match score for this job
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
     }

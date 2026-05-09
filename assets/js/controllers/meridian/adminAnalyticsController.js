@@ -132,6 +132,7 @@ export default async function adminAnalyticsController() {
     const applications = mockDataService.generateMockApplications();
     const companyMetrics = getCompanyPerformanceMetrics(companies, jobs, applications);
     const unresponsiveEmployers = identifyUnresponsiveEmployers(companies, jobs, applications);
+    const recommendationAnalytics = await mockDataService.getRecommendationAnalytics();
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
@@ -152,6 +153,7 @@ export default async function adminAnalyticsController() {
                     ${renderEventAttendanceAnalyticsSection(events)}
                     ${renderCompanyPerformanceSection(companyMetrics)}
                     ${renderUnresponsiveEmployersSection(unresponsiveEmployers)}
+                    ${renderRecommendationAnalyticsSection(recommendationAnalytics)}
                 </div>
             </div>
         </div>
@@ -1357,4 +1359,222 @@ function identifyUnresponsiveEmployers(companies, jobs, applications) {
             };
         })
         .filter((item) => item.flags.length);
+}
+
+/**
+ * RECOMMENDATION ALGORITHM ANALYTICS FUNCTIONS
+ */
+
+// Function to render recommendation algorithm analytics section
+function renderRecommendationAnalyticsSection(analytics) {
+    const { overall, performanceByScoreRange, jobPerformance } = analytics;
+
+    return `
+        <br>
+        <section class="mb-8">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-robot text-indigo-600 mr-3"></i>
+                    Job Recommendation Algorithm Performance
+                </h2>
+                <p class="text-gray-600">Monitor the effectiveness of the job matching algorithm</p>
+            </div>
+
+            <!-- Overall Performance Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="card bg-blue-50 border-blue-200">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-blue-100 rounded-lg">
+                            <i class="fas fa-eye text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-blue-600 font-semibold">Recommendation Views</p>
+                            <p class="text-2xl font-bold text-blue-900">${formatNumber(overall.totalRecommendationViews)}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-green-50 border-green-200">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <i class="fas fa-mouse-pointer text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-green-600 font-semibold">Click-Through Rate</p>
+                            <p class="text-2xl font-bold text-green-900">${overall.clickThroughRate}%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-purple-50 border-purple-200">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-purple-100 rounded-lg">
+                            <i class="fas fa-file-signature text-purple-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-purple-600 font-semibold">Apply Rate</p>
+                            <p class="text-2xl font-bold text-purple-900">${overall.applyRate}%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-indigo-50 border-indigo-200">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-indigo-100 rounded-lg">
+                            <i class="fas fa-star text-indigo-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-indigo-600 font-semibold">Avg Match Quality</p>
+                            <p class="text-2xl font-bold text-indigo-900">${overall.averageMatchQuality}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance by Match Score Range -->
+            <div class="card mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-chart-bar text-indigo-600 mr-2"></i>
+                    Performance by Match Quality
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    ${Object.entries(performanceByScoreRange)
+                        .map(
+                            ([range, data]) => `
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3 capitalize">${range} Matches (${data.min}-${data.max})</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span>Views:</span>
+                                    <span class="font-semibold">${data.views}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span>CTR:</span>
+                                    <span class="font-semibold ${data.clickThroughRate > 5 ? 'text-green-600' : data.clickThroughRate > 2 ? 'text-yellow-600' : 'text-red-600'}">${data.clickThroughRate.toFixed(1)}%</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span>Apply Rate:</span>
+                                    <span class="font-semibold ${data.applyRate > 10 ? 'text-green-600' : data.applyRate > 5 ? 'text-yellow-600' : 'text-red-600'}">${data.applyRate.toFixed(1)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                        )
+                        .join('')}
+                </div>
+            </div>
+
+            <!-- Individual Job Performance Table -->
+            <div class="card mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-list text-indigo-600 mr-2"></i>
+                    Individual Job Performance
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match Score</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTR</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apply Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${jobPerformance
+                                .map(
+                                    (job) => `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">${job.title}</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-500">${mockDataService.generateMockCompanies().find((c) => c.id === job.companyId)?.name || 'Unknown'}</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span class="text-sm font-semibold ${job.averageMatchScore >= 80 ? 'text-green-600' : job.averageMatchScore >= 60 ? 'text-yellow-600' : 'text-red-600'}">${job.averageMatchScore}</span>
+                                            <div class="ml-2 w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                <div class="h-full ${job.averageMatchScore >= 80 ? 'bg-green-500' : job.averageMatchScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'} rounded-full" style="width:${job.averageMatchScore}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${job.recommendationViews}</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${job.recommendationClicks}</td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-semibold ${job.clickThroughRate > 5 ? 'text-green-600' : job.clickThroughRate > 2 ? 'text-yellow-600' : 'text-red-600'}">${job.clickThroughRate}%</span>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${job.recommendationApplications}</td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-semibold ${job.applyRate > 10 ? 'text-green-600' : job.applyRate > 5 ? 'text-yellow-600' : 'text-red-600'}">${job.applyRate}%</span>
+                                    </td>
+                                </tr>
+                            `
+                                )
+                                .join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Algorithm Health Check -->
+            <div class="card bg-gray-50">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-heartbeat text-indigo-600 mr-2"></i>
+                    Algorithm Health Check
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg p-4 ${overall.clickThroughRate >= 3 ? 'border-green-200' : overall.clickThroughRate >= 1.5 ? 'border-yellow-200' : 'border-red-200'}">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas ${overall.clickThroughRate >= 3 ? 'fa-check-circle text-green-600' : overall.clickThroughRate >= 1.5 ? 'fa-exclamation-triangle text-yellow-600' : 'fa-times-circle text-red-600'}"></i>
+                            <h4 class="font-semibold ${overall.clickThroughRate >= 3 ? 'text-green-800' : overall.clickThroughRate >= 1.5 ? 'text-yellow-800' : 'text-red-800'}">Click-Through Rate</h4>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">
+                            ${
+                                overall.clickThroughRate >= 3
+                                    ? 'Excellent CTR - algorithm is engaging users well'
+                                    : overall.clickThroughRate >= 1.5
+                                      ? 'Moderate CTR - room for improvement in relevance'
+                                      : 'Low CTR - algorithm may need tuning for better matches'
+                            }
+                        </p>
+                        <p class="text-lg font-bold ${overall.clickThroughRate >= 3 ? 'text-green-600' : overall.clickThroughRate >= 1.5 ? 'text-yellow-600' : 'text-red-600'}">${overall.clickThroughRate}%</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 ${overall.applyRate >= 8 ? 'border-green-200' : overall.applyRate >= 4 ? 'border-yellow-200' : 'border-red-200'}">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas ${overall.applyRate >= 8 ? 'fa-check-circle text-green-600' : overall.applyRate >= 4 ? 'fa-exclamation-triangle text-yellow-600' : 'fa-times-circle text-red-600'}"></i>
+                            <h4 class="font-semibold ${overall.applyRate >= 8 ? 'text-green-800' : overall.applyRate >= 4 ? 'text-yellow-800' : 'text-red-800'}">Apply Rate</h4>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">
+                            ${
+                                overall.applyRate >= 8
+                                    ? 'Strong conversion - users find valuable matches'
+                                    : overall.applyRate >= 4
+                                      ? 'Moderate conversion - some matches are working'
+                                      : 'Low conversion - matches may not be relevant enough'
+                            }
+                        </p>
+                        <p class="text-lg font-bold ${overall.applyRate >= 8 ? 'text-green-600' : overall.applyRate >= 4 ? 'text-yellow-600' : 'text-red-600'}">${overall.applyRate}%</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 ${overall.averageMatchQuality >= 75 ? 'border-green-200' : overall.averageMatchQuality >= 60 ? 'border-yellow-200' : 'border-red-200'}">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas ${overall.averageMatchQuality >= 75 ? 'fa-check-circle text-green-600' : overall.averageMatchQuality >= 60 ? 'fa-exclamation-triangle text-yellow-600' : 'fa-times-circle text-red-600'}"></i>
+                            <h4 class="font-semibold ${overall.averageMatchQuality >= 75 ? 'text-green-800' : overall.averageMatchQuality >= 60 ? 'text-yellow-800' : 'text-red-800'}">Match Quality</h4>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">
+                            ${
+                                overall.averageMatchQuality >= 75
+                                    ? 'High quality matches - algorithm performing well'
+                                    : overall.averageMatchQuality >= 60
+                                      ? 'Moderate quality - some tuning may help'
+                                      : 'Low quality matches - significant improvements needed'
+                            }
+                        </p>
+                        <p class="text-lg font-bold ${overall.averageMatchQuality >= 75 ? 'text-green-600' : overall.averageMatchQuality >= 60 ? 'text-yellow-600' : 'text-red-600'}">${overall.averageMatchQuality}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    `;
 }
