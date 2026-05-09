@@ -42,6 +42,7 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/admin/companies', 'fa-building', 'Companies', ['/admin/companies'])}
             ${L('/admin/analytics', 'fa-chart-bar', 'Analytics', ['/admin/analytics'])}
             ${L('/admin/events', 'fa-calendar', 'Events', ['/admin/events'])}
+            ${L('/admin/resources', 'fa-newspaper', 'Resources', ['/admin/resources'])}
         `;
     } else if (role === 'employer') {
         links = `

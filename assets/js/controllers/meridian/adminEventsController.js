@@ -1,7 +1,7 @@
 import authService from '../../services/authService.js';
-import eventService from '../../services/eventService.js';
+import eventService from '../../services/adminContentService/eventService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
-import modalService from '../../services/modalService.js';
+import modalService from '../../services/adminContentService/modalService.js';
 import mockDataService from '../../services/mockDataService.js';
 
 export default async function adminEventsController() {
@@ -23,8 +23,6 @@ export default async function adminEventsController() {
         ${renderAppHeader(user, window.location.pathname)}
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
-
-                <!-- Page Title -->
                 <div class="relative bg-white shadow-md rounded-2xl mb-6">
                     <div class="max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2"><i class="fas fa-calendar text-purple-600 mr-3"></i>Platform Event Management</h1>
@@ -32,35 +30,26 @@ export default async function adminEventsController() {
                     </div>
                 </div>
 
-                <!-- Main Layout -->
                 <div class="flex gap-6">
-
-                    <!-- Left Sidebar -->
                     <div class="flex flex-col gap-4 w-1/4 h-fit relative bg-white shadow-md rounded-2xl p-5">
-
-                        <!-- Schedule Event -->
-                        <div style="background:var(--color-bg)" class="cursor-pointer transition-all duration-300 hover:bg-green-500 group relative shadow-md rounded-2xl p-5" id="schedule-event-button">
+                        <div class="cursor-pointer transition-all duration-300 hover:bg-green-500 group relative shadow-md rounded-2xl p-5" id="schedule-event-button">
                             <div class="flex items-center justify-between">
                                 <p class="text-xl font-bold transition-colors duration-300 group-hover:text-white">Schedule Event</p>
                                 <i class="fas fa-calendar-plus text-4xl text-gray-400 transition-colors duration-300 group-hover:text-white"></i>
                             </div>
                         </div>
 
-                        <!-- Filters -->
                         <div style="background:var(--color-bg)" class="flex flex-col gap-2 relative shadow-md rounded-2xl p-5">
                             <p class="text-sm font-semibold text-gray-500 mb-2">Filters</p>
                         </div>
-
                     </div>
 
-                    <!-- Right Content Area -->
                     <div class="flex flex-col gap-4 w-3/4">
                         <div class="relative bg-white shadow-md rounded-2xl p-5">
                             <h2 class="text-2xl font-bold text-gray-800">Current Events</h2>
                         </div>
                         <div id="event-card-container" class="flex flex-col gap-4 relative bg-white shadow-md rounded-2xl p-5"></div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -86,14 +75,19 @@ class AdminEventsController {
     }
 
     async displayEventCards() {
-        const events = await this.eventService.getEvents();
         const container = document.getElementById('event-card-container');
-        container.innerHTML = ``;
-        if (events.length === 0) {
-            container.innerHTML = `<h2 class="text-lg font-bold text-gray-800 leading-tight">No scheduled events currently</h2>`;
-            return;
+        try {
+            const events = await this.eventService.getEvents();
+            if (events.length === 0) {
+                container.innerHTML = `<h2 class="text-lg font-bold text-gray-800 leading-tight">No events found.</h2>`;
+                return;
+            }
+            container.innerHTML = ``;
+            events.forEach((event) => container.appendChild(this.buildEventCard(event)));
+        } catch (error) {
+            console.error('Failed to load events:', error);
+            container.innerHTML = `<p class="text-red-500 text-sm">Failed to load events.</p>`;
         }
-        events.forEach((event) => container.appendChild(this.buildEventCard(event)));
     }
 
     buildEventCard(event) {
@@ -496,9 +490,9 @@ class AdminEventsController {
             locationField.classList.toggle('hidden', isOnline);
         });
 
-        document
-            .getElementById('cancel-modal-button')
-            .addEventListener('click', () => modalElement.closeModal());
+        document.getElementById('cancel-modal-button').addEventListener('click', () => {
+            modalService.closeModal();
+        });
 
         document.getElementById('event-form').onsubmit = async (e) => {
             e.preventDefault();

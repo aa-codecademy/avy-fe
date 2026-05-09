@@ -4,9 +4,9 @@
  * Methods will be chnaged to make API calls in Phase 2
  */
 
-import apiService from './apiService.js';
-import mockDataService from './mockDataService.js';
-import { Event, EventNotification } from '../models/DataModels.js';
+import apiService from '../apiService.js';
+import mockDataService from '../mockDataService.js';
+import { Event, EventNotification } from '../../models/DataModels.js';
 
 class EventService {
     /* Event Methods */
@@ -16,7 +16,7 @@ class EventService {
      */
     async getEvents() {
         //return await apiService.get('/events'); // For Phase 2
-        // await mockDataService.simulateDelay();
+        //await mockDataService.simulateDelay();
 
         return mockDataService.events;
     }
@@ -28,7 +28,7 @@ class EventService {
      * @throws {Error} If no event with the given ID is found
      */
     async getEventById(id) {
-        // return await apiService.get('/events/:id'); // For Phase 2
+        //return await apiService.get('/events/:id'); // For Phase 2
         await mockDataService.simulateDelay();
 
         const events = await this.getEvents();
@@ -120,7 +120,7 @@ class EventService {
         //return await apiService.post('/events/notifications', data); // For Phase 2
         await mockDataService.simulateDelay();
 
-        // Simulation for backend logic
+        //Simulation for backend logic
         const notification = new EventNotification({
             id: mockDataService.generateId('en_'),
             eventId: data.eventId,
@@ -129,5 +129,4 @@ class EventService {
         console.log('%c Notification sent successfully!', 'color: #56fc03', notification);
     }
 }
-
 export default new EventService();

@@ -19,6 +19,7 @@ import candidatesController from './controllers/evergreen/candidatesController.j
 import adminUsersController from './controllers/meridian/adminUsersController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
 import adminEventsController from './controllers/meridian/adminEventsController.js';
+import adminResourcesController from './controllers/meridian/adminResourcesController.js';
 import notFoundController from './controllers/notFoundController.js';
 
 // Import services (make available globally)
@@ -92,6 +93,7 @@ function registerRoutes() {
     );
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/admin/events', adminEventsController, true, ['admin']);
+    router.addRoute('/admin/resources', adminResourcesController, true, ['admin']);
 
     // 404 route (must be last)
     router.addRoute('/404', notFoundController, false);

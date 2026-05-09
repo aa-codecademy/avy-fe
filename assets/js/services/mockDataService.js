@@ -16,6 +16,7 @@ import {
     Application,
     SuccessStory,
     Event,
+    Resource,
     Analytics,
 } from '../models/DataModels.js';
 
@@ -35,6 +36,7 @@ class MockDataService {
         this.cvProfiles = this.generateMockCVProfiles();
         this.successStories = this.generateMockSuccessStories();
         this.events = this.generateMockEvents();
+        this.resources = this.generateMockResources();
         this.analytics = this.generateMockAnalytics();
     }
 
@@ -617,7 +619,7 @@ class MockDataService {
 
         return [
             new Event({
-                id: 'e1',
+                id: this.generateId('e_'),
                 title: 'Career Day 2026',
                 description: 'Meet top employers and explore career opportunities.',
                 type: 'career-day',
@@ -625,7 +627,7 @@ class MockDataService {
                 time: '10:00',
                 location: 'Avenga Academy - Skopje',
                 isOnline: false,
-                maxParticipants: 100,
+                maxParticipants: 9,
                 registeredUsers: [
                     new User({
                         id: 'u1',
@@ -648,7 +650,7 @@ class MockDataService {
                 ],
             }),
             new Event({
-                id: 'e2',
+                id: this.generateId('e_'),
                 title: 'Web Development Workshop',
                 description: 'Hands-on workshop on modern web development practices.',
                 type: 'workshop',
@@ -656,7 +658,7 @@ class MockDataService {
                 time: '14:00',
                 location: 'Online',
                 isOnline: true,
-                maxParticipants: 50,
+                maxParticipants: 4,
                 registeredUsers: [
                     new User({
                         id: 'u4',
@@ -678,8 +680,109 @@ class MockDataService {
                     }),
                 ],
             }),
+            new Event({
+                id: this.generateId('e_'),
+                title: 'Netwroking Day',
+                description: 'Meet up with other students and establish networks.',
+                type: 'networking',
+                date: futureDate.toISOString().split('T')[0],
+                time: '09:00',
+                location: 'Avenga Academy - Skopje',
+                isOnline: false,
+                maxParticipants: 3,
+                registeredUsers: [
+                    new User({
+                        id: 'u7',
+                        name: 'Test User 7',
+                        role: 'student',
+                        email: 'testuser7@gmail.com',
+                    }),
+                    new User({
+                        id: 'u8',
+                        name: 'Test User 8',
+                        role: 'alumni',
+                        email: 'testuser8@gmail.com',
+                    }),
+                    new User({
+                        id: 'u9',
+                        name: 'Test User 9',
+                        role: 'student',
+                        email: 'testuser9@gmail.com',
+                    }),
+                ],
+            }),
         ];
     }
+
+    /**
+     * RESOURCES
+     */
+    generateMockResources() {
+        return [
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'How to Write a Winning CV',
+                description:
+                    'A comprehensive guide covering structure, tone, and the most common mistakes students make. Includes a downloadable template.',
+                type: 'cv-guide',
+                contentBody: 'Your CV is often the first impression you make on an employer...',
+                externalUrl: 'https://www.themuse.com/advice/the-35-best-cv-tips-ever',
+                isGlobal: true,
+                programs: [],
+                status: 'active',
+                viewCount: 142,
+                organizerId: 'admin_01',
+                createdAt: new Date().toISOString(),
+            }),
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'Acing Your First Interview',
+                description:
+                    'Tips and techniques from industry professionals on how to prepare, present yourself, and follow up after an interview.',
+                type: 'interview-prep',
+                contentBody: 'Preparation is the key to interview success...',
+                externalUrl: '',
+                isGlobal: true,
+                programs: [],
+                status: 'active',
+                viewCount: 98,
+                organizerId: 'admin_01',
+                createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'Summer Internships 2026',
+                description:
+                    'A curated list of open internship positions across tech, finance, and media sectors available to students this summer.',
+                type: 'article',
+                contentBody:
+                    'The following companies are currently accepting internship applications...',
+                externalUrl: '',
+                isGlobal: false,
+                programs: ['software-engineering', 'data-science'],
+                status: 'active',
+                viewCount: 76,
+                organizerId: 'admin_01',
+                createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'Portfolio Template – Creative Track',
+                description:
+                    'A ready-to-use portfolio template designed for students in design and creative programs.',
+                type: 'portfolio-template',
+                contentBody: 'Download the template and follow the setup instructions...',
+                externalUrl: 'https://www.figma.com',
+                isGlobal: false,
+                programs: ['graphic-design'],
+                status: 'archived',
+                viewCount: 33,
+                organizerId: 'admin_01',
+                createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+        ];
+    }
+
     /**
      * Generates a unique ID using a prefix.
      * @param {string} prefix - The prefix 'e_' for events, 'r_' from resources
