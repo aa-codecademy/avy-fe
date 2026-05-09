@@ -45,7 +45,7 @@ async function renderStudentDashboard(app, user, path) {
 
     app.innerHTML = `
         ${renderAppHeader(user, path)}
-        
+
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
@@ -89,7 +89,7 @@ async function renderStudentDashboard(app, user, path) {
                         View all jobs <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
-                
+
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -100,7 +100,7 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-eye text-4xl text-purple-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -110,7 +110,7 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-file-alt text-4xl text-indigo-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -120,7 +120,7 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-calendar-check text-4xl text-green-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -131,7 +131,7 @@ async function renderStudentDashboard(app, user, path) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
@@ -145,7 +145,7 @@ async function renderStudentDashboard(app, user, path) {
                             View All Applications <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
-                    
+
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-briefcase text-indigo-600 mr-2"></i>
@@ -257,7 +257,7 @@ function renderFeaturedCompanies(companies) {
 function renderEmployerDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
-        
+
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
@@ -266,7 +266,7 @@ function renderEmployerDashboard(app, user, path) {
                     </h1>
                     <p class="text-gray-600">Evergreen - Company Management Hub</p>
                 </div>
-                
+
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -277,7 +277,7 @@ function renderEmployerDashboard(app, user, path) {
                             <i class="fas fa-briefcase text-4xl text-purple-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -287,7 +287,7 @@ function renderEmployerDashboard(app, user, path) {
                             <i class="fas fa-file-alt text-4xl text-indigo-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -297,7 +297,7 @@ function renderEmployerDashboard(app, user, path) {
                             <i class="fas fa-calendar-check text-4xl text-green-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -308,7 +308,7 @@ function renderEmployerDashboard(app, user, path) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
@@ -323,7 +323,7 @@ function renderEmployerDashboard(app, user, path) {
                             Post New Job
                         </a>
                     </div>
-                    
+
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-users text-indigo-600 mr-2"></i>
@@ -349,16 +349,16 @@ function renderEmployerDashboard(app, user, path) {
 function renderAdminDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
-        
+
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
                         Admin Dashboard ⚙️
                     </h1>
-                    <p class="text-gray-600">Meridian - System Management & Analytics</p>
+                    <p class="text-gray-600">System management and analytics</p>
                 </div>
-                
+
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -369,7 +369,7 @@ function renderAdminDashboard(app, user, path) {
                             <i class="fas fa-users text-4xl text-purple-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -379,7 +379,7 @@ function renderAdminDashboard(app, user, path) {
                             <i class="fas fa-building text-4xl text-indigo-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -389,7 +389,7 @@ function renderAdminDashboard(app, user, path) {
                             <i class="fas fa-briefcase text-4xl text-green-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -400,27 +400,33 @@ function renderAdminDashboard(app, user, path) {
                         </div>
                     </div>
                 </div>
-                
-                <div class="grid md:grid-cols-3 gap-8 mb-8">
+
+                <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-8 mb-8">
                     <a href="/admin/users" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-user-cog text-5xl text-purple-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Users</h3>
                         <p class="text-gray-600 mt-2">View and manage user accounts</p>
                     </a>
-                    
+
+                    <a href="/admin/settings" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                        <i class="fas fa-sliders-h text-5xl text-red-600 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Settings & Permissions</h3>
+                        <p class="text-gray-600 mt-2">Configure roles, templates, privacy, and exports</p>
+                    </a>
+
                     <a href="/admin/companies" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-building text-5xl text-indigo-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Companies</h3>
                         <p class="text-gray-600 mt-2">Oversee company profiles</p>
                     </a>
-                    
+
                     <a href="/admin/analytics" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-chart-line text-5xl text-green-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Analytics</h3>
                         <p class="text-gray-600 mt-2">View system analytics</p>
                     </a>
                 </div>
-                
+
                 <div class="card">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-history text-purple-600 mr-2"></i>
@@ -441,9 +447,24 @@ function renderAdminDashboard(app, user, path) {
 
 function renderMockApplications() {
     const applications = [
-        { company: 'TechCorp', position: 'Frontend Developer', status: 'Under Review', statusColor: 'yellow' },
-        { company: 'InnoSoft', position: 'Full Stack Developer', status: 'Interview', statusColor: 'green' },
-        { company: 'DataWorks', position: 'Junior Developer', status: 'Pending', statusColor: 'gray' }
+        {
+            company: 'TechCorp',
+            position: 'Frontend Developer',
+            status: 'Under Review',
+            statusColor: 'yellow',
+        },
+        {
+            company: 'InnoSoft',
+            position: 'Full Stack Developer',
+            status: 'Interview',
+            statusColor: 'green',
+        },
+        {
+            company: 'DataWorks',
+            position: 'Junior Developer',
+            status: 'Pending',
+            statusColor: 'gray',
+        },
     ];
 
     return applications
@@ -467,7 +488,7 @@ function renderMockJobs() {
     const jobs = [
         { company: 'CloudTech', position: 'Backend Developer', type: 'Full-time' },
         { company: 'StartupX', position: 'DevOps Engineer', type: 'Contract' },
-        { company: 'MegaCorp', position: 'Software Engineer', type: 'Full-time' }
+        { company: 'MegaCorp', position: 'Software Engineer', type: 'Full-time' },
     ];
 
     return jobs
@@ -486,7 +507,7 @@ function renderMockEmployerJobs() {
     const jobs = [
         { position: 'Senior Developer', applications: 12, status: 'Active' },
         { position: 'Product Manager', applications: 8, status: 'Active' },
-        { position: 'UX Designer', applications: 15, status: 'Active' }
+        { position: 'UX Designer', applications: 15, status: 'Active' },
     ];
 
     return jobs
@@ -510,7 +531,7 @@ function renderMockCandidates() {
     const candidates = [
         { name: 'Jane Smith', position: 'Frontend Developer', match: '95%' },
         { name: 'John Doe', position: 'Backend Developer', match: '88%' },
-        { name: 'Alice Johnson', position: 'Full Stack Developer', match: '92%' }
+        { name: 'Alice Johnson', position: 'Full Stack Developer', match: '92%' },
     ];
 
     return candidates
@@ -535,7 +556,7 @@ function renderMockActivity() {
         { type: 'user', text: 'New user registered: john.doe@example.com', time: '5 min ago' },
         { type: 'job', text: 'New job posted: Senior Developer at TechCorp', time: '15 min ago' },
         { type: 'application', text: '3 new applications received', time: '1 hour ago' },
-        { type: 'company', text: 'Company profile updated: InnoSoft', time: '2 hours ago' }
+        { type: 'company', text: 'Company profile updated: InnoSoft', time: '2 hours ago' },
     ];
 
     return activities
