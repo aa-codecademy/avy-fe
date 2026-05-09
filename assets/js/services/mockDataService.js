@@ -851,9 +851,73 @@ class MockDataService {
         ];
     }
 
-    async getEvents() {
-        await this.simulateDelay();
-        return this.events;
+    /**
+     * RESOURCES
+     */
+    generateMockResources() {
+        return [
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'How to Write a Winning CV',
+                description:
+                    'A comprehensive guide covering structure, tone, and the most common mistakes students make. Includes a downloadable template.',
+                type: 'cv-guide',
+                contentBody: 'Your CV is often the first impression you make on an employer...',
+                externalUrl: 'https://www.themuse.com/advice/the-35-best-cv-tips-ever',
+                isGlobal: true,
+                programs: [],
+                status: 'active',
+                viewCount: 142,
+                organizerId: 'admin_01',
+                createdAt: new Date().toISOString(),
+            }),
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'Acing Your First Interview',
+                description:
+                    'Tips and techniques from industry professionals on how to prepare, present yourself, and follow up after an interview.',
+                type: 'interview-prep',
+                contentBody: 'Preparation is the key to interview success...',
+                externalUrl: '',
+                isGlobal: true,
+                programs: [],
+                status: 'active',
+                viewCount: 98,
+                organizerId: 'admin_01',
+                createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'Summer Internships 2026',
+                description:
+                    'A curated list of open internship positions across tech, finance, and media sectors available to students this summer.',
+                type: 'article',
+                contentBody:
+                    'The following companies are currently accepting internship applications...',
+                externalUrl: '',
+                isGlobal: false,
+                programs: ['software-engineering', 'data-science'],
+                status: 'active',
+                viewCount: 76,
+                organizerId: 'admin_01',
+                createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'Portfolio Template – Creative Track',
+                description:
+                    'A ready-to-use portfolio template designed for students in design and creative programs.',
+                type: 'portfolio-template',
+                contentBody: 'Download the template and follow the setup instructions...',
+                externalUrl: 'https://www.figma.com',
+                isGlobal: false,
+                programs: ['graphic-design'],
+                status: 'archived',
+                viewCount: 33,
+                organizerId: 'admin_01',
+                createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+        ];
     }
 
     /**

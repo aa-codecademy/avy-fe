@@ -4,6 +4,7 @@
  */
 import authService from '../services/authService.js';
 import mockDataService from '../services/mockDataService.js';
+import eventService from '../services/adminContentService/eventService.js';
 import { renderAppHeader } from '../views/appHeader.js';
 
 export default async function dashboardController() {
@@ -304,7 +305,7 @@ async function renderAdminDashboard(app, user, path) {
     const pendingActions = await mockDataService.getPendingActions();
     const alerts = await mockDataService.getAlerts();
     const analytics = await mockDataService.getAnalytics();
-    const events = await mockDataService.getEvents();
+    const events = await eventService.getEvents();
 
     const totalStudents = analytics.totalStudents || 245;
     const activeJobs = analytics.activeJobs || 156;
@@ -348,9 +349,9 @@ async function renderAdminDashboard(app, user, path) {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Pending Approvals</p>
-                                <p class="text-3xl font-bold text-red-600">${pendingApprovalsCount}</p>
+                                <p class="text-3xl font-bold text-orange-600">${pendingApprovalsCount}</p>
                             </div>
-                            <i class="fas fa-hourglass-half text-4xl text-red-200"></i>
+                            <i class="fas fa-hourglass-half text-4xl text-orange-200"></i>
                         </div>
                     </div>
 
@@ -358,37 +359,11 @@ async function renderAdminDashboard(app, user, path) {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Events This Month</p>
-                                <p class="text-3xl font-bold text-green-600">${eventsThisMonth}</p>
+                                <p class="text-3xl font-bold text-red-600">${eventsThisMonth}</p>
                             </div>
-                            <i class="fas fa-calendar-alt text-4xl text-green-200"></i>
+                            <i class="fas fa-calendar text-4xl text-red-200"></i>
                         </div>
                     </div>
-                </div>
-
-                <div class="grid md:grid-cols-4 gap-6 mb-8">
-                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
-                        <i class="fas fa-user-plus text-4xl text-blue-600 mb-3"></i>
-                        <h3 class="font-bold text-gray-800">Add Student</h3>
-                        <p class="text-gray-600 text-sm mt-1">Register new student</p>
-                    </a>
-
-                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
-                        <i class="fas fa-plus-circle text-4xl text-indigo-600 mb-3"></i>
-                        <h3 class="font-bold text-gray-800">Add Job</h3>
-                        <p class="text-gray-600 text-sm mt-1">Post new job listing</p>
-                    </a>
-
-                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
-                        <i class="fas fa-calendar-check text-4xl text-purple-600 mb-3"></i>
-                        <h3 class="font-bold text-gray-800">Create Event</h3>
-                        <p class="text-gray-600 text-sm mt-1">Schedule new event</p>
-                    </a>
-
-                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
-                        <i class="fas fa-file-import text-4xl text-green-600 mb-3"></i>
-                        <h3 class="font-bold text-gray-800">Add Resource</h3>
-                        <p class="text-gray-600 text-sm mt-1">Create learning material</p>
-                    </a>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-8 mb-8">
@@ -413,7 +388,7 @@ async function renderAdminDashboard(app, user, path) {
                     </div>
                 </div>
 
-                
+
                 <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-8 mb-8">
                     <a href="/admin/users" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-user-cog text-5xl text-purple-600 mb-4"></i>

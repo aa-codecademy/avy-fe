@@ -23,33 +23,24 @@ export default async function adminEventsController() {
         ${renderAppHeader(user, window.location.pathname)}
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
-                <div class="relative bg-white shadow-md rounded-2xl mb-6">
-                    <div class="max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        <h1 class="text-4xl font-bold text-gray-800 mb-2"><i class="fas fa-calendar text-purple-600 mr-3"></i>Platform Event Management</h1>
+                <div class="mb-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                            <i class="fas fa-newspaper text-purple-600 mr-3"></i>
+                            Platform Event Management
+                        </h1>
                         <p class="text-gray-600">Meridian-Event Management</p>
                     </div>
+
+                    <button id="schedule-event-button" class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-3 rounded-xl transition-all duration-300 shadow-md">
+                        <i class="fas fa-plus-circle text-lg"></i>
+                        Schedule Event
+                    </button>
                 </div>
 
-                <div class="flex gap-6">
-                    <div class="flex flex-col gap-4 w-1/4 h-fit relative bg-white shadow-md rounded-2xl p-5">
-                        <div class="cursor-pointer transition-all duration-300 hover:bg-green-500 group relative shadow-md rounded-2xl p-5" id="schedule-event-button">
-                            <div class="flex items-center justify-between">
-                                <p class="text-xl font-bold transition-colors duration-300 group-hover:text-white">Schedule Event</p>
-                                <i class="fas fa-calendar-plus text-4xl text-gray-400 transition-colors duration-300 group-hover:text-white"></i>
-                            </div>
-                        </div>
-
-                        <div style="background:var(--color-bg)" class="flex flex-col gap-2 relative shadow-md rounded-2xl p-5">
-                            <p class="text-sm font-semibold text-gray-500 mb-2">Filters</p>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col gap-4 w-3/4">
-                        <div class="relative bg-white shadow-md rounded-2xl p-5">
-                            <h2 class="text-2xl font-bold text-gray-800">Current Events</h2>
-                        </div>
-                        <div id="event-card-container" class="flex flex-col gap-4 relative bg-white shadow-md rounded-2xl p-5"></div>
-                    </div>
+                <div class="bg-white shadow-md rounded-2xl p-5">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">All Resources</h2>
+                    <div class="flex flex-col gap-3" id="event-card-container"></div>
                 </div>
             </div>
         </div>
