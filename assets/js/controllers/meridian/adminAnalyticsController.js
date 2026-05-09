@@ -1,7 +1,9 @@
 /**
  * Admin Analytics Controller
- * Platform analytics dashboard for administrators
+ * Platform analytics dashboard for administrators with Event Attendance Analytics
  */
+
+//import Chart from 'chart.js/auto';
 import authService from '../../services/authService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
@@ -117,14 +119,16 @@ const jobApplicationFunnelMetrics = {
 export default async function adminAnalyticsController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
-    
+
     if (!user || user.role !== 'admin') {
         window.router.navigate('/dashboard');
         return;
     }
-    
+
     const analytics = await mockDataService.getAnalytics();
-    
+    const events = await mockDataService.generateMockEvents();
+    const companies = await mockDataService.generateMockCompanies();
+
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
@@ -137,16 +141,32 @@ export default async function adminAnalyticsController() {
                         </h1>
                         <p class="text-gray-600">Platform growth, health, and student engagement metrics</p>
                     </div>
+
                     ${renderPlatformOverviewSection(analytics, platformOverviewTrends)}
                     ${renderStudentEngagementSection(studentEngagementMetrics)}
                     ${renderJobApplicationFunnelSection(jobApplicationFunnelMetrics)}
+                    ${renderEventAttendanceAnalyticsSection(events)}
                 </div>
             </div>
         </div>
     `;
-    
+
+    setTimeout(() => {
+        initializeEventCharts({
+            events,
+            registrationCounts: getRegistrationCounts(events),
+            attendanceRates: getActualAttendanceRates(events),
+            noShowRates: getNoShowRates(events),
+            programmeBreakdown: getProgrammeBreakdown(events),
+            effectiveness: evaluateEventEffectiveness(events),
+        });
+    }, 100);
+
     const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => authService.logout());
+    }
 }
 
 function renderPlatformOverviewSection(analytics, trends) {
@@ -402,7 +422,7 @@ function renderJobApplicationFunnelSection(metrics) {
         <section class="mt-8">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">
-                    <i class="fas fa-filter-circle-dollar text-purple-600 mr-2"></i>
+                    <i class="fas fa-filter text-purple-600 mr-2"></i>
                     Job and Application Funnel
                 </h2>
                 <p class="text-gray-600">Student movement from job views to saves, applications, and outcomes</p>
@@ -547,4 +567,483 @@ function getTrendChange(trends, key) {
 
 function formatNumber(value) {
     return new Intl.NumberFormat('en-US').format(value || 0);
+}
+
+/**
+ * EVENT ATTENDANCE ANALYTICS FUNCTIONS
+ */
+
+// Function to get registration counts across all events
+function getRegistrationCounts(events) {
+    return events.reduce((total, event) => total + (event.registeredCount || 0), 0);
+}
+
+// Function to get actual attendance rates across all events
+function getActualAttendanceRates(events) {
+    const totalRegistered = events.reduce((sum, event) => sum + (event.registeredCount || 0), 0);
+    const totalAttended = events.reduce((sum, event) => sum + (event.actualAttendance || 0), 0);
+    const rate = totalRegistered > 0 ? Math.round((totalAttended / totalRegistered) * 100) : 0;
+    return { totalRegistered, totalAttended, rate };
+}
+
+// Function to get no-show rates across all events
+function getNoShowRates(events) {
+    const totalRegistered = events.reduce((sum, event) => sum + (event.registeredCount || 0), 0);
+    const totalAttended = events.reduce((sum, event) => sum + (event.actualAttendance || 0), 0);
+    const noShows = totalRegistered - totalAttended;
+    const rate = totalRegistered > 0 ? Math.round((noShows / totalRegistered) * 100) : 0;
+    return { totalRegistered, noShows, rate };
+}
+
+// Function to get breakdown by student programme across all events
+function getProgrammeBreakdown(events) {
+    const programmes = {};
+
+    events.forEach((event) => {
+        if (Array.isArray(event.byProgramme)) {
+            event.byProgramme.forEach((prog) => {
+                if (!programmes[prog.programme]) {
+                    programmes[prog.programme] = {
+                        registered: 0,
+                        attended: 0,
+                        noShow: 0,
+                    };
+                }
+                programmes[prog.programme].registered += prog.registered || 0;
+                programmes[prog.programme].attended += prog.attended || 0;
+                programmes[prog.programme].noShow += prog.noShow || 0;
+            });
+        }
+    });
+
+    return Object.entries(programmes).map(([name, data]) => ({
+        programme: name,
+        ...data,
+        attendanceRate:
+            data.registered > 0 ? Math.round((data.attended / data.registered) * 100) : 0,
+    }));
+}
+
+// Function to evaluate event effectiveness
+function evaluateEventEffectiveness(events) {
+    const effectiveness = events.map((event) => {
+        const registered = event.registeredCount || 0;
+        const attended = event.actualAttendance || 0;
+        const rate = registered > 0 ? Math.round((attended / registered) * 100) : 0;
+        let category = 'Low';
+        if (rate >= 85) category = 'High';
+        else if (rate >= 75) category = 'Medium';
+        return { title: event.title, rate, category };
+    });
+
+    const highCount = effectiveness.filter((e) => e.category === 'High').length;
+    const mediumCount = effectiveness.filter((e) => e.category === 'Medium').length;
+    const lowCount = effectiveness.filter((e) => e.category === 'Low').length;
+
+    return { effectiveness, highCount, mediumCount, lowCount };
+}
+
+// Function to render event attendance analytics section
+function renderEventAttendanceAnalyticsSection(events) {
+    const registrationCounts = getRegistrationCounts(events);
+    const attendanceRates = getActualAttendanceRates(events);
+    const noShowRates = getNoShowRates(events);
+    const programmeBreakdown = getProgrammeBreakdown(events);
+    const effectiveness = evaluateEventEffectiveness(events);
+
+    const chartData = {
+        events,
+        registrationCounts,
+        attendanceRates,
+        noShowRates,
+        programmeBreakdown,
+        effectiveness,
+    };
+
+    return `
+        <section class="mt-8">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-calendar-check text-purple-600 mr-2"></i>
+                    Event Attendance Analytics
+                </h2>
+                <p class="text-gray-600">Comprehensive view of event attendance, no-show rates, and programme participation</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="card bg-blue-50 border-blue-200">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-blue-100 rounded-lg">
+                            <i class="fas fa-user-check text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-blue-600 font-semibold">Total Registrations</p>
+                            <p class="text-2xl font-bold text-blue-900">${formatNumber(registrationCounts)}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-green-50 border-green-200">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-green-600 font-semibold">Actual Attendees</p>
+                            <p class="text-2xl font-bold text-green-900">${formatNumber(attendanceRates.totalAttended)}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-purple-50 border-purple-200">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-purple-100 rounded-lg">
+                            <i class="fas fa-chart-pie text-purple-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-purple-600 font-semibold">Attendance Rate</p>
+                            <p class="text-2xl font-bold text-purple-900">${attendanceRates.rate}%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-red-50 border-red-200">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-red-100 rounded-lg">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-red-600 font-semibold">No-Show Rate</p>
+                            <p class="text-2xl font-bold text-red-900">${noShowRates.rate}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <!-- Attendance Rate Chart -->
+                <div class="card">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-chart-bar text-purple-600 mr-2"></i>
+                        Event Attendance Rates
+                    </h3>
+                    <div style="height: 300px;">
+                        <canvas id="attendanceRateChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Registration vs Attendance Chart -->
+                <div class="card">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-chart-line text-purple-600 mr-2"></i>
+                        Registration vs Attendance
+                    </h3>
+                    <div style="height: 300px;">
+                        <canvas id="registrationVsAttendanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Programme Breakdown Chart -->
+                <div class="card">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-chart-pie text-purple-600 mr-2"></i>
+                        Attendance by Programme
+                    </h3>
+                    <div style="height: 300px;">
+                        <canvas id="programmeBreakdownChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- No show rate -->
+            
+                <div class="card">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-user-clock text-red-600 mr-2"></i>
+                        Event No-Show Rates
+                    </h3>
+                    <div style="height: 300px;">
+                        <canvas id="noShowChart"></canvas>
+                    </div>
+                </div>
+           
+            </div>
+
+            <!-- Programme Breakdown Table -->
+            <div class="card mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-layer-group text-purple-600 mr-2"></i>
+                    Attendance Breakdown by Student Programme
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left">
+                        <thead>
+                            <tr class="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
+                                <th class="py-3 pr-4 font-semibold">Programme</th>
+                                <th class="py-3 px-4 font-semibold">Registered</th>
+                                <th class="py-3 px-4 font-semibold">Attended</th>
+                                <th class="py-3 px-4 font-semibold">No-Shows</th>
+                                <th class="py-3 pl-4 font-semibold">Attendance Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            ${programmeBreakdown
+                                .map(
+                                    (prog) => `
+                                <tr class="text-sm text-gray-700">
+                                    <td class="py-4 pr-4 font-semibold text-gray-900">${prog.programme}</td>
+                                    <td class="py-4 px-4">${prog.registered}</td>
+                                    <td class="py-4 px-4">${prog.attended}</td>
+                                    <td class="py-4 px-4 text-red-600 font-semibold">${prog.noShow}</td>
+                                    <td class="py-4 pl-4">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold">${prog.attendanceRate}%</span>
+                                            <div class="w-16 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                <div class="h-full bg-purple-600 rounded-full" style="width:${prog.attendanceRate}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `
+                                )
+                                .join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            
+            <!-- Event Effectiveness -->
+            <div class="card bg-gray-50">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-trophy text-purple-600 mr-2"></i>
+                    Event Effectiveness Evaluation
+                </h3>
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white rounded-lg p-4 border border-green-200">
+                        <p class="text-sm font-semibold text-green-900 mb-2">High Effectiveness (85%+)</p>
+                        <p class="text-3xl font-bold text-green-900">${effectiveness.highCount}</p>
+                        <p class="text-xs text-gray-600 mt-2">Events with excellent attendance</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-yellow-200">
+                        <p class="text-sm font-semibold text-yellow-900 mb-2">Medium Effectiveness (75-85%)</p>
+                        <p class="text-3xl font-bold text-yellow-900">${effectiveness.mediumCount}</p>
+                        <p class="text-xs text-gray-600 mt-2">Events with good attendance</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-red-200">
+                        <p class="text-sm font-semibold text-red-900 mb-2">Low Effectiveness (<75%)</p>
+                        <p class="text-3xl font-bold text-red-900">${effectiveness.lowCount}</p>
+                        <p class="text-xs text-gray-600 mt-2">Events needing improvement</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-3">Individual Event Performance</h4>
+                    <div class="space-y-2">
+                        ${effectiveness.effectiveness
+                            .map(
+                                (event) => `
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <span class="text-sm font-medium text-gray-700">${event.title}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-semibold ${event.category === 'High' ? 'text-green-600' : event.category === 'Medium' ? 'text-yellow-600' : 'text-red-600'}">${event.rate}%</span>
+                                    <span class="px-2 py-1 text-xs rounded-full ${event.category === 'High' ? 'bg-green-100 text-green-700' : event.category === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">${event.category}</span>
+                                </div>
+                            </div>
+                        `
+                            )
+                            .join('')}
+                    </div>
+                </div>
+            </div>
+        </section>
+    `;
+}
+
+// Function to initialize charts using Chart.js
+function initializeEventCharts(chartData) {
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not loaded');
+        return;
+    }
+
+    Chart.getChart('attendanceRateChart')?.destroy();
+    Chart.getChart('registrationVsAttendanceChart')?.destroy();
+    Chart.getChart('programmeBreakdownChart')?.destroy();
+    Chart.getChart('effectivenessChart')?.destroy();
+    Chart.getChart('noShowChart')?.destroy();
+
+    const { events, programmeBreakdown, effectiveness } = chartData;
+
+    // Attendance Rate Chart
+    const ctx1 = document.getElementById('attendanceRateChart');
+    if (ctx1) {
+        const attendanceRates = getActualAttendanceRates(events);
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: events.map((e) => e.title.substring(0, 20)),
+                datasets: [
+                    {
+                        label: 'Attendance Rate (%)',
+                        data: events.map((e) => {
+                            const reg = e.registeredCount || 0;
+                            const att = Math.round(reg * 0.82);
+                            return reg > 0 ? Math.round((att / reg) * 100) : 0;
+                        }),
+                        backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                        borderColor: 'rgba(139, 92, 246, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 100 } },
+            },
+        });
+    }
+
+    // No-Show Rate Chart
+    const ctx5 = document.getElementById('noShowChart');
+    if (ctx5) {
+        new Chart(ctx5, {
+            type: 'line',
+            data: {
+                labels: events.map((e) => e.title.substring(0, 20)),
+                datasets: [
+                    {
+                        label: 'No-Show Rate (%)',
+                        data: events.map((e) => {
+                            const registered = e.registeredCount || 0;
+                            const attended = e.actualAttendance || 0;
+                            const noShow = Math.max(0, registered - attended);
+                            return registered > 0 ? Math.round((noShow / registered) * 100) : 0;
+                        }),
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                    },
+                },
+            },
+        });
+    }
+
+    // Registration vs Attendance Chart
+    const ctx2 = document.getElementById('registrationVsAttendanceChart');
+    if (ctx2) {
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: events.map((e) => e.title.substring(0, 20)),
+                datasets: [
+                    {
+                        label: 'Registered',
+                        data: events.map((e) => e.registeredCount || 0),
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                    },
+                    {
+                        label: 'Attended',
+                        data: events.map((e) => Math.round((e.registeredCount || 0) * 0.82)),
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+            },
+        });
+    }
+
+    // Programme Breakdown Chart
+    const ctx3 = document.getElementById('programmeBreakdownChart');
+    if (ctx3) {
+        new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                labels: programmeBreakdown.map((p) => p.programme),
+                datasets: [
+                    {
+                        data: programmeBreakdown.map((p) => p.attended),
+                        backgroundColor: [
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(249, 115, 22, 0.8)',
+                        ],
+                        borderColor: [
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(249, 115, 22, 1)',
+                        ],
+                        borderWidth: 2,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+            },
+        });
+    }
+
+    // Event Effectiveness Chart
+    const ctx4 = document.getElementById('effectivenessChart');
+    if (ctx4) {
+        new Chart(ctx4, {
+            type: 'doughnut',
+            data: {
+                labels: ['High (85%+)', 'Medium (75-85%)', 'Low (<75%)'],
+                datasets: [
+                    {
+                        data: [
+                            effectiveness.highCount,
+                            effectiveness.mediumCount,
+                            effectiveness.lowCount,
+                        ],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(249, 115, 22, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(249, 115, 22, 1)',
+                            'rgba(239, 68, 68, 1)',
+                        ],
+                        borderWidth: 2,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+            },
+        });
+    }
 }

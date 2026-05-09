@@ -709,6 +709,13 @@ class MockDataService {
                 isOnline: false,
                 maxParticipants: 100,
                 registeredCount: 45,
+                actualAttendance: 38,
+                byProgramme: [
+                    { programme: 'Frontend Development', registered: 16, attended: 14, noShow: 2 },
+                    { programme: 'Backend Development', registered: 11, attended: 9, noShow: 2 },
+                    { programme: 'QA Engineering', registered: 9, attended: 8, noShow: 1 },
+                    { programme: 'Data Analytics', registered: 9, attended: 7, noShow: 2 },
+                ],
             }),
             new Event({
                 id: 'e2',
@@ -721,6 +728,13 @@ class MockDataService {
                 isOnline: true,
                 maxParticipants: 50,
                 registeredCount: 32,
+                actualAttendance: 26,
+                byProgramme: [
+                    { programme: 'Frontend Development', registered: 12, attended: 10, noShow: 2 },
+                    { programme: 'Backend Development', registered: 8, attended: 7, noShow: 1 },
+                    { programme: 'QA Engineering', registered: 6, attended: 5, noShow: 1 },
+                    { programme: 'Data Analytics', registered: 6, attended: 4, noShow: 2 },
+                ],
             }),
         ];
     }
