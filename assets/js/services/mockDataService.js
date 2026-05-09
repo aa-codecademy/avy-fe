@@ -157,6 +157,10 @@ class MockDataService {
                 subscriptionPlan: 'premium',
                 jobPostingLimit: 80,
                 jobPostingsUsed: 12,
+                applicationResponseRate: 92,
+                averageTimeToUpdateStatus: 2.5,
+                profileAccessRequests: 156,
+                lastActivityDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             }),
             new Company({
                 id: 'c2',
@@ -170,6 +174,10 @@ class MockDataService {
                 subscriptionPlan: 'advanced',
                 jobPostingLimit: 30,
                 jobPostingsUsed: 8,
+                applicationResponseRate: 68,
+                averageTimeToUpdateStatus: 8.3,
+                profileAccessRequests: 89,
+                lastActivityDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
             }),
             new Company({
                 id: 'c3',
@@ -184,6 +192,10 @@ class MockDataService {
                 subscriptionPlan: 'basic',
                 jobPostingLimit: 5,
                 jobPostingsUsed: 3,
+                applicationResponseRate: 45,
+                averageTimeToUpdateStatus: 14.2,
+                profileAccessRequests: 34,
+                lastActivityDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
             }),
             new Company({
                 id: 'c4',
@@ -197,6 +209,10 @@ class MockDataService {
                 subscriptionPlan: 'advanced',
                 jobPostingLimit: 30,
                 jobPostingsUsed: 15,
+                applicationResponseRate: 88,
+                averageTimeToUpdateStatus: 3.1,
+                profileAccessRequests: 142,
+                lastActivityDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             }),
         ];
     }
@@ -493,6 +509,10 @@ class MockDataService {
      * APPLICATIONS
      */
     generateMockApplications() {
+        const appliedDate1 = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
+        const appliedDate2 = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+        const appliedDate3 = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+
         return [
             new Application({
                 id: 'a1',
@@ -500,7 +520,15 @@ class MockDataService {
                 userId: '1',
                 status: 'under_review',
                 coverLetter: 'I am very interested in this position...',
-                appliedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                appliedAt: appliedDate1.toISOString(),
+                updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    { status: 'pending', updatedAt: appliedDate1.toISOString() },
+                    {
+                        status: 'under_review',
+                        updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
             }),
             new Application({
                 id: 'a2',
@@ -508,7 +536,19 @@ class MockDataService {
                 userId: '2',
                 status: 'interview',
                 coverLetter: 'With my experience in backend development...',
-                appliedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                appliedAt: appliedDate2.toISOString(),
+                updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    { status: 'pending', updatedAt: appliedDate2.toISOString() },
+                    {
+                        status: 'under_review',
+                        updatedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'interview',
+                        updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
             }),
             new Application({
                 id: 'a3',
@@ -516,7 +556,74 @@ class MockDataService {
                 userId: '1',
                 status: 'pending',
                 coverLetter: 'Excited about the internship opportunity...',
-                appliedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                appliedAt: appliedDate3.toISOString(),
+                updatedAt: appliedDate3.toISOString(),
+                statusUpdateHistory: [{ status: 'pending', updatedAt: appliedDate3.toISOString() }],
+            }),
+            new Application({
+                id: 'a4',
+                jobId: 'j1',
+                userId: '2',
+                status: 'rejected',
+                coverLetter: 'I am excited to apply for this role...',
+                appliedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    {
+                        status: 'pending',
+                        updatedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'under_review',
+                        updatedAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'rejected',
+                        updatedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
+            }),
+            new Application({
+                id: 'a5',
+                jobId: 'j2',
+                userId: '1',
+                status: 'pending',
+                coverLetter: 'Interested in joining your fintech team...',
+                appliedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    {
+                        status: 'pending',
+                        updatedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
+            }),
+            new Application({
+                id: 'a6',
+                jobId: 'j4',
+                userId: '2',
+                status: 'hired',
+                coverLetter: 'DevOps engineer with cloud expertise...',
+                appliedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    {
+                        status: 'pending',
+                        updatedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'under_review',
+                        updatedAt: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'interview',
+                        updatedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'hired',
+                        updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
             }),
         ];
     }

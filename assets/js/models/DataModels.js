@@ -145,6 +145,10 @@ export class Company {
         this.subscriptionPlan = data.subscriptionPlan || 'basic'; // basic, advanced, premium
         this.jobPostingLimit = data.jobPostingLimit || 5;
         this.jobPostingsUsed = data.jobPostingsUsed || 0;
+        this.applicationResponseRate = data.applicationResponseRate || 0;
+        this.averageTimeToUpdateStatus = data.averageTimeToUpdateStatus || 0;
+        this.profileAccessRequests = data.profileAccessRequests || 0;
+        this.lastActivityDate = data.lastActivityDate || new Date().toISOString();
         this.subscriptionExpiry = data.subscriptionExpiry || '';
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
@@ -166,6 +170,12 @@ export class Application {
         this.notes = data.notes || ''; // Internal company notes
         this.appliedAt = data.appliedAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
+        this.statusUpdateHistory = data.statusUpdateHistory || [
+            {
+                status: this.status,
+                updatedAt: this.updatedAt,
+            },
+        ];
     }
 }
 

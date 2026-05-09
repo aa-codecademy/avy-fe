@@ -126,8 +126,12 @@ export default async function adminAnalyticsController() {
     }
 
     const analytics = await mockDataService.getAnalytics();
-    const events = await mockDataService.generateMockEvents();
-    const companies = await mockDataService.generateMockCompanies();
+    const events = mockDataService.generateMockEvents();
+    const companies = mockDataService.generateMockCompanies();
+    const jobs = mockDataService.generateMockJobs();
+    const applications = mockDataService.generateMockApplications();
+    const companyMetrics = getCompanyPerformanceMetrics(companies, jobs, applications);
+    const unresponsiveEmployers = identifyUnresponsiveEmployers(companies, jobs, applications);
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
@@ -146,6 +150,8 @@ export default async function adminAnalyticsController() {
                     ${renderStudentEngagementSection(studentEngagementMetrics)}
                     ${renderJobApplicationFunnelSection(jobApplicationFunnelMetrics)}
                     ${renderEventAttendanceAnalyticsSection(events)}
+                    ${renderCompanyPerformanceSection(companyMetrics)}
+                    ${renderUnresponsiveEmployersSection(unresponsiveEmployers)}
                 </div>
             </div>
         </div>
@@ -569,9 +575,7 @@ function formatNumber(value) {
     return new Intl.NumberFormat('en-US').format(value || 0);
 }
 
-/**
- * EVENT ATTENDANCE ANALYTICS FUNCTIONS
- */
+/**EVENT ATTENDANCE ANALYTICS FUNCTIONS*/
 
 // Function to get registration counts across all events
 function getRegistrationCounts(events) {
@@ -754,7 +758,7 @@ function renderEventAttendanceAnalyticsSection(events) {
                 </div>
 
                 <!-- No show rate -->
-            
+
                 <div class="card">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-user-clock text-red-600 mr-2"></i>
@@ -764,7 +768,7 @@ function renderEventAttendanceAnalyticsSection(events) {
                         <canvas id="noShowChart"></canvas>
                     </div>
                 </div>
-           
+
             </div>
 
             <!-- Programme Breakdown Table -->
@@ -809,8 +813,8 @@ function renderEventAttendanceAnalyticsSection(events) {
                     </table>
                 </div>
             </div>
-            
-            
+
+
             <!-- Event Effectiveness -->
             <div class="card bg-gray-50">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">
@@ -1046,4 +1050,311 @@ function initializeEventCharts(chartData) {
             },
         });
     }
+}
+
+/*EMPLOYERS*/
+
+// Employer performance dashboard sections
+function renderCompanyPerformanceSection(companyMetrics) {
+    const excellentCompanies = companyMetrics.filter((m) => m.healthStatus === 'excellent').length;
+    const warningCompanies = companyMetrics.filter((m) => m.healthStatus === 'warning').length;
+    const criticalCompanies = companyMetrics.filter((m) => m.healthStatus === 'critical').length;
+
+    return `
+        <section class="mt-8">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-building text-purple-600 mr-2"></i>
+                    Employer Performance Metrics
+                </h2>
+                <p class="text-gray-600">Partner company performance metrics that impact student experience</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                ${renderPerformanceSummaryCard('Excellent Performers', excellentCompanies, 'fa-star', 'bg-gradient-to-br from-green-500 to-green-600', 'Excellent response')}
+                ${renderPerformanceSummaryCard('Needs Attention', warningCompanies, 'fa-exclamation-triangle', 'bg-gradient-to-br from-yellow-500 to-yellow-600', 'Monitor closely')}
+                ${renderPerformanceSummaryCard('Critical Issues', criticalCompanies, 'fa-circle-xmark', 'bg-gradient-to-br from-red-500 to-red-600', 'Immediate action')}
+                ${renderPerformanceSummaryCard('Companies Tracked', companyMetrics.length, 'fa-building', 'bg-gradient-to-br from-blue-500 to-blue-600', 'Total partner companies')}
+            </div>
+
+            <div class="card">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-table text-purple-600 mr-2"></i>
+                        Company Performance Details
+                    </h3>
+                    <p class="text-gray-600 text-sm">Real-time metrics for all employers by company.</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left">
+                        <thead>
+                            <tr class="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
+                                <th class="py-3 pr-4 font-semibold">Company</th>
+                                <th class="py-3 px-4 font-semibold">Plan</th>
+                                <th class="py-3 px-4 font-semibold">Jobs Posted</th>
+                                <th class="py-3 px-4 font-semibold">Response Rate</th>
+                                <th class="py-3 px-4 font-semibold">Avg. Status Update</th>
+                                <th class="py-3 px-4 font-semibold">Profile Access</th>
+                                <th class="py-3 pl-4 font-semibold">Health</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            ${companyMetrics
+                                .map((metric) => {
+                                    const statusClasses =
+                                        metric.healthStatus === 'excellent'
+                                            ? 'bg-green-50 border-l-4 border-green-500'
+                                            : metric.healthStatus === 'warning'
+                                              ? 'bg-yellow-50 border-l-4 border-yellow-500'
+                                              : 'bg-red-50 border-l-4 border-red-500';
+                                    const responseClass =
+                                        metric.applicationResponseRate >= 80
+                                            ? 'text-green-600'
+                                            : metric.applicationResponseRate >= 60
+                                              ? 'text-yellow-600'
+                                              : 'text-red-600';
+                                    const updateClass =
+                                        metric.averageTimeToUpdateStatus <= 5
+                                            ? 'text-green-600'
+                                            : metric.averageTimeToUpdateStatus <= 12
+                                              ? 'text-yellow-600'
+                                              : 'text-red-600';
+                                    return `
+                                <tr class="${statusClasses} hover:bg-opacity-80 transition-colors">
+                                    <td class="py-4 pr-4 font-semibold text-gray-900">${metric.companyName}</td>
+                                    <td class="py-4 px-4">
+                                        <span class="px-3 py-1 text-xs rounded-full font-semibold ${metric.subscriptionPlan === 'premium' ? 'bg-purple-100 text-purple-800' : metric.subscriptionPlan === 'advanced' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
+                                            ${metric.subscriptionPlan}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4 font-medium text-gray-700">${metric.jobsPosted}</td>
+                                    <td class="py-4 px-4 font-semibold ${responseClass}">${metric.applicationResponseRate}%</td>
+                                    <td class="py-4 px-4 font-semibold ${updateClass}">${metric.averageTimeToUpdateStatus}d</td>
+                                    <td class="py-4 px-4 text-gray-700 font-medium">${metric.profileAccessRequests}</td>
+                                    <td class="py-4 pl-4">
+                                        <span class="px-3 py-1 text-xs rounded-full font-semibold ${metric.healthStatus === 'excellent' ? 'bg-green-100 text-green-800' : metric.healthStatus === 'warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                                            ${metric.healthStatus}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `;
+                                })
+                                .join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    `;
+}
+
+function renderPerformanceSummaryCard(title, value, icon, backgroundClass, subtitle) {
+    return `
+        <div class="card ${backgroundClass} text-white">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-white/80 mb-1">${title}</p>
+                    <h3 class="text-4xl font-bold">${value}</h3>
+                    <p class="text-sm mt-3 text-white/80">${subtitle}</p>
+                </div>
+                <i class="fas ${icon} text-3xl text-white/40"></i>
+            </div>
+        </div>
+    `;
+}
+
+function renderUnresponsiveEmployersSection(unresponsiveEmployers) {
+    if (unresponsiveEmployers.length === 0) {
+        return `
+            <section class="mt-8">
+                <div class="card bg-green-50 border border-green-200">
+                    <div class="flex items-center gap-4 p-6">
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-green-900">All employers are responsive</h3>
+                            <p class="text-green-700 mt-1">Student experience is protected; no unresponsive employers detected.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        `;
+    }
+
+    const criticalCount = unresponsiveEmployers.filter(
+        (item) => item.severity === 'critical'
+    ).length;
+    const warningCount = unresponsiveEmployers.filter((item) => item.severity === 'warning').length;
+    return `
+        <section class="mt-8">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                    Unresponsive Employers
+                </h2>
+                <p class="text-gray-600">Employers flagged for low response, slow updates, or inactivity.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="card bg-red-50 border border-red-200 p-6">
+                    <h3 class="text-lg font-bold text-red-800 mb-2">Critical</h3>
+                    <p class="text-3xl font-bold text-red-900">${criticalCount}</p>
+                    <p class="text-sm text-red-700 mt-1">Needs immediate follow-up.</p>
+                </div>
+                <div class="card bg-yellow-50 border border-yellow-200 p-6">
+                    <h3 class="text-lg font-bold text-yellow-800 mb-2">Warning</h3>
+                    <p class="text-3xl font-bold text-yellow-900">${warningCount}</p>
+                    <p class="text-sm text-yellow-700 mt-1">Monitor these employers closely.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                ${unresponsiveEmployers
+                    .map((employer) => {
+                        const isCritical = employer.severity === 'critical';
+                        const badgeClass = isCritical
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800';
+                        return `
+                            <div class="card border ${isCritical ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'} p-6">
+                                <div class="flex items-start justify-between gap-4 mb-4">
+                                    <div>
+                                        <h4 class="text-lg font-bold text-gray-900">${employer.companyName}</h4>
+                                        <p class="text-sm text-gray-600">${employer.industry} • ${employer.subscriptionPlan} plan</p>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}">${employer.severity}</span>
+                                </div>
+                                <div class="grid lg:grid-cols-4 gap-3 text-sm text-gray-700">
+                                    <div>
+                                        <p class="font-semibold">Response Rate</p>
+                                        <p>${employer.applicationResponseRate}%</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold">Avg. Update Time</p>
+                                        <p>${employer.averageTimeToUpdateStatus} days</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold">Jobs Posted</p>
+                                        <p>${employer.jobsPosted}</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold">Profile Access</p>
+                                        <p>${employer.profileAccessRequests}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-sm text-gray-700">
+                                    ${employer.flags.map((flag) => `<p class="mb-1">• ${flag}</p>`).join('')}
+                                </div>
+                            </div>
+                        `;
+                    })
+                    .join('')}
+            </div>
+        </section>
+    `;
+}
+
+function getJobsPostedByCompany(companyId, jobs) {
+    return jobs.filter((job) => job.companyId === companyId && job.status === 'active').length;
+}
+
+function getApplicationResponseRate(companyId, jobs, applications) {
+    const companyJobIds = jobs.filter((job) => job.companyId === companyId).map((job) => job.id);
+    const companyApps = applications.filter((app) => companyJobIds.includes(app.jobId));
+    if (!companyApps.length) return 0;
+    const responded = companyApps.filter(
+        (app) =>
+            app.status !== 'pending' ||
+            (app.statusUpdateHistory && app.statusUpdateHistory.length > 1)
+    ).length;
+    return Math.round((responded / companyApps.length) * 100);
+}
+
+function getAverageTimeToUpdateStatus(companyId, jobs, applications) {
+    const companyJobIds = jobs.filter((job) => job.companyId === companyId).map((job) => job.id);
+    const companyApps = applications.filter((app) => companyJobIds.includes(app.jobId));
+    const updateIntervals = companyApps
+        .filter((app) => app.statusUpdateHistory && app.statusUpdateHistory.length > 1)
+        .map((app) => {
+            const appliedAt = new Date(app.appliedAt).getTime();
+            const firstUpdateAt = new Date(app.statusUpdateHistory[1].updatedAt).getTime();
+            return (firstUpdateAt - appliedAt) / (1000 * 60 * 60 * 24);
+        });
+    if (!updateIntervals.length) return 0;
+    return (
+        Math.round(
+            (updateIntervals.reduce((sum, days) => sum + days, 0) / updateIntervals.length) * 10
+        ) / 10
+    );
+}
+
+function getProfileAccessRequests(companyId, companies) {
+    return companies.find((company) => company.id === companyId)?.profileAccessRequests || 0;
+}
+
+function getCompanyMetrics(companyId, company, jobs, applications) {
+    const jobsPosted = getJobsPostedByCompany(companyId, jobs);
+    const applicationResponseRate = getApplicationResponseRate(companyId, jobs, applications);
+    const averageTimeToUpdateStatus = getAverageTimeToUpdateStatus(companyId, jobs, applications);
+    const profileAccessRequests = getProfileAccessRequests(companyId, [company]);
+    const totalApplications = applications.filter((app) =>
+        jobs.some((j) => j.companyId === companyId && j.id === app.jobId)
+    ).length;
+    let healthStatus = 'excellent';
+    if (applicationResponseRate < 50 || averageTimeToUpdateStatus > 15) {
+        healthStatus = 'critical';
+    } else if (applicationResponseRate < 70 || averageTimeToUpdateStatus > 10) {
+        healthStatus = 'warning';
+    }
+    return {
+        companyId,
+        companyName: company.name,
+        industry: company.industry,
+        subscriptionPlan: company.subscriptionPlan,
+        jobsPosted,
+        totalApplications,
+        applicationResponseRate,
+        averageTimeToUpdateStatus,
+        profileAccessRequests,
+        lastActivityDate: company.lastActivityDate,
+        healthStatus,
+    };
+}
+
+function getCompanyPerformanceMetrics(companies, jobs, applications) {
+    return companies.map((company) => getCompanyMetrics(company.id, company, jobs, applications));
+}
+
+function identifyUnresponsiveEmployers(companies, jobs, applications) {
+    const metrics = getCompanyPerformanceMetrics(companies, jobs, applications);
+    const inactivityThreshold = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+    return metrics
+        .map((metric) => {
+            const lastActivity = new Date(metric.lastActivityDate);
+            const flags = [];
+            if (metric.applicationResponseRate < 60) {
+                flags.push(`Low response rate: ${metric.applicationResponseRate}%`);
+            }
+            if (metric.averageTimeToUpdateStatus > 12) {
+                flags.push(`Slow status updates: ${metric.averageTimeToUpdateStatus} days`);
+            }
+            if (lastActivity < inactivityThreshold) {
+                const daysInactive = Math.floor(
+                    (Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24)
+                );
+                flags.push(`Inactive for ${daysInactive} days`);
+            }
+            return {
+                ...metric,
+                flags,
+                severity:
+                    metric.applicationResponseRate < 40 ||
+                    metric.averageTimeToUpdateStatus > 20 ||
+                    lastActivity < new Date(Date.now() - 20 * 24 * 60 * 60 * 1000)
+                        ? 'critical'
+                        : 'warning',
+            };
+        })
+        .filter((item) => item.flags.length);
 }
