@@ -16,7 +16,10 @@ import {
     Application,
     SuccessStory,
     Event,
+    Resource,
     Analytics,
+    Message,
+    Notification,
 } from '../models/DataModels.js';
 
 class MockDataService {
@@ -35,9 +38,19 @@ class MockDataService {
         this.cvProfiles = this.generateMockCVProfiles();
         this.successStories = this.generateMockSuccessStories();
         this.events = this.generateMockEvents();
+        this.resources = this.generateMockResources();
         this.analytics = this.generateMockAnalytics();
         this.pendingActions = this.generateMockPendingActions();
         this.alerts = this.generateMockAlerts();
+        this.permissionCatalog = this.generatePermissionCatalog();
+        this.adminRoles = this.generateAdminRoles();
+        this.notificationTemplates = this.generateNotificationTemplates();
+        this.emailTemplates = this.generateEmailTemplates();
+        this.platformSettings = this.generatePlatformSettings();
+        this.auditLog = this.generateAuditLog();
+        this.complianceExports = [];
+        this.notifications = [];
+        this.messages = [];
     }
 
     /**
@@ -83,7 +96,32 @@ class MockDataService {
                 email: 'admin@avy.com',
                 name: 'Admin User',
                 role: 'admin',
+                adminRoleId: 'super_admin',
+                status: 'active',
                 avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=ed8936&color=fff',
+                currentPosition: 'Super Admin',
+                lastLoginAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+            }),
+            new User({
+                id: '5',
+                email: 'maria.ops@avy.com',
+                name: 'Maria Petrova',
+                role: 'admin',
+                adminRoleId: 'operations_admin',
+                status: 'active',
+                avatar: 'https://ui-avatars.com/api/?name=Maria+Petrova&background=0257b4&color=fff',
+                currentPosition: 'Operations Admin',
+                lastLoginAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+            }),
+            new User({
+                id: '6',
+                email: 'david.compliance@avy.com',
+                name: 'David Nikolov',
+                role: 'admin',
+                adminRoleId: 'compliance_admin',
+                status: 'invited',
+                avatar: 'https://ui-avatars.com/api/?name=David+Nikolov&background=1f2937&color=fff',
+                currentPosition: 'Compliance Admin',
             }),
         ];
     }
@@ -101,6 +139,79 @@ class MockDataService {
     async getUsersByRole(role) {
         await this.simulateDelay();
         return this.users.filter((u) => u.role === role);
+    }
+
+    async getAdminAccounts() {
+        await this.simulateDelay();
+        return this.users
+            .filter((user) => user.role === 'admin')
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    async createAdminAccount(adminData) {
+        await this.simulateDelay();
+        const timestamp = new Date().toISOString();
+        const newAdmin = new User({
+            id: this.generateId('admin'),
+            email: adminData.email,
+            name: adminData.name,
+            role: 'admin',
+            adminRoleId: adminData.adminRoleId || 'operations_admin',
+            status: adminData.status || 'invited',
+            phone: adminData.phone || '',
+            currentPosition: adminData.currentPosition || 'Platform Administrator',
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(adminData.name)}&background=ed8936&color=fff`,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+        });
+
+        this.users.push(newAdmin);
+        this.analytics.totalUsers += 1;
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Created admin account',
+            area: 'Access',
+            targetName: newAdmin.name,
+            severity: 'info',
+            summary: `${newAdmin.email} invited as ${newAdmin.adminRoleId}`,
+        });
+
+        return newAdmin;
+    }
+
+    async updateAdminAccount(id, updates) {
+        await this.simulateDelay();
+        const admin = this.users.find((user) => user.id === id && user.role === 'admin');
+        if (!admin) {
+            return null;
+        }
+
+        const previousStatus = admin.status;
+        Object.assign(admin, updates, { updatedAt: new Date().toISOString() });
+
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action:
+                previousStatus !== admin.status ? 'Updated admin status' : 'Updated admin account',
+            area: 'Access',
+            targetName: admin.name,
+            severity: admin.status === 'deactivated' ? 'warning' : 'info',
+            summary: `Role: ${admin.adminRoleId} | Status: ${admin.status}`,
+        });
+
+        return admin;
+    }
+
+    async deactivateAdminAccount(id) {
+        await this.simulateDelay();
+        return this.updateAdminAccount(id, { status: 'deactivated', lastLoginAt: '' });
+    }
+
+    async reactivateAdminAccount(id) {
+        await this.simulateDelay();
+        return this.updateAdminAccount(id, { status: 'active' });
     }
 
     /**
@@ -506,6 +617,32 @@ class MockDataService {
         return null;
     }
 
+    async getApplicationById(id) {
+        await this.simulateDelay();
+        return this.applications.find((a) => a.id === id);
+    }
+
+    async withdrawApplication(id) {
+        await this.simulateDelay();
+        const index = this.applications.findIndex((a) => a.id === id);
+        if (index !== -1) {
+            this.applications[index].status = 'withdrawn';
+            this.applications[index].updatedAt = new Date().toISOString();
+            return this.applications[index];
+        }
+        return null;
+    }
+
+    async getApplicationsByJobId(jobId) {
+        await this.simulateDelay();
+        const apps = this.applications.filter((a) => a.jobId === jobId);
+        // Join applicant user info for the employer applicants view
+        return apps.map((a) => ({
+            ...a,
+            applicant: this.users.find((u) => u.id === a.userId) || null,
+        }));
+    }
+
     /**
      * CV PROFILES
      */
@@ -619,7 +756,7 @@ class MockDataService {
 
         return [
             new Event({
-                id: 'e1',
+                id: this.generateId('e_'),
                 title: 'Career Day 2026',
                 description: 'Meet top employers and explore career opportunities.',
                 type: 'career-day',
@@ -627,11 +764,30 @@ class MockDataService {
                 time: '10:00',
                 location: 'Avenga Academy - Skopje',
                 isOnline: false,
-                maxParticipants: 100,
-                registeredCount: 45,
+                maxParticipants: 9,
+                registeredUsers: [
+                    new User({
+                        id: 'u1',
+                        name: 'Test User 1',
+                        role: 'student',
+                        email: 'testuser1@gmail.com',
+                    }),
+                    new User({
+                        id: 'u2',
+                        name: 'Test User 2',
+                        role: 'alumni',
+                        email: 'testuser2@gmail.com',
+                    }),
+                    new User({
+                        id: 'u3',
+                        name: 'Test User 3',
+                        role: 'student',
+                        email: 'testuser3@gmail.com',
+                    }),
+                ],
             }),
             new Event({
-                id: 'e2',
+                id: this.generateId('e_'),
                 title: 'Web Development Workshop',
                 description: 'Hands-on workshop on modern web development practices.',
                 type: 'workshop',
@@ -639,8 +795,58 @@ class MockDataService {
                 time: '14:00',
                 location: 'Online',
                 isOnline: true,
-                maxParticipants: 50,
-                registeredCount: 32,
+                maxParticipants: 4,
+                registeredUsers: [
+                    new User({
+                        id: 'u4',
+                        name: 'Test User 4',
+                        role: 'alumni',
+                        email: 'testuser4@gmail.com',
+                    }),
+                    new User({
+                        id: 'u5',
+                        name: 'Test User 5',
+                        role: 'alumni',
+                        email: 'testuser5@gmail.com',
+                    }),
+                    new User({
+                        id: 'u6',
+                        name: 'Test User 6',
+                        role: 'student',
+                        email: 'testuser6@gmail.com',
+                    }),
+                ],
+            }),
+            new Event({
+                id: this.generateId('e_'),
+                title: 'Netwroking Day',
+                description: 'Meet up with other students and establish networks.',
+                type: 'networking',
+                date: futureDate.toISOString().split('T')[0],
+                time: '09:00',
+                location: 'Avenga Academy - Skopje',
+                isOnline: false,
+                maxParticipants: 3,
+                registeredUsers: [
+                    new User({
+                        id: 'u7',
+                        name: 'Test User 7',
+                        role: 'student',
+                        email: 'testuser7@gmail.com',
+                    }),
+                    new User({
+                        id: 'u8',
+                        name: 'Test User 8',
+                        role: 'alumni',
+                        email: 'testuser8@gmail.com',
+                    }),
+                    new User({
+                        id: 'u9',
+                        name: 'Test User 9',
+                        role: 'student',
+                        email: 'testuser9@gmail.com',
+                    }),
+                ],
             }),
         ];
     }
@@ -648,6 +854,41 @@ class MockDataService {
     async getEvents() {
         await this.simulateDelay();
         return this.events;
+    }
+
+    /**
+     * ANALYTICS
+     */
+    generateMockAnalytics() {
+        return new Analytics({
+            totalUsers: 487,
+            totalStudents: 245,
+            totalAlumni: 150,
+            totalCompanies: 92,
+            totalJobs: 234,
+            activeJobs: 156,
+            totalApplications: 1247,
+            hiredCount: 89,
+            averageMatchScore: 78.5,
+            topSkills: [
+                { skill: 'JavaScript', count: 180 },
+                { skill: 'React', count: 145 },
+                { skill: 'Node.js', count: 98 },
+                { skill: 'Python', count: 87 },
+                { skill: 'SQL', count: 120 },
+            ],
+            topCompanies: [
+                { company: 'TechCorp Solutions', jobCount: 28 },
+                { company: 'InnoSoft', jobCount: 22 },
+                { company: 'CloudTech Systems', jobCount: 19 },
+            ],
+            monthlyGrowth: { users: 12, jobs: 8, applications: 45 },
+        });
+    }
+
+    async getAnalytics() {
+        await this.simulateDelay();
+        return this.analytics;
     }
 
     /**
@@ -753,43 +994,566 @@ class MockDataService {
     }
 
     /**
-     * ANALYTICS
+     * PLATFORM SETTINGS & PERMISSIONS
      */
-    generateMockAnalytics() {
-        return new Analytics({
-            totalUsers: 487,
-            totalStudents: 245,
-            totalAlumni: 150,
-            totalCompanies: 92,
-            totalJobs: 234,
-            activeJobs: 156,
-            totalApplications: 1247,
-            hiredCount: 89,
-            averageMatchScore: 78.5,
-            topSkills: [
-                { skill: 'JavaScript', count: 180 },
-                { skill: 'React', count: 145 },
-                { skill: 'Node.js', count: 98 },
-                { skill: 'Python', count: 87 },
-                { skill: 'SQL', count: 120 },
-            ],
-            topCompanies: [
-                { company: 'TechCorp Solutions', jobCount: 28 },
-                { company: 'InnoSoft', jobCount: 22 },
-                { company: 'CloudTech Systems', jobCount: 19 },
-            ],
-            monthlyGrowth: { users: 12, jobs: 8, applications: 45 },
+    generatePermissionCatalog() {
+        return [
+            { id: 'admins.manage', label: 'Manage admin accounts', group: 'Access' },
+            { id: 'roles.configure', label: 'Configure roles and permissions', group: 'Access' },
+            { id: 'users.view', label: 'View platform users', group: 'Users' },
+            { id: 'jobs.review', label: 'Review jobs and employers', group: 'Content' },
+            { id: 'events.manage', label: 'Manage events and resources', group: 'Content' },
+            {
+                id: 'templates.notifications',
+                label: 'Edit in-app notification templates',
+                group: 'Templates',
+            },
+            { id: 'templates.email', label: 'Edit email templates', group: 'Templates' },
+            { id: 'privacy.configure', label: 'Configure privacy settings', group: 'Compliance' },
+            {
+                id: 'localisation.configure',
+                label: 'Manage localisation settings',
+                group: 'Compliance',
+            },
+            { id: 'audit.view', label: 'View platform audit log', group: 'Compliance' },
+            { id: 'exports.generate', label: 'Generate compliance exports', group: 'Compliance' },
+        ];
+    }
+
+    generateAdminRoles() {
+        return [
+            {
+                id: 'super_admin',
+                name: 'Super Admin',
+                description: 'Full platform access including permissions and compliance actions.',
+                permissions: this.permissionCatalog.map((permission) => permission.id),
+            },
+            {
+                id: 'operations_admin',
+                name: 'Operations Admin',
+                description: 'Runs day-to-day admin workflows across users, jobs, and events.',
+                permissions: [
+                    'admins.manage',
+                    'users.view',
+                    'jobs.review',
+                    'events.manage',
+                    'templates.notifications',
+                    'audit.view',
+                ],
+            },
+            {
+                id: 'compliance_admin',
+                name: 'Compliance Admin',
+                description: 'Owns audit visibility, privacy defaults, and export tooling.',
+                permissions: [
+                    'users.view',
+                    'privacy.configure',
+                    'localisation.configure',
+                    'audit.view',
+                    'exports.generate',
+                    'templates.email',
+                ],
+            },
+            {
+                id: 'communications_admin',
+                name: 'Communications Admin',
+                description: 'Maintains system copy and outbound messaging templates.',
+                permissions: ['events.manage', 'templates.notifications', 'templates.email'],
+            },
+        ];
+    }
+
+    async getPermissionCatalog() {
+        await this.simulateDelay();
+        return this.permissionCatalog;
+    }
+
+    async getAdminRoles() {
+        await this.simulateDelay();
+        return this.adminRoles.map((role) => ({
+            ...role,
+            memberCount: this.users.filter(
+                (user) =>
+                    user.role === 'admin' &&
+                    user.adminRoleId === role.id &&
+                    user.status !== 'deactivated'
+            ).length,
+        }));
+    }
+
+    async updateAdminRolePermissions(roleId, permissions) {
+        await this.simulateDelay();
+        const role = this.adminRoles.find((item) => item.id === roleId);
+        if (!role) {
+            return null;
+        }
+
+        role.permissions = [...permissions];
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Updated role permissions',
+            area: 'Access',
+            targetName: role.name,
+            severity: 'warning',
+            summary: `${permissions.length} permissions assigned`,
+        });
+
+        return role;
+    }
+
+    generateNotificationTemplates() {
+        return [
+            {
+                id: 'notif-profile-approved',
+                key: 'profile_approved',
+                name: 'Profile approved',
+                audience: 'Students',
+                trigger: 'Student profile approved by admin',
+                title: 'Your profile is live',
+                body: 'Your Avy profile has been approved and is now visible to employers on the platform.',
+                updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Maria Petrova',
+            },
+            {
+                id: 'notif-interview-invite',
+                key: 'interview_invitation',
+                name: 'Interview invitation',
+                audience: 'Students',
+                trigger: 'Employer moves candidate to interview stage',
+                title: 'You have a new interview invite',
+                body: 'A company invited you to interview. Open your applications to confirm the details.',
+                updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Admin User',
+            },
+            {
+                id: 'notif-event-reminder',
+                key: 'event_reminder',
+                name: 'Event reminder',
+                audience: 'Students',
+                trigger: '24 hours before an event starts',
+                title: 'Your event starts tomorrow',
+                body: 'Reminder: you are registered for an upcoming event. Check the event page for time and location.',
+                updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Maria Petrova',
+            },
+        ];
+    }
+
+    generateEmailTemplates() {
+        return [
+            {
+                id: 'email-welcome',
+                key: 'welcome_email',
+                name: 'Welcome email',
+                audience: 'All new accounts',
+                subject: 'Welcome to Avy by Avenga Academy',
+                previewText:
+                    'Start exploring jobs, events, and resources tailored to your journey.',
+                body: 'Hi {{firstName}},\n\nWelcome to Avy. Your account is ready and you can now explore the platform.\n\nBest,\nThe Avy team',
+                updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Admin User',
+            },
+            {
+                id: 'email-approval',
+                key: 'approval_notification',
+                name: 'Approval notification',
+                audience: 'Students and employers',
+                subject: 'Your Avy account has been approved',
+                previewText: 'Your account is now active and ready to use.',
+                body: 'Hi {{firstName}},\n\nGood news. Your account has been approved and you can now access the Avy platform.\n\nBest,\nThe Avy team',
+                updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Maria Petrova',
+            },
+            {
+                id: 'email-event-confirmation',
+                key: 'event_confirmation',
+                name: 'Event confirmation',
+                audience: 'Event registrants',
+                subject: 'You are registered for {{eventName}}',
+                previewText: 'Keep this email for your event details and reminders.',
+                body: 'Hi {{firstName}},\n\nYou are confirmed for {{eventName}} on {{eventDate}}. We will send a reminder before it starts.\n\nBest,\nThe Avy team',
+                updatedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Admin User',
+            },
+        ];
+    }
+
+    async getNotificationTemplates() {
+        await this.simulateDelay();
+        return this.notificationTemplates;
+    }
+
+    async updateNotificationTemplate(id, updates) {
+        await this.simulateDelay();
+        const template = this.notificationTemplates.find((item) => item.id === id);
+        if (!template) {
+            return null;
+        }
+
+        Object.assign(template, updates, {
+            updatedAt: new Date().toISOString(),
+            updatedBy: 'Admin User',
+        });
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Updated in-app template',
+            area: 'Templates',
+            targetName: template.name,
+            severity: 'info',
+            summary: template.trigger,
+        });
+        return template;
+    }
+
+    async getEmailTemplates() {
+        await this.simulateDelay();
+        return this.emailTemplates;
+    }
+
+    async updateEmailTemplate(id, updates) {
+        await this.simulateDelay();
+        const template = this.emailTemplates.find((item) => item.id === id);
+        if (!template) {
+            return null;
+        }
+
+        Object.assign(template, updates, {
+            updatedAt: new Date().toISOString(),
+            updatedBy: 'Admin User',
+        });
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Updated email template',
+            area: 'Templates',
+            targetName: template.name,
+            severity: 'info',
+            summary: template.subject,
+        });
+        return template;
+    }
+
+    generatePlatformSettings() {
+        return {
+            privacy: {
+                defaultProfileVisibility: 'private',
+                employerAccessRequestExpiryDays: 7,
+                consentLogRetentionDays: 365,
+                dsarResponseWindowDays: 30,
+            },
+            localisation: {
+                defaultLanguage: 'en',
+                supportedLanguages: [
+                    { code: 'en', name: 'English', enabled: true },
+                    { code: 'mk', name: 'Macedonian', enabled: true },
+                    { code: 'sq', name: 'Albanian', enabled: false },
+                    { code: 'de', name: 'German', enabled: false },
+                ],
+                timezone: 'Europe/Skopje',
+                dateFormat: 'DD/MM/YYYY',
+            },
+        };
+    }
+
+    async getPlatformSettings() {
+        await this.simulateDelay();
+        return this.platformSettings;
+    }
+
+    async updatePlatformSettings(updates) {
+        await this.simulateDelay();
+        this.platformSettings = {
+            ...this.platformSettings,
+            privacy: {
+                ...this.platformSettings.privacy,
+                ...(updates.privacy || {}),
+            },
+            localisation: {
+                ...this.platformSettings.localisation,
+                ...(updates.localisation || {}),
+                supportedLanguages:
+                    updates.localisation?.supportedLanguages ||
+                    this.platformSettings.localisation.supportedLanguages,
+            },
+        };
+
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Updated platform settings',
+            area: 'Compliance',
+            targetName: 'Platform settings',
+            severity: 'warning',
+            summary: 'Privacy and localisation preferences updated',
+        });
+
+        return this.platformSettings;
+    }
+
+    generateAuditLog() {
+        const now = Date.now();
+        return [
+            {
+                id: 'audit-1',
+                timestamp: new Date(now - 25 * 60 * 1000).toISOString(),
+                actorName: 'Admin User',
+                actorRole: 'admin',
+                action: 'Approved employer account',
+                area: 'Access',
+                targetName: 'TechCorp Solutions',
+                severity: 'info',
+                summary: 'Employer application approved and access granted',
+            },
+            {
+                id: 'audit-2',
+                timestamp: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+                actorName: 'John Doe',
+                actorRole: 'student',
+                action: 'Updated profile visibility',
+                area: 'Privacy',
+                targetName: 'Student profile',
+                severity: 'warning',
+                summary: 'Visibility changed from public to private',
+            },
+            {
+                id: 'audit-3',
+                timestamp: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
+                actorName: 'Alice Johnson',
+                actorRole: 'employer',
+                action: 'Requested private profile access',
+                area: 'Compliance',
+                targetName: 'John Doe',
+                severity: 'warning',
+                summary: 'Employer requested access to a private student profile',
+            },
+            {
+                id: 'audit-4',
+                timestamp: new Date(now - 28 * 60 * 60 * 1000).toISOString(),
+                actorName: 'Maria Petrova',
+                actorRole: 'admin',
+                action: 'Updated notification template',
+                area: 'Templates',
+                targetName: 'Interview invitation',
+                severity: 'info',
+                summary: 'Adjusted copy to match new brand voice',
+            },
+        ];
+    }
+
+    createAuditEntry(entry) {
+        const record = {
+            id: this.generateId('audit'),
+            timestamp: new Date().toISOString(),
+            ...entry,
+        };
+        this.auditLog.unshift(record);
+        return record;
+    }
+
+    async getAuditLog(filters = {}) {
+        await this.simulateDelay();
+        const query = (filters.query || '').trim().toLowerCase();
+        return this.auditLog.filter((entry) => {
+            const matchesQuery =
+                !query ||
+                [entry.actorName, entry.action, entry.targetName, entry.summary]
+                    .filter(Boolean)
+                    .some((value) => value.toLowerCase().includes(query));
+            const matchesActorRole = !filters.actorRole || entry.actorRole === filters.actorRole;
+            const matchesArea = !filters.area || entry.area === filters.area;
+            const matchesSeverity = !filters.severity || entry.severity === filters.severity;
+
+            return matchesQuery && matchesActorRole && matchesArea && matchesSeverity;
         });
     }
 
-    async getAnalytics() {
+    async getComplianceExports() {
         await this.simulateDelay();
-        return this.analytics;
+        return this.complianceExports;
+    }
+
+    async generateComplianceExport(request) {
+        await this.simulateDelay();
+        const domains = request.domains?.length
+            ? request.domains
+            : ['account', 'activity', 'communications'];
+        const payload =
+            request.accountType === 'employer'
+                ? this.buildEmployerExportPayload(request.accountId, domains)
+                : this.buildStudentExportPayload(request.accountId, domains);
+
+        if (!payload) {
+            throw new Error('Unable to generate export for the selected account.');
+        }
+
+        const content =
+            request.format === 'csv'
+                ? this.buildComplianceExportCsv(payload)
+                : JSON.stringify(payload, null, 2);
+        const exportRecord = {
+            id: this.generateId('export'),
+            accountType: request.accountType,
+            accountId: request.accountId,
+            requestedAt: new Date().toISOString(),
+            requestedBy: request.requestedBy || 'Admin User',
+            fileName: `avy-${request.accountType}-${request.accountId}.${request.format === 'csv' ? 'csv' : 'json'}`,
+            format: request.format === 'csv' ? 'csv' : 'json',
+            domains,
+            sizeLabel: `${Math.max(1, Math.ceil(content.length / 1024))} KB`,
+        };
+
+        this.complianceExports.unshift(exportRecord);
+        this.createAuditEntry({
+            actorName: exportRecord.requestedBy,
+            actorRole: 'admin',
+            action: 'Generated compliance export',
+            area: 'Compliance',
+            targetName: payload.account.name,
+            severity: 'warning',
+            summary: `${exportRecord.format.toUpperCase()} export with ${domains.join(', ')}`,
+        });
+
+        return {
+            ...exportRecord,
+            content,
+            mimeType:
+                exportRecord.format === 'csv'
+                    ? 'text/csv;charset=utf-8'
+                    : 'application/json;charset=utf-8',
+        };
+    }
+
+    buildStudentExportPayload(accountId, domains) {
+        const account = this.users.find(
+            (user) => user.id === accountId && (user.role === 'student' || user.role === 'alumni')
+        );
+        if (!account) {
+            return null;
+        }
+
+        const payload = {
+            account,
+            generatedAt: new Date().toISOString(),
+            domains,
+        };
+
+        if (domains.includes('account')) {
+            payload.profile =
+                this.cvProfiles.find((profile) => profile.userId === accountId) || null;
+        }
+        if (domains.includes('activity')) {
+            payload.applications = this.applications.filter(
+                (application) => application.userId === accountId
+            );
+            payload.auditTrail = this.auditLog.filter(
+                (entry) => entry.actorName === account.name || entry.targetName === account.name
+            );
+        }
+        if (domains.includes('communications')) {
+            payload.notifications = this.notifications.filter(
+                (notification) => notification.userId === accountId
+            );
+            payload.messages = this.messages.filter(
+                (message) => message.fromUserId === accountId || message.toUserId === accountId
+            );
+        }
+
+        return payload;
+    }
+
+    buildEmployerExportPayload(accountId, domains) {
+        const account = this.users.find(
+            (user) => user.id === accountId && user.role === 'employer'
+        );
+        if (!account) {
+            return null;
+        }
+
+        const company = this.companies.find((item) => item.id === account.companyId) || null;
+        const companyJobs = this.jobs.filter((job) => job.companyId === account.companyId);
+        const jobIds = new Set(companyJobs.map((job) => job.id));
+
+        const payload = {
+            account,
+            company,
+            generatedAt: new Date().toISOString(),
+            domains,
+        };
+
+        if (domains.includes('account')) {
+            payload.jobs = companyJobs;
+        }
+        if (domains.includes('activity')) {
+            payload.applications = this.applications.filter((application) =>
+                jobIds.has(application.jobId)
+            );
+            payload.auditTrail = this.auditLog.filter(
+                (entry) => entry.actorName === account.name || entry.targetName === company?.name
+            );
+        }
+        if (domains.includes('communications')) {
+            payload.notifications = this.notifications.filter(
+                (notification) => notification.userId === accountId
+            );
+            payload.messages = this.messages.filter(
+                (message) =>
+                    message.fromUserId === accountId ||
+                    message.toUserId === accountId ||
+                    message.companyId === account.companyId
+            );
+        }
+
+        return payload;
+    }
+
+    buildComplianceExportCsv(payload) {
+        const rows = [['Section', 'Record ID', 'Summary', 'Data']];
+        for (const [section, value] of Object.entries(payload)) {
+            if (section === 'generatedAt' || section === 'domains') {
+                continue;
+            }
+
+            if (Array.isArray(value)) {
+                if (value.length === 0) {
+                    rows.push([section, '', 'No records', '']);
+                    continue;
+                }
+
+                value.forEach((item) => {
+                    rows.push([
+                        section,
+                        item.id || '',
+                        item.name || item.title || item.subject || item.action || 'Record',
+                        JSON.stringify(item),
+                    ]);
+                });
+                continue;
+            }
+
+            rows.push([
+                section,
+                value?.id || '',
+                value?.name || value?.title || 'Record',
+                JSON.stringify(value),
+            ]);
+        }
+
+        return rows
+            .map((row) =>
+                row.map((value) => `"${String(value || '').replace(/"/g, '""')}"`).join(',')
+            )
+            .join('\n');
     }
 
     /**
      * UTILITY
      */
+    generateId(prefix) {
+        return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    }
+
     simulateDelay(ms = 300) {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }

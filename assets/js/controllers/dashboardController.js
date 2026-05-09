@@ -44,7 +44,7 @@ async function renderStudentDashboard(app, user, path) {
 
     app.innerHTML = `
         ${renderAppHeader(user, path)}
-        
+
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
@@ -80,7 +80,7 @@ async function renderStudentDashboard(app, user, path) {
                         View all jobs <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
-                
+
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -91,7 +91,7 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-eye text-4xl text-purple-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -101,7 +101,7 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-file-alt text-4xl text-indigo-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -111,7 +111,7 @@ async function renderStudentDashboard(app, user, path) {
                             <i class="fas fa-calendar-check text-4xl text-green-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -122,7 +122,7 @@ async function renderStudentDashboard(app, user, path) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
@@ -136,7 +136,7 @@ async function renderStudentDashboard(app, user, path) {
                             View All Applications <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
-                    
+
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-briefcase text-indigo-600 mr-2"></i>
@@ -211,7 +211,7 @@ function bindLatestJobClicks() {
 async function renderEmployerDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
-        
+
         <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
@@ -220,7 +220,7 @@ async function renderEmployerDashboard(app, user, path) {
                     </h1>
                     <p class="text-gray-600">Evergreen - Company Management Hub</p>
                 </div>
-                
+
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
                     <div class="card">
                         <div class="flex items-center justify-between">
@@ -231,7 +231,7 @@ async function renderEmployerDashboard(app, user, path) {
                             <i class="fas fa-briefcase text-4xl text-purple-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -241,7 +241,7 @@ async function renderEmployerDashboard(app, user, path) {
                             <i class="fas fa-file-alt text-4xl text-indigo-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -251,7 +251,7 @@ async function renderEmployerDashboard(app, user, path) {
                             <i class="fas fa-calendar-check text-4xl text-green-200"></i>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -262,7 +262,7 @@ async function renderEmployerDashboard(app, user, path) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
@@ -277,7 +277,7 @@ async function renderEmployerDashboard(app, user, path) {
                             Post New Job
                         </a>
                     </div>
-                    
+
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-users text-indigo-600 mr-2"></i>
@@ -320,7 +320,7 @@ async function renderAdminDashboard(app, user, path) {
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
                         Admin Dashboard ⚙️
                     </h1>
-                    <p class="text-gray-600">Meridian - System Management & Analytics</p>
+                    <p class="text-gray-600">System management and analytics</p>
                 </div>
 
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
@@ -413,11 +413,18 @@ async function renderAdminDashboard(app, user, path) {
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-3 gap-8 mb-8">
+                
+                <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-8 mb-8">
                     <a href="/admin/users" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-user-cog text-5xl text-purple-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Users</h3>
                         <p class="text-gray-600 mt-2">View and manage user accounts</p>
+                    </a>
+
+                    <a href="/admin/settings" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                        <i class="fas fa-sliders-h text-5xl text-red-600 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Settings & Permissions</h3>
+                        <p class="text-gray-600 mt-2">Configure roles, templates, privacy, and exports</p>
                     </a>
 
                     <a href="/admin/companies" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
@@ -430,6 +437,18 @@ async function renderAdminDashboard(app, user, path) {
                         <i class="fas fa-chart-line text-5xl text-green-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Analytics</h3>
                         <p class="text-gray-600 mt-2">View system analytics</p>
+                    </a>
+
+                    <a href="/admin/events" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                        <i class="fas fa-calendar text-5xl text-red-600 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Events</h3>
+                        <p class="text-gray-600 mt-2">Manage system events</p>
+                    </a>
+
+                    <a href="/admin/resources" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                        <i class="fas fa-newspaper text-5xl text-blue-600 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Resources</h3>
+                        <p class="text-gray-600 mt-2">Manage platform resources</p>
                     </a>
                 </div>
 

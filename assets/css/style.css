@@ -1,11 +1,11 @@
 :root {
     /* Avenga Academy Brand Colors */
-    --color-primary: #DD2C00;
+    --color-primary: #dd2c00;
     --color-primary-dark: #b02400;
     --color-secondary: #0257b4;
     --color-accent: #ffa500;
     --color-success: #48bb78;
-    --color-danger: #DD2C00;
+    --color-danger: #dd2c00;
     --color-warning: #ffa500;
     --color-info: #0257b4;
     --color-text: #2d3748;
@@ -21,7 +21,15 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        'Helvetica Neue',
+        Arial,
+        sans-serif;
     color: var(--color-text);
     line-height: 1.6;
 }
@@ -89,7 +97,9 @@ body {
     border-radius: 0.75rem;
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 }
 
 .card:hover {
@@ -109,14 +119,24 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Fade In Animation */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .fade-in {
@@ -172,6 +192,10 @@ body {
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
+}
+
+.modal-content-wide {
+    max-width: 720px;
 }
 
 /* Avenga Academy Brand Utilities */
