@@ -184,6 +184,16 @@ export default async function jobDetailController(params = {}) {
                                         </div>
                                         
                                         <div class="form-group">
+                                            <label class="form-label">Comment (Optional)</label>
+                                            <textarea 
+                                                id="comment" 
+                                                class="form-input" 
+                                                rows="4" 
+                                                placeholder="Add any additional comments..."
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="form-group">
                                             <div class="bg-white border border-gray-200 rounded-3xl pt-6 px-6 pb-0 shadow-sm">
                                                 <div class="flex items-start gap-4 mb-6">
                                                     <div class="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center shrink-0">
@@ -564,6 +574,7 @@ export default async function jobDetailController(params = {}) {
             e.preventDefault();
 
             const coverLetter = document.getElementById('coverLetter').value;
+            const comment = document.getElementById('comment').value;
 
             if (requiresCv && selectedFiles.length === 0) {
                 showToast('You must upload a CV before submitting this application.', 'warning');
@@ -578,6 +589,7 @@ export default async function jobDetailController(params = {}) {
                     jobId: job.id,
                     userId: user.id,
                     coverLetter: coverLetter,
+                    comment: comment,
                 });
 
                 showToast('Application submitted successfully!', 'success');
