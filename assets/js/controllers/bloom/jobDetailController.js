@@ -196,8 +196,9 @@ export default async function jobDetailController(params = {}) {
                                                                 Upload CV / Documents
                                                             </h3>
 
-                                                            <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold">
-                                                                Optional
+                                                            <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold flex items-center gap-1">
+                                                                <span class="italic">*</span>
+                                                                <span>Required</span>
                                                             </span>
                                                         </div>
 
@@ -357,7 +358,80 @@ export default async function jobDetailController(params = {}) {
     const uploadedDocumentsTitle = document.getElementById('uploadedDocumentsTitle');
     const uploadedDocumentsSize = document.getElementById('uploadedDocumentsSize');
 
+    const submitBtn = applicationForm?.querySelector('button[type="submit"]');
+
     let selectedFiles = [];
+    const requiresCv = true;
+
+    function updateSubmitState() {
+        if (!submitBtn) return;
+
+        const isValid = !requiresCv || selectedFiles.length > 0;
+
+        submitBtn.disabled = !isValid;
+        submitBtn.classList.toggle('opacity-50', !isValid);
+        submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+    }
+
+    function showToast(message, type = 'success') {
+        const oldToast = document.getElementById('appToast');
+        if (oldToast) oldToast.remove();
+
+        const toastStyles = {
+            success: {
+                icon: 'fa-check-circle',
+                title: 'Success',
+                classes: 'border-green-200 bg-green-50 text-green-800',
+                iconColor: 'text-green-600',
+            },
+            error: {
+                icon: 'fa-times-circle',
+                title: 'Error',
+                classes: 'border-red-200 bg-red-50 text-red-800',
+                iconColor: 'text-red-600',
+            },
+            warning: {
+                icon: 'fa-exclamation-circle',
+                title: 'Warning',
+                classes: 'border-yellow-200 bg-yellow-50 text-yellow-800',
+                iconColor: 'text-yellow-600',
+            },
+        };
+
+        const config = toastStyles[type] || toastStyles.success;
+
+        const toast = document.createElement('div');
+        toast.id = 'appToast';
+        toast.className = `
+        fixed top-6 right-6 z-[9999] w-[360px] max-w-[calc(100%-32px)]
+        ${config.classes}
+        border rounded-2xl shadow-xl p-4 flex items-start gap-3
+        transition-all duration-300
+    `;
+
+        toast.innerHTML = `
+        <i class="fas ${config.icon} ${config.iconColor} text-2xl mt-1"></i>
+
+        <div class="flex-1">
+            <p class="font-bold mb-1">${config.title}</p>
+            <p class="text-sm leading-relaxed">${message}</p>
+        </div>
+
+        <button type="button" class="text-gray-400 hover:text-gray-700 transition">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+        toast.querySelector('button').addEventListener('click', () => {
+            toast.remove();
+        });
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3500);
+    }
 
     function renderUploadedDocuments() {
         if (!uploadedDocumentsList) return;
@@ -408,6 +482,7 @@ export default async function jobDetailController(params = {}) {
             btn.addEventListener('click', () => {
                 selectedFiles.splice(Number(btn.dataset.index), 1);
                 renderUploadedDocuments();
+                updateSubmitState();
             });
         });
     }
@@ -417,12 +492,15 @@ export default async function jobDetailController(params = {}) {
 
         files.forEach((file) => {
             if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-                alert(`${file.name} is not allowed. Only PDF, DOC and DOCX files are accepted.`);
+                showToast(
+                    `${file.name} is not allowed. Only PDF, DOC and DOCX files are accepted.`,
+                    'error'
+                );
                 return;
             }
 
             if (file.size > MAX_FILE_SIZE) {
-                alert(`${file.name} is too large. Maximum file size is 5MB.`);
+                showToast(`${file.name} is too large. Maximum file size is 5MB.`, 'error');
                 return;
             }
 
@@ -431,7 +509,7 @@ export default async function jobDetailController(params = {}) {
             );
 
             if (alreadyAdded) {
-                alert(`${file.name} is already added.`);
+                showToast(`${file.name} is already added.`, 'warning');
                 return;
             }
 
@@ -441,16 +519,17 @@ export default async function jobDetailController(params = {}) {
         const availableSlots = MAX_FILES - selectedFiles.length;
 
         if (availableSlots <= 0) {
-            alert(`You can upload maximum ${MAX_FILES} files.`);
+            showToast(`You can upload maximum ${MAX_FILES} files.`, 'warning');
             return;
         }
 
         if (validFiles.length > availableSlots) {
-            alert(`You can upload maximum ${MAX_FILES} files.`);
+            showToast(`You can upload maximum ${MAX_FILES} files.`, 'warning');
         }
 
         selectedFiles = [...selectedFiles, ...validFiles.slice(0, availableSlots)];
         renderUploadedDocuments();
+        updateSubmitState();
     }
 
     if (cvUpload) {
@@ -485,7 +564,11 @@ export default async function jobDetailController(params = {}) {
             e.preventDefault();
 
             const coverLetter = document.getElementById('coverLetter').value;
-            const submitBtn = applicationForm.querySelector('button[type="submit"]');
+
+            if (requiresCv && selectedFiles.length === 0) {
+                showToast('You must upload a CV before submitting this application.', 'warning');
+                return;
+            }
 
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
@@ -497,12 +580,15 @@ export default async function jobDetailController(params = {}) {
                     coverLetter: coverLetter,
                 });
 
-                alert('Application submitted successfully!');
-                window.location.reload();
+                showToast('Application submitted successfully!', 'success');
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
             } catch (error) {
-                alert('Failed to submit application. Please try again.');
-                submitBtn.disabled = false;
+                showToast('Failed to submit application. Please try again.', 'error');
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Submit Application';
+                updateSubmitState();
             }
         });
     }
@@ -511,6 +597,7 @@ export default async function jobDetailController(params = {}) {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => authService.logout());
     }
+    updateSubmitState();
 }
 
 function formatFileSize(bytes) {
