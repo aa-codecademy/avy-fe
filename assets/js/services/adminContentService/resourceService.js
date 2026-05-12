@@ -27,14 +27,18 @@ class ResourceService {
      * @returns {Promise<Resource>} The resource object
      * @throws {Error} If no resource with the given ID is found
      */
-    async getResourcetById(id) {
+    async getResourceById(id) {
         //return await apiService.get('/resources/:id'); // For Phase 2
         await mockDataService.simulateDelay();
 
-        const resources = await this.getEvents();
+        const resources = await this.getResources();
         const resource = resources.find((resource) => resource.id === id);
         if (!resource) throw new Error(`No resource with id of '${id}' was found`);
         return resource;
+    }
+
+    async getResourcetById(id) {
+        return this.getResourceById(id);
     }
 
     /**

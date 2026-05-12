@@ -2,22 +2,15 @@ import authService from '../../services/authService.js';
 import resourceService from '../../services/adminContentService/resourceService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 import modalService from '../../services/adminContentService/modalService.js';
-import mockDataService from '../../services/mockDataService.js';
 
 export default async function adminResourcesController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
 
-    const analytics = await mockDataService.getAnalytics();
-
     if (!user || user.role !== 'admin') {
-        window.location.navigate('/dashboard');
+        window.router.navigate('/dashboard');
         return;
     }
-
-    document.innerHTML = `<div class="spinner"></div>`;
-    setTimeout(300);
-    document.innerHTML = ``;
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
@@ -30,7 +23,7 @@ export default async function adminResourcesController() {
                                 <h1 class="text-4xl font-bold text-gray-800 mb-2">
                                     <i class="fas fa-newspaper text-purple-600 mr-3"></i>Platform Resource Management
                                 </h1>
-                                <p class="text-gray-600">Meridian-Resource Management</p>
+                                <p class="text-gray-600">Manage platform resources for learners and employers.</p>
                             </div>
                             <button id="create-resource-button" class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-3 rounded-xl transition-all duration-300 shadow-md">
                                 <i class="fas fa-plus-circle text-lg"></i>
@@ -302,7 +295,7 @@ class AdminResourcesController {
                     <select id="resource-type" class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400">
                         <option value="" disabled ${!updateForm ? 'selected' : ''}>Select resource type</option>
                         <option value="article" ${updateForm?.type === 'article' ? 'selected' : ''}>Article</option>
-                        <option value="cv-guide" updateForm?.type === 'cv-guide' ? 'selected' : ''}>CV Guide</option>
+                        <option value="cv-guide" ${updateForm?.type === 'cv-guide' ? 'selected' : ''}>CV Guide</option>
                         <option value="interview-prep" ${updateForm?.type === 'interview-prep' ? 'selected' : ''}>Interview Prep</option>
                         <option value="portfolio-template" ${updateForm?.type === 'portfolio-template' ? 'selected' : ''}>Portfolio Template</option>
                     </select>
