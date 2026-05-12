@@ -18,6 +18,10 @@
  */
 import authService from '../../services/authService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
+import mockDataService from '../../services/mockDataService.js';
+
+let currentJobId = null;
+let currentApplications = [];
 
 export default async function jobApplicantsController(params = {}) {
     const app = document.getElementById('app');
@@ -28,11 +32,11 @@ export default async function jobApplicantsController(params = {}) {
         return;
     }
 
-    const jobId = params.id;
+    currentJobId = params.id;
 
-    // TODO (student task): fetch applicants for job, render pipeline view, support status updates + notes
-    // const job = await mockDataService.getJobById(jobId);
-    // const applicants = await mockDataService.getApplicationsByJobId(jobId);
+    // Fetch job and applicants
+    const job = await mockDataService.getJobById(currentJobId);
+    currentApplications = await mockDataService.getApplicationsByJobId(currentJobId);
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
@@ -45,19 +49,24 @@ export default async function jobApplicantsController(params = {}) {
                         </a>
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-users text-purple-600 mr-3"></i>
-                            Applicants
+                            Applicants Pipeline
                         </h1>
-                        <p class="text-gray-600">Review applicants for job <code class="px-2 py-1 bg-gray-100 rounded">${jobId || 'unknown'}</code></p>
+                        <p class="text-gray-600">
+                            <strong>${job?.title || 'Job'}</strong>
+                            <span class="ml-2 text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full">${currentApplications.length} applicants</span>
+                        </p>
                     </div>
-                    <div class="card text-center py-16">
-                        <i class="fas fa-tools text-6xl text-gray-300 mb-4"></i>
-                        <h3 class="text-2xl font-bold text-gray-600 mb-2">TODO: Applicants pipeline</h3>
-                        <p class="text-gray-500">Implement applicant list, filters, status updates, and internal notes.</p>
+
+                    <!-- Pipeline Container -->
+                    <div id="pipeline-container" class="mb-8">
+                        <!-- Pipeline will be rendered here -->
                     </div>
                 </div>
             </div>
         </div>
     `;
+
+    // Render the pipeline
 
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());

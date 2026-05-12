@@ -24,11 +24,16 @@ import employerNotificationsController from './controllers/evergreen/notificatio
 import postJobController from './controllers/evergreen/postJobController.js';
 import landingController from './controllers/landingController.js';
 import loginController from './controllers/loginController.js';
+import companyProfileController from './controllers/evergreen/companyProfileController.js';
+import adminUsersController from './controllers/meridian/adminUsersController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
 import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
-import adminUsersController from './controllers/meridian/adminUsersController.js';
 import notFoundController from './controllers/notFoundController.js';
+import applicantsPipelineController from './controllers/evergreen/applicantsPipelineController.js'; //test route for pipeline view
+// feature/forgot-password-at-login [Ognen]
+import resetPasswordController from './controllers/resetPasswordController.js';
+// END Ognen Manevski
 
 // Import services (make available globally)
 import authService from './services/authService.js';
@@ -62,6 +67,9 @@ function registerRoutes() {
     // Public routes
     router.addRoute('/', landingController, false);
     router.addRoute('/login', loginController, false);
+    // feature/forgot-password-at-login [Ognen]
+    router.addRoute('/reset-password', resetPasswordController, false);
+    // END Ognen Manevski
 
     // Protected routes (require authentication)
     router.addRoute('/dashboard', dashboardController, true);
@@ -83,6 +91,9 @@ function registerRoutes() {
     router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
     router.addRoute('/employer/notifications', employerNotificationsController, true, ['employer']);
+    router.addRoute('/employer/pipeline', applicantsPipelineController, true, ['employer']); // test route for pipeline view
+
+    router.addRoute('/employer/company-profile', companyProfileController, true, ['employer']);
 
     // Admin routes (Meridian module)
     router.addRoute('/admin/users', adminUsersController, true, ['admin']);
