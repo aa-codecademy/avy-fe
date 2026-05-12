@@ -15,7 +15,6 @@
  */
 import authService from '../../services/authService.js';
 import mockDataService from '../../services/mockDataService.js';
-import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function myJobsController() {
