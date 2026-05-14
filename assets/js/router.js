@@ -6,17 +6,17 @@ class Router {
         this.routes = {};
         this.currentRoute = null;
         this.appContainer = document.getElementById('app');
-        
+
         // Handle browser back/forward buttons
         window.addEventListener('popstate', () => {
             this.navigate(window.location.pathname, false);
         });
-        
+
         // Handle initial load
         window.addEventListener('DOMContentLoaded', () => {
             this.navigate(window.location.pathname, false);
         });
-        
+
         document.addEventListener('click', (e) => {
             const link = e.target.closest('[data-link]');
             if (link) {
@@ -25,7 +25,7 @@ class Router {
             }
         });
     }
-    
+
     /**
      * Register a route
      * @param {string} path - Route path (e.g., '/', '/login', '/dashboard')
@@ -40,7 +40,7 @@ class Router {
             allowedRoles
         };
     }
-    
+
     /**
      * Navigate to a route
      * @param {string} path - Path to navigate to
@@ -50,7 +50,7 @@ class Router {
         // Try exact match first
         let route = this.routes[path];
         let params = {};
-        
+
         // If no exact match, try pattern matching for dynamic routes
         if (!route) {
             for (const [pattern, routeConfig] of Object.entries(this.routes)) {
@@ -62,26 +62,26 @@ class Router {
                 }
             }
         }
-        
+
         // Fall back to 404
         if (!route) {
             route = this.routes['/404'];
         }
-        
+
         if (!route) {
             console.error(`No route found for path: ${path}`);
             return;
         }
-        
+
         // Check authentication
         if (route.requiresAuth) {
             const isAuthenticated = window.authService.isAuthenticated();
-            
+
             if (!isAuthenticated) {
                 this.navigate('/login', true);
                 return;
             }
-            
+
             // Check role-based access
             if (route.allowedRoles.length > 0) {
                 const user = window.authService.getCurrentUser();
@@ -91,18 +91,18 @@ class Router {
                 }
             }
         }
-        
+
         // Update browser history
         if (addToHistory && path !== window.location.pathname) {
             window.history.pushState({}, '', path);
         }
-        
+
         // Update current route
         this.currentRoute = path;
-        
+
         // Clear app container
         this.appContainer.innerHTML = '<div class="spinner"></div>';
-        
+
         // Execute controller with params
         try {
             // Pass params to controller if they exist
@@ -121,7 +121,7 @@ class Router {
             `;
         }
     }
-    
+
     /**
      * Match a route pattern with dynamic segments
      * @param {string} pattern - Route pattern (e.g., '/jobs/:id')
@@ -135,23 +135,23 @@ class Router {
             paramNames.push(paramName);
             return '([^\/]+)';
         });
-        
+
         const regex = new RegExp(`^${regexPattern}$`);
         const match = path.match(regex);
-        
+
         if (!match) {
             return null;
         }
-        
+
         // Extract params
         const params = {};
         paramNames.forEach((name, index) => {
             params[name] = match[index + 1];
         });
-        
+
         return { params };
     }
-    
+
     /**
      * Get current route path
      */

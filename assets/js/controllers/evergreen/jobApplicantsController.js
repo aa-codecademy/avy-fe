@@ -19,6 +19,10 @@
 import authService from '../../services/authService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
+import mockDataService from '../../services/mockDataService.js';
+
+let currentJobId = null;
+let currentApplications = [];
 
 export default async function jobApplicantsController(params = {}) {
     const app = document.getElementById('app');
@@ -29,7 +33,7 @@ export default async function jobApplicantsController(params = {}) {
         return;
     }
 
-    const jobId = params.id;
+    currentJobId = params.id;
 
     // Fetch job and applicants data
     const job = await mockDataService.getJobById(jobId);
@@ -360,24 +364,8 @@ export default async function jobApplicantsController(params = {}) {
                 </div>
             </div>
         </div>
-
-        <!-- Profile Modal -->
-        <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-                <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-gray-800">Candidate Profile</h2>
-                    <button id="closeProfileModal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times text-2xl"></i>
-                    </button>
-                </div>
-                <div id="profileContent" class="p-6">
-                    <!-- Profile content will be inserted here -->
-                </div>
-            </div>
-        </div>
     `;
 
-    // Event listeners
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 
