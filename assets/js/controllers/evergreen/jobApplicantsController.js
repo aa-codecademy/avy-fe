@@ -35,68 +35,6 @@ export default async function jobApplicantsController(params = {}) {
     const job = await mockDataService.getJobById(jobId);
     const applicants = await mockDataService.getApplicationsByJobId(jobId);
 
-    // Helper functions for filtering and sorting
-
-    // Calculate experience level (in years) from CV
-    const calculateExperience = async (userId) => {
-        const cvProfile = await mockDataService.getCVProfile(userId);
-        if (!cvProfile.workExperience || cvProfile.workExperience.length === 0) return 0;
-
-        let totalMonths = 0;
-        cvProfile.workExperience.forEach((exp) => {
-            if (exp.startDate && exp.endDate) {
-                const start = new Date(exp.startDate);
-                const end = new Date(exp.endDate);
-                totalMonths += (end - start) / (1000 * 60 * 60 * 24 * 30);
-            }
-        });
-        return Math.floor(totalMonths / 12);
-    };
-
-    // Get all unique skills from applicants
-    const getAllApplicantSkills = async () => {
-        const skillsSet = new Set();
-        for (const applicant of applicants) {
-            const cvProfile = await mockDataService.getCVProfile(applicant.userId);
-            if (cvProfile.skills) {
-                cvProfile.skills.forEach((skill) => skillsSet.add(skill));
-            }
-        }
-        return Array.from(skillsSet).sort();
-    };
-
-    // Get job required and nice-to-have skills
-    const getJobSkills = () => {
-        const skills = new Set();
-        if (job?.requiredSkills) job.requiredSkills.forEach((s) => skills.add(s));
-        if (job?.niceToHaveSkills) job.niceToHaveSkills.forEach((s) => skills.add(s));
-        return Array.from(skills).sort();
-    };
-
-    // Get applicant skills with CV data
-    const getApplicantSkillsMap = async () => {
-        const skillsMap = {};
-        for (const applicant of applicants) {
-            const cvProfile = await mockDataService.getCVProfile(applicant.userId);
-            skillsMap[applicant.userId] = cvProfile.skills || [];
-        }
-        return skillsMap;
-    };
-
-    // Get applicant experience years
-    const getApplicantExperienceMap = async () => {
-        const experienceMap = {};
-        for (const applicant of applicants) {
-            experienceMap[applicant.userId] = await calculateExperience(applicant.userId);
-        }
-        return experienceMap;
-    };
-
-    // Get all skills (job + applicant)
-    const allSkills = getJobSkills();
-    const applicantSkillsMap = await getApplicantSkillsMap();
-    const applicantExperienceMap = await getApplicantExperienceMap();
-
     // Group applicants by status
     const groupedApplicants = {
         pending: applicants.filter((a) => a.status === 'pending'),
@@ -273,64 +211,7 @@ export default async function jobApplicantsController(params = {}) {
                         <p class="text-gray-600">Total applicants: <strong>${applicants.length}</strong></p>
                     </div>
 
-                    <div class="grid lg:grid-cols-4 gap-6">
-                        <!-- Filter Sidebar -->
-                        <div class="lg:col-span-1">
-                            <div class="card no-hover sticky top-4 max-w-xs mx-auto">
-                                <h3 class="text-lg font-bold text-gray-800 mb-4">
-                                    <i class="fas fa-filter mr-2"></i> Filters
-                                </h3>
-                                <div class="space-y-4">
-                                    <!-- Status Filter -->
-                                    <div>
-                                        <label class="form-label">Status</label>
-                                        <select id="statusFilter" class="form-input">
-                                            <option value="">All Statuses</option>
-                                            <option value="pending">Pending</option>
-                                            <option value="under_review">Under Review</option>
-                                            <option value="shortlisted">Shortlisted</option>
-                                            <option value="interview">Interview</option>
-                                            <option value="rejected">Rejected</option>
-                                            <option value="hired">Hired</option>
-                                        </select>
-                                    </div>
 
-                                    <!-- Skills Filter -->
-                                    <div>
-                                        <label class="form-label">Skills</label>
-                                        <select id="skillsFilter" class="form-input">
-                                            <option value="">All Skills</option>
-                                            ${allSkills.map((skill) => `<option value="${skill}">${skill}</option>`).join('')}
-                                        </select>
-                                    </div>
-
-                                    <!-- Experience Filter -->
-                                    <div>
-                                        <label class="form-label">Min Experience</label>
-                                        <select id="experienceFilter" class="form-input">
-                                            <option value="">Any</option>
-                                            <option value="0">0+ years</option>
-                                            <option value="1">1+ years</option>
-                                            <option value="2">2+ years</option>
-                                            <option value="3">3+ years</option>
-                                            <option value="5">5+ years</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Sort -->
-                                    <div>
-                                        <label class="form-label">Sort By</label>
-                                        <select id="sortFilter" class="form-input">
-                                            <option value="applied_desc">Newest First</option>
-                                            <option value="applied_asc">Oldest First</option>
-                                            <option value="relevance">Relevance</option>
-                                        </select>
-                                    </div>
-
-                                    <button id="clearFiltersBtn" class="btn btn-secondary w-full">Clear Filters</button>
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Main Content -->
                         <div class="lg:col-span-3">
@@ -366,7 +247,7 @@ export default async function jobApplicantsController(params = {}) {
                             <h2 class="text-xl font-bold text-gray-800 mb-4">Applicants</h2>
                             ${applicants.length > 0 ? `<div id="applicants-container">${applicants.map(renderApplicantCard).join('')}</div>` : '<div class="card text-center py-8"><p class="text-gray-500">No applicants yet</p></div>'}
                         </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -390,72 +271,6 @@ export default async function jobApplicantsController(params = {}) {
     // Event listeners
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
-
-    // Function to apply filters and sort
-    const applyFiltersAndSort = () => {
-        const statusFilter = document.getElementById('statusFilter').value;
-        const skillsFilter = document.getElementById('skillsFilter').value;
-        const experienceFilter = parseInt(document.getElementById('experienceFilter').value) || 0;
-        const sortFilter = document.getElementById('sortFilter').value;
-
-        let filtered = [...applicants];
-
-        // Apply status filter
-        if (statusFilter) {
-            filtered = filtered.filter((a) => a.status === statusFilter);
-        }
-
-        // Apply skills filter
-        if (skillsFilter) {
-            filtered = filtered.filter((a) => {
-                const skills = applicantSkillsMap[a.userId] || [];
-                return skills.some((s) => s.toLowerCase().includes(skillsFilter.toLowerCase()));
-            });
-        }
-
-        // Apply experience filter
-        if (experienceFilter) {
-            filtered = filtered.filter((a) => {
-                const experience = applicantExperienceMap[a.userId] || 0;
-                return experience >= experienceFilter;
-            });
-        }
-
-        // Apply sorting
-        if (sortFilter === 'applied_desc') {
-            filtered.sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt));
-        } else if (sortFilter === 'applied_asc') {
-            filtered.sort((a, b) => new Date(a.appliedAt) - new Date(b.appliedAt));
-        } else if (sortFilter === 'relevance') {
-            // Sort by skill match count
-            filtered.sort((a, b) => {
-                const skillsA = applicantSkillsMap[a.userId] || [];
-                const skillsB = applicantSkillsMap[b.userId] || [];
-                const jobSkills = job?.requiredSkills || [];
-
-                const matchA = skillsA.filter((s) =>
-                    jobSkills.some((js) => js.toLowerCase().includes(s.toLowerCase()))
-                ).length;
-                const matchB = skillsB.filter((s) =>
-                    jobSkills.some((js) => js.toLowerCase().includes(s.toLowerCase()))
-                ).length;
-
-                return matchB - matchA;
-            });
-        }
-
-        // Re-render with filtered results
-        const container = document.getElementById('applicants-container');
-        if (filtered.length > 0) {
-            container.innerHTML = filtered.map(renderApplicantCard).join('');
-        } else {
-            container.innerHTML =
-                '<div class="card text-center py-8"><p class="text-gray-500">No applicants match your filters</p></div>';
-        }
-
-        // Re-attach event listeners
-        attachEventListeners();
-    };
 
     // Function to attach all event listeners
     const attachEventListeners = () => {
@@ -561,25 +376,6 @@ export default async function jobApplicantsController(params = {}) {
         if (e.target === profileModal) {
             profileModal.classList.add('hidden');
         }
-    });
-
-    // Filter and sort event listeners
-    const statusFilter = document.getElementById('statusFilter');
-    const skillsFilter = document.getElementById('skillsFilter');
-    const experienceFilter = document.getElementById('experienceFilter');
-    const sortFilter = document.getElementById('sortFilter');
-    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-
-    [statusFilter, skillsFilter, experienceFilter, sortFilter].forEach((filter) => {
-        filter.addEventListener('change', applyFiltersAndSort);
-    });
-
-    clearFiltersBtn.addEventListener('click', () => {
-        statusFilter.value = '';
-        skillsFilter.value = '';
-        experienceFilter.value = '';
-        sortFilter.value = 'applied_desc';
-        applyFiltersAndSort();
     });
 
     // Attach initial event listeners
