@@ -19,10 +19,6 @@
 import authService from '../../services/authService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
-import mockDataService from '../../services/mockDataService.js';
-
-let currentJobId = null;
-let currentApplications = [];
 
 export default async function jobApplicantsController(params = {}) {
     const app = document.getElementById('app');
@@ -33,7 +29,7 @@ export default async function jobApplicantsController(params = {}) {
         return;
     }
 
-    currentJobId = params.id;
+    const jobId = params.id;
 
     // Fetch job and applicants data
     const job = await mockDataService.getJobById(jobId);
@@ -105,6 +101,7 @@ export default async function jobApplicantsController(params = {}) {
     const groupedApplicants = {
         pending: applicants.filter((a) => a.status === 'pending'),
         under_review: applicants.filter((a) => a.status === 'under_review'),
+        shortlisted: applicants.filter((a) => a.status === 'shortlisted'),
         interview: applicants.filter((a) => a.status === 'interview'),
         rejected: applicants.filter((a) => a.status === 'rejected'),
         hired: applicants.filter((a) => a.status === 'hired'),
@@ -217,6 +214,7 @@ export default async function jobApplicantsController(params = {}) {
         const statusBadgeColor = {
             pending: 'bg-gray-100 text-gray-800',
             under_review: 'bg-blue-100 text-blue-800',
+            shortlisted: 'bg-indigo-100 text-indigo-800',
             interview: 'bg-yellow-100 text-yellow-800',
             rejected: 'bg-red-100 text-red-800',
             hired: 'bg-green-100 text-green-800',
@@ -226,7 +224,7 @@ export default async function jobApplicantsController(params = {}) {
             <div class="card mb-4 p-4">
                 <div class="flex items-start justify-between mb-3">
                     <div class="flex items-start gap-3">
-                        <img src="${applicantAvatar}" alt="${applicantName}" class="w-12 h-12 rounded-full">
+                        <img src="${applicantAvatar}" alt="${applicantName}" class="w-14 h-14 rounded-full">
                         <div>
                             <h3 class="font-semibold text-gray-800">${applicantName}</h3>
                             <p class="text-sm text-gray-600">${applicantEmail}</p>
@@ -238,17 +236,20 @@ export default async function jobApplicantsController(params = {}) {
                     </span>
                 </div>
                 ${applicant.coverLetter ? `<p class="text-sm text-gray-700 mb-3 italic">\"${applicant.coverLetter.substring(0, 100)}...\"</p>` : ''}
-                <div class="flex gap-2 mt-3">
-                    <button class="btn-primary text-xs px-2 py-1 view-profile-btn" data-id="${applicant.id}" data-user-id="${applicant.userId}">
+                <div class="flex gap-2 mt-3 flex-wrap">
+                    <button class="btn btn-primary text-xs px-2 py-1 rounded view-profile-btn" data-id="${applicant.id}" data-user-id="${applicant.userId}">
                         <i class="fas fa-user-circle mr-1"></i> View Profile
                     </button>
-                    <button class="btn-secondary text-xs px-2 py-1 status-btn" data-id="${applicant.id}" data-status="interview">
+                    <button class="btn btn-shortlist text-xs px-2 py-1 rounded status-btn" data-id="${applicant.id}" data-status="shortlisted">
+                        <i class="fas fa-star mr-1"></i> Shortlist
+                    </button>
+                    <button class="btn btn-secondary text-xs px-2 py-1 rounded status-btn" data-id="${applicant.id}" data-status="interview">
                         <i class="fas fa-calendar-check mr-1"></i> Interview
                     </button>
-                    <button class="btn-danger text-xs px-2 py-1 status-btn" data-id="${applicant.id}" data-status="rejected">
+                    <button class="btn btn-secondary border-0 text-xs px-2 py-1 rounded status-btn" data-id="${applicant.id}" data-status="rejected">
                         <i class="fas fa-times mr-1"></i> Reject
                     </button>
-                    <button class="btn-success text-xs px-2 py-1 status-btn" data-id="${applicant.id}" data-status="hired">
+                    <button class="btn text-green-600 hover:bg-green-600 hover:text-white border-0 text-xs px-2 py-1 rounded status-btn" data-id="${applicant.id}" data-status="hired">
                         <i class="fas fa-check mr-1"></i> Hire
                     </button>
                 </div>
@@ -275,7 +276,7 @@ export default async function jobApplicantsController(params = {}) {
                     <div class="grid lg:grid-cols-4 gap-6">
                         <!-- Filter Sidebar -->
                         <div class="lg:col-span-1">
-                            <div class="card sticky top-4">
+                            <div class="card no-hover sticky top-4 max-w-xs mx-auto">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4">
                                     <i class="fas fa-filter mr-2"></i> Filters
                                 </h3>
@@ -287,6 +288,7 @@ export default async function jobApplicantsController(params = {}) {
                                             <option value="">All Statuses</option>
                                             <option value="pending">Pending</option>
                                             <option value="under_review">Under Review</option>
+                                            <option value="shortlisted">Shortlisted</option>
                                             <option value="interview">Interview</option>
                                             <option value="rejected">Rejected</option>
                                             <option value="hired">Hired</option>
@@ -333,26 +335,30 @@ export default async function jobApplicantsController(params = {}) {
                         <!-- Main Content -->
                         <div class="lg:col-span-3">
                             <!-- Applicants Summary -->
-                            <div class="grid grid-cols-5 gap-3 mb-6">
-                                <div class="card text-center p-3">
-                                    <div class="text-2xl font-bold text-gray-800">${groupedApplicants.pending.length}</div>
-                                    <div class="text-xs text-gray-600">Pending</div>
+                            <div class="grid grid-cols-6 gap-2 mb-6">
+                                <div class="card text-center p-2">
+                                    <div class="text-xl font-bold text-gray-800">${groupedApplicants.pending.length}</div>
+                                    <div class="text-xs text-gray-700">Pending</div>
                                 </div>
-                                <div class="card text-center p-3">
-                                    <div class="text-2xl font-bold text-blue-600">${groupedApplicants.under_review.length}</div>
-                                    <div class="text-xs text-gray-600">Under Review</div>
+                                <div class="card text-center p-2">
+                                    <div class="text-xl font-bold text-blue-600">${groupedApplicants.under_review.length}</div>
+                                    <div class="text-xs text-gray-700">Under Review</div>
                                 </div>
-                                <div class="card text-center p-3">
-                                    <div class="text-2xl font-bold text-yellow-600">${groupedApplicants.interview.length}</div>
-                                    <div class="text-xs text-gray-600">Interview</div>
+                                <div class="card text-center p-2">
+                                    <div class="text-xl font-bold text-indigo-600">${groupedApplicants.shortlisted.length}</div>
+                                    <div class="text-xs text-gray-700">Shortlisted</div>
                                 </div>
-                                <div class="card text-center p-3">
-                                    <div class="text-2xl font-bold text-red-600">${groupedApplicants.rejected.length}</div>
-                                    <div class="text-xs text-gray-600">Rejected</div>
+                                <div class="card text-center p-2">
+                                    <div class="text-xl font-bold text-yellow-600">${groupedApplicants.interview.length}</div>
+                                    <div class="text-xs text-gray-700">Interview</div>
                                 </div>
-                                <div class="card text-center p-3">
-                                    <div class="text-2xl font-bold text-green-600">${groupedApplicants.hired.length}</div>
-                                    <div class="text-xs text-gray-600">Hired</div>
+                                <div class="card text-center p-2">
+                                    <div class="text-xl font-bold text-red-600">${groupedApplicants.rejected.length}</div>
+                                    <div class="text-xs text-gray-700">Rejected</div>
+                                </div>
+                                <div class="card text-center p-2">
+                                    <div class="text-xl font-bold text-green-600">${groupedApplicants.hired.length}</div>
+                                    <div class="text-xs text-gray-700">Hired</div>
                                 </div>
                             </div>
 
@@ -364,8 +370,24 @@ export default async function jobApplicantsController(params = {}) {
                 </div>
             </div>
         </div>
+
+        <!-- Profile Modal -->
+        <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800">Candidate Profile</h2>
+                    <button id="closeProfileModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <div id="profileContent" class="p-6">
+                    <!-- Profile content will be inserted here -->
+                </div>
+            </div>
+        </div>
     `;
 
+    // Event listeners
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 
