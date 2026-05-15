@@ -31,6 +31,9 @@ class MockDataService {
 
             if (!this.messages) this.messages = this.generateMockMessages();
             if (!this.notifications) this.notifications = this.generateMockNotifications();
+            if (!this.scheduledReports) this.scheduledReports = this.generateMockScheduledReports();
+            if (!this.scheduledReportDeliveries)
+                this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
         } else {
             this.initializeMockData();
             this.saveToStorage();
@@ -51,6 +54,8 @@ class MockDataService {
         this.messages = this.generateMockMessages();
         this.notifications = this.generateMockNotifications();
         this.analytics = this.generateMockAnalytics();
+        this.scheduledReports = this.generateMockScheduledReports();
+        this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
     }
 
     /**
@@ -70,6 +75,8 @@ class MockDataService {
                 messages: this.messages,
                 notifications: this.notifications,
                 analytics: this.analytics,
+                scheduledReports: this.scheduledReports,
+                scheduledReportDeliveries: this.scheduledReportDeliveries || [],
             })
         );
     }
@@ -533,376 +540,6 @@ class MockDataService {
             return true;
         }
         return false;
-    }
-
-    /**
-     * JOB RECOMMENDATION ALGORITHM
-     */
-
-    /**
-     * Calculate skill match score between student and job
-     */
-    calculateSkillMatchScore(studentSkills, requiredSkills, niceToHaveSkills) {
-        if (!studentSkills || studentSkills.length === 0) return 0;
-
-        const studentSkillsLower = studentSkills.map((s) => s.toLowerCase().trim());
-        const requiredLower = requiredSkills.map((s) => s.toLowerCase().trim());
-        const niceToHaveLower = niceToHaveSkills.map((s) => s.toLowerCase().trim());
-
-        // Calculate required skills match
-        const requiredMatches = requiredLower.filter((reqSkill) =>
-            studentSkillsLower.some(
-                (studentSkill) => studentSkill.includes(reqSkill) || reqSkill.includes(studentSkill)
-            )
-        ).length;
-
-        const requiredScore =
-            requiredSkills.length > 0 ? (requiredMatches / requiredSkills.length) * 60 : 60;
-
-        // Calculate nice-to-have skills match
-        const niceMatches = niceToHaveLower.filter((niceSkill) =>
-            studentSkillsLower.some(
-                (studentSkill) =>
-                    studentSkill.includes(niceSkill) || niceSkill.includes(studentSkill)
-            )
-        ).length;
-
-        const niceScore =
-            niceToHaveSkills.length > 0 ? (niceMatches / niceToHaveSkills.length) * 40 : 0;
-
-        return Math.round(requiredScore + niceScore);
-    }
-
-    /**
-     * Calculate work mode match score
-     */
-    calculateWorkModeMatchScore(studentWorkModePref, jobWorkMode) {
-        if (!studentWorkModePref || !jobWorkMode) return 50;
-
-        // Exact match
-        if (studentWorkModePref === jobWorkMode) return 100;
-
-        // Compatible matches
-        const compatibilityMap = {
-            hybrid: ['onsite', 'remote'],
-            remote: ['hybrid'],
-            onsite: ['hybrid'],
-        };
-
-        if (compatibilityMap[studentWorkModePref]?.includes(jobWorkMode)) return 75;
-
-        return 25; // No match
-    }
-
-    /**
-     * Calculate location match score
-     */
-    calculateLocationMatchScore(studentLocationPref, jobLocation) {
-        if (!studentLocationPref || !jobLocation) return 50;
-
-        // Remote jobs are flexible
-        if (jobLocation.toLowerCase() === 'remote') return 100;
-
-        // Student prefers remote work
-        if (studentLocationPref.toLowerCase() === 'remote') return 75;
-
-        // Location match
-        if (studentLocationPref.toLowerCase() === jobLocation.toLowerCase()) return 100;
-
-        return 25; // Different location
-    }
-
-    /**
-     * Calculate experience match score
-     */
-    calculateExperienceMatchScore(studentYearsExp, jobExperienceLevel) {
-        const experienceMap = {
-            intern: { min: 0, max: 0.5, ideal: 0 },
-            junior: { min: 0, max: 2, ideal: 1 },
-            mid: { min: 1, max: 5, ideal: 3 },
-            senior: { min: 3, max: 10, ideal: 5 },
-        };
-
-        const level = experienceMap[jobExperienceLevel];
-        if (!level) return 50;
-
-        const exp = studentYearsExp || 0;
-
-        // Too little experience
-        if (exp < level.min) return Math.max(10, (exp / level.min) * 50);
-
-        // Ideal range
-        if (exp >= level.min && exp <= level.max) {
-            const distanceFromIdeal = Math.abs(exp - level.ideal);
-            const maxDistance = level.ideal - level.min;
-            return Math.round(100 - (distanceFromIdeal / maxDistance) * 30);
-        }
-
-        // Too much experience (still good, but diminishing returns)
-        if (exp > level.max) {
-            const overExperience = exp - level.max;
-            return Math.max(70, 100 - overExperience * 5);
-        }
-
-        return 50;
-    }
-
-    /**
-     * Calculate salary match score
-     */
-    calculateSalaryMatchScore(studentSalaryExp, jobSalaryRange) {
-        if (!studentSalaryExp || !jobSalaryRange) return 50;
-
-        const studentMin = studentSalaryExp.min || 0;
-        const studentMax = studentSalaryExp.max || studentMin * 1.5;
-        const jobMin = jobSalaryRange.min || 0;
-        const jobMax = jobSalaryRange.max || jobMin * 1.5;
-
-        // Student expectations overlap with job range
-        const overlap = Math.max(0, Math.min(studentMax, jobMax) - Math.max(studentMin, jobMin));
-        const studentRange = studentMax - studentMin;
-        const jobRange = jobMax - jobMin;
-
-        if (overlap === 0) return 10; // No overlap
-
-        const overlapRatio = overlap / Math.max(studentRange, jobRange);
-        return Math.round(overlapRatio * 100);
-    }
-
-    /**
-     * Calculate overall match score for a job recommendation
-     */
-    calculateJobMatchScore(studentProfile, job) {
-        const weights = {
-            skills: 0.4,
-            workMode: 0.15,
-            location: 0.15,
-            experience: 0.15,
-            salary: 0.15,
-        };
-
-        const scores = {
-            skills: this.calculateSkillMatchScore(
-                studentProfile.skills,
-                job.requiredSkills,
-                job.niceToHaveSkills
-            ),
-            workMode: this.calculateWorkModeMatchScore(
-                studentProfile.workModePreference,
-                job.workMode
-            ),
-            location: this.calculateLocationMatchScore(
-                studentProfile.locationPreference,
-                job.location
-            ),
-            experience: this.calculateExperienceMatchScore(
-                studentProfile.yearsOfExperience,
-                job.experienceLevel
-            ),
-            salary: this.calculateSalaryMatchScore(
-                studentProfile.salaryExpectation,
-                job.salaryRange
-            ),
-        };
-
-        const totalScore = Object.entries(weights).reduce((total, [key, weight]) => {
-            return total + scores[key] * weight;
-        }, 0);
-
-        return {
-            totalScore: Math.round(totalScore),
-            breakdown: scores,
-            weights: weights,
-        };
-    }
-
-    /**
-     * Get job recommendations for a student
-     */
-    async getJobRecommendations(userId, limit = 10) {
-        await this.simulateDelay();
-
-        const studentProfile = this.cvProfiles.find((cv) => cv.userId === userId);
-        if (!studentProfile) {
-            throw new Error('Student profile not found');
-        }
-
-        // Get active jobs
-        const activeJobs = this.jobs.filter((job) => job.status === 'active');
-
-        // Calculate match scores for all jobs
-        const recommendations = activeJobs.map((job) => {
-            const matchResult = this.calculateJobMatchScore(studentProfile, job);
-            return {
-                job,
-                matchScore: matchResult.totalScore,
-                matchBreakdown: matchResult.breakdown,
-            };
-        });
-
-        // Sort by match score (descending) and prioritize premium jobs
-        recommendations.sort((a, b) => {
-            // First by match score
-            if (a.matchScore !== b.matchScore) {
-                return b.matchScore - a.matchScore;
-            }
-            // Then by priority status
-            if (a.job.isPriority !== b.job.isPriority) {
-                return b.job.isPriority ? 1 : -1;
-            }
-            // Finally by creation date (newer first)
-            return new Date(b.job.createdAt) - new Date(a.job.createdAt);
-        });
-
-        // Track recommendation view analytics
-        recommendations.slice(0, limit).forEach((rec) => {
-            this.trackRecommendationView(rec.job.id);
-        });
-
-        return recommendations.slice(0, limit);
-    }
-
-    /**
-     * Track when a job is viewed through recommendations
-     */
-    async trackRecommendationView(jobId) {
-        const jobIndex = this.jobs.findIndex((j) => j.id === jobId);
-        if (jobIndex !== -1) {
-            this.jobs[jobIndex].recommendationViews++;
-            this.saveToStorage();
-        }
-    }
-
-    /**
-     * Track when a job is clicked through recommendations
-     */
-    async trackRecommendationClick(jobId) {
-        const jobIndex = this.jobs.findIndex((j) => j.id === jobId);
-        if (jobIndex !== -1) {
-            this.jobs[jobIndex].recommendationClicks++;
-            this.saveToStorage();
-        }
-    }
-
-    /**
-     * Track when an application comes from recommendations
-     */
-    async trackRecommendationApplication(jobId) {
-        const jobIndex = this.jobs.findIndex((j) => j.id === jobId);
-        if (jobIndex !== -1) {
-            this.jobs[jobIndex].recommendationApplications++;
-            this.saveToStorage();
-        }
-    }
-
-    /**
-     * Get recommendation algorithm performance analytics
-     */
-    async getRecommendationAnalytics() {
-        await this.simulateDelay();
-
-        //const jobs = this.jobs.filter(job => job.status === 'active');
-        const jobs = this.generateMockJobs().filter((job) => job.status === 'active');
-
-        // Calculate overall metrics
-        const totalRecommendationViews = jobs.reduce(
-            (sum, job) => sum + job.recommendationViews,
-            0
-        );
-        const totalRecommendationClicks = jobs.reduce(
-            (sum, job) => sum + job.recommendationClicks,
-            0
-        );
-        const totalRecommendationApplications = jobs.reduce(
-            (sum, job) => sum + job.recommendationApplications,
-            0
-        );
-
-        // Click-through rate (CTR)
-        const clickThroughRate =
-            totalRecommendationViews > 0
-                ? (totalRecommendationClicks / totalRecommendationViews) * 100
-                : 0;
-
-        // Apply rate (from clicks)
-        const applyRate =
-            totalRecommendationClicks > 0
-                ? (totalRecommendationApplications / totalRecommendationClicks) * 100
-                : 0;
-
-        // Apply rate (from views)
-        const applyRateFromViews =
-            totalRecommendationViews > 0
-                ? (totalRecommendationApplications / totalRecommendationViews) * 100
-                : 0;
-
-        // Average match quality
-        const jobsWithMatches = jobs.filter((job) => job.averageMatchScore > 0);
-        const averageMatchQuality =
-            jobsWithMatches.length > 0
-                ? jobsWithMatches.reduce((sum, job) => sum + job.averageMatchScore, 0) /
-                  jobsWithMatches.length
-                : 0;
-
-        // Performance by match score ranges
-        const performanceByScoreRange = {
-            excellent: { min: 80, max: 100, views: 0, clicks: 0, applications: 0 },
-            good: { min: 60, max: 79, views: 0, clicks: 0, applications: 0 },
-            fair: { min: 40, max: 59, views: 0, clicks: 0, applications: 0 },
-            poor: { min: 0, max: 39, views: 0, clicks: 0, applications: 0 },
-        };
-
-        jobs.forEach((job) => {
-            const score = job.averageMatchScore;
-            let range = 'poor';
-            if (score >= 80) range = 'excellent';
-            else if (score >= 60) range = 'good';
-            else if (score >= 40) range = 'fair';
-
-            performanceByScoreRange[range].views += job.recommendationViews;
-            performanceByScoreRange[range].clicks += job.recommendationClicks;
-            performanceByScoreRange[range].applications += job.recommendationApplications;
-        });
-
-        // Calculate CTR and apply rates for each range
-        Object.keys(performanceByScoreRange).forEach((range) => {
-            const data = performanceByScoreRange[range];
-            data.clickThroughRate = data.views > 0 ? (data.clicks / data.views) * 100 : 0;
-            data.applyRate = data.clicks > 0 ? (data.applications / data.clicks) * 100 : 0;
-        });
-
-        return {
-            overall: {
-                totalRecommendationViews,
-                totalRecommendationClicks,
-                totalRecommendationApplications,
-                clickThroughRate: Math.round(clickThroughRate * 100) / 100,
-                applyRate: Math.round(applyRate * 100) / 100,
-                applyRateFromViews: Math.round(applyRateFromViews * 100) / 100,
-                averageMatchQuality: Math.round(averageMatchQuality * 100) / 100,
-            },
-            performanceByScoreRange,
-            jobPerformance: jobs.map((job) => ({
-                jobId: job.id,
-                title: job.title,
-                companyId: job.companyId,
-                recommendationViews: job.recommendationViews,
-                recommendationClicks: job.recommendationClicks,
-                recommendationApplications: job.recommendationApplications,
-                averageMatchScore: job.averageMatchScore,
-                clickThroughRate:
-                    job.recommendationViews > 0
-                        ? Math.round((job.recommendationClicks / job.recommendationViews) * 10000) /
-                          100
-                        : 0,
-                applyRate:
-                    job.recommendationClicks > 0
-                        ? Math.round(
-                              (job.recommendationApplications / job.recommendationClicks) * 10000
-                          ) / 100
-                        : 0,
-            })),
-        };
     }
 
     /**
@@ -1661,10 +1298,461 @@ class MockDataService {
     }
 
     /**
+     * Scheduled Reports
+     */
+    generateMockScheduledReports() {
+        return [
+            {
+                id: 'sr1',
+                name: 'Weekly Platform Overview',
+                description:
+                    'Platform KPIs, job funnel, and recommendation performance delivered every Monday.',
+                selectedMetrics: [
+                    'platformOverview',
+                    'jobApplicationFunnel',
+                    'recommendationAnalytics',
+                ],
+                selectedFilters: ['last30Days'],
+                selectedDimensions: ['jobs', 'students', 'recommendations'],
+                recipients: ['admin@avy.com'],
+                frequency: 'weekly',
+                nextRun: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+                lastRun: '',
+                active: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            },
+            {
+                id: 'sr2',
+                name: 'Weekly Employers Overview',
+                description: 'Company performance metrics and insights',
+                selectedMetrics: ['Company Performance'],
+                selectedFilters: ['last30Days'],
+                selectedDimensions: ['jobs', 'students', 'recommendations'],
+                recipients: ['admin@avy.com'],
+                frequency: 'weekly',
+                nextRun: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+                lastRun: '',
+                active: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            },
+            {
+                id: 'sr3',
+                name: 'Event Attendance',
+                description: 'Showing me infor about event attandance',
+                selectedMetrics: ['Event Attendance'],
+                selectedFilters: ['last30Days'],
+                selectedDimensions: ['jobs', 'students', 'recommendations'],
+                recipients: ['admin@avy.com'],
+                frequency: 'daily',
+                nextRun: '',
+                lastRun: '2026-05-01',
+                active: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            },
+        ];
+    }
+
+    generateMockScheduledReportDeliveries() {
+        return [
+            {
+                reportId: 'sr1',
+                name: 'Weekly Platform Overview',
+                deliveredAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+                recipients: ['admin@avy.com'],
+                summary:
+                    'Report Weekly Platform Overview delivered with 3 metric groups and 3 dimensions.',
+            },
+            {
+                reportId: 'sr1',
+                name: 'Weekly Platform Overview',
+                deliveredAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+                recipients: ['admin@avy.com'],
+                summary:
+                    'Report Weekly Platform Overview delivered with 3 metric groups and 3 dimensions.',
+            },
+            {
+                reportId: 'sr2',
+                name: 'Weekly Employers Overview',
+                deliveredAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+                recipients: ['admin@avy.com'],
+                summary:
+                    'Report Weekly Employers Overview delivered with 1 metric groups and 3 dimensions.',
+            },
+            {
+                reportId: 'sr2',
+                name: 'Weekly Employers Overview',
+                deliveredAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+                recipients: ['admin@avy.com'],
+                summary:
+                    'Report Weekly Employers Overview delivered with 1 metric groups and 3 dimensions.',
+            },
+            {
+                reportId: 'sr3',
+                name: 'Event Attendance',
+                deliveredAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+                recipients: ['admin@avy.com'],
+                summary: 'Report Event Attendance delivered with 1 metric groups and 3 dimensions.',
+            },
+        ];
+    }
+
+    async getScheduledReports() {
+        await this.simulateDelay();
+        return this.scheduledReports || [];
+    }
+
+    async saveScheduledReport(report) {
+        await this.simulateDelay();
+        const index = (this.scheduledReports || []).findIndex((item) => item.id === report.id);
+        if (index !== -1) {
+            this.scheduledReports[index] = {
+                ...this.scheduledReports[index],
+                ...report,
+                updatedAt: new Date().toISOString(),
+            };
+            this.saveToStorage();
+            return this.scheduledReports[index];
+        } else {
+            const newReport = {
+                ...report,
+                id: report.id || `sr${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+            this.scheduledReports = [...(this.scheduledReports || []), newReport];
+            this.saveToStorage();
+            return newReport;
+        }
+    }
+
+    async deleteScheduledReport(reportId) {
+        await this.simulateDelay();
+        this.scheduledReports = (this.scheduledReports || []).filter(
+            (report) => report.id !== reportId
+        );
+        this.saveToStorage();
+        return true;
+    }
+
+    async runScheduledReport(report) {
+        await this.simulateDelay();
+        const payload = {
+            reportId: report.id,
+            name: report.name,
+            deliveredAt: new Date().toISOString(),
+            recipients: report.recipients,
+            summary: `Report ${report.name} delivered with ${report.selectedMetrics.length} metric groups and ${report.selectedDimensions.length} dimensions.`,
+        };
+        if (!this.scheduledReportDeliveries) {
+            this.scheduledReportDeliveries = [];
+        }
+        this.scheduledReportDeliveries.push(payload);
+        const reportIndex = (this.scheduledReports || []).findIndex(
+            (item) => item.id === report.id
+        );
+        if (reportIndex !== -1) {
+            this.scheduledReports[reportIndex] = {
+                ...this.scheduledReports[reportIndex],
+                lastRun: payload.deliveredAt,
+                nextRun: this.calculateNextRun(report.frequency),
+                updatedAt: new Date().toISOString(),
+            };
+            this.saveToStorage();
+        }
+        return payload;
+    }
+
+    async getScheduledReportDeliveries() {
+        await this.simulateDelay();
+        return this.scheduledReportDeliveries || [];
+    }
+
+    calculateNextRun(frequency) {
+        const now = new Date();
+        switch (frequency) {
+            case 'daily':
+                return new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+            case 'weekly':
+                return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+            case 'monthly':
+                return new Date(
+                    now.getFullYear(),
+                    now.getMonth() + 1,
+                    now.getDate(),
+                    now.getHours(),
+                    now.getMinutes()
+                ).toISOString();
+            default:
+                return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        }
+    }
+
+    /**
      * UTILITY
      */
     simulateDelay(ms = 300) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    /**
+     * JOB RECOMMENDATION ALGORITHM
+     */
+
+    //Calculate skill match score between student and job
+    calculateSkillMatchScore(studentSkills, requiredSkills, niceToHaveSkills) {
+        if (!studentSkills || studentSkills.length === 0) return 0;
+
+        const studentSkillsLower = studentSkills.map((s) => s.toLowerCase().trim());
+        const requiredLower = requiredSkills.map((s) => s.toLowerCase().trim());
+        const niceToHaveLower = niceToHaveSkills.map((s) => s.toLowerCase().trim());
+
+        // Calculate required skills match
+        const requiredMatches = requiredLower.filter((reqSkill) =>
+            studentSkillsLower.some(
+                (studentSkill) => studentSkill.includes(reqSkill) || reqSkill.includes(studentSkill)
+            )
+        ).length;
+
+        const requiredScore =
+            requiredSkills.length > 0 ? (requiredMatches / requiredSkills.length) * 60 : 60;
+
+        // Calculate nice-to-have skills match
+        const niceMatches = niceToHaveLower.filter((niceSkill) =>
+            studentSkillsLower.some(
+                (studentSkill) =>
+                    studentSkill.includes(niceSkill) || niceSkill.includes(studentSkill)
+            )
+        ).length;
+
+        const niceScore =
+            niceToHaveSkills.length > 0 ? (niceMatches / niceToHaveSkills.length) * 40 : 0;
+
+        return Math.round(requiredScore + niceScore);
+    }
+
+    /**
+     * Calculate work mode match score
+     */
+    calculateWorkModeMatchScore(studentWorkModePref, jobWorkMode) {
+        if (!studentWorkModePref || !jobWorkMode) return 50;
+
+        // Exact match
+        if (studentWorkModePref === jobWorkMode) return 100;
+
+        // Compatible matches
+        const compatibilityMap = {
+            hybrid: ['onsite', 'remote'],
+            remote: ['hybrid'],
+            onsite: ['hybrid'],
+        };
+
+        if (compatibilityMap[studentWorkModePref]?.includes(jobWorkMode)) return 75;
+
+        return 25; // No match
+    }
+
+    /**
+     * Calculate location match score
+     */
+    calculateLocationMatchScore(studentLocationPref, jobLocation) {
+        if (!studentLocationPref || !jobLocation) return 50;
+
+        // Remote jobs are flexible
+        if (jobLocation.toLowerCase() === 'remote') return 100;
+
+        // Student prefers remote work
+        if (studentLocationPref.toLowerCase() === 'remote') return 75;
+
+        // Location match
+        if (studentLocationPref.toLowerCase() === jobLocation.toLowerCase()) return 100;
+
+        return 25; // Different location
+    }
+
+    /**
+     * Calculate experience match score
+     */
+    calculateExperienceMatchScore(studentYearsExp, jobExperienceLevel) {
+        const experienceMap = {
+            intern: { min: 0, max: 0.5, ideal: 0 },
+            junior: { min: 0, max: 2, ideal: 1 },
+            mid: { min: 1, max: 5, ideal: 3 },
+            senior: { min: 3, max: 10, ideal: 5 },
+        };
+
+        const level = experienceMap[jobExperienceLevel];
+        if (!level) return 50;
+
+        const exp = studentYearsExp || 0;
+
+        // Too little experience
+        if (exp < level.min) return Math.max(10, (exp / level.min) * 50);
+
+        // Ideal range
+        if (exp >= level.min && exp <= level.max) {
+            const distanceFromIdeal = Math.abs(exp - level.ideal);
+            const maxDistance = level.ideal - level.min;
+            return Math.round(100 - (distanceFromIdeal / maxDistance) * 30);
+        }
+
+        // Too much experience (still good, but diminishing returns)
+        if (exp > level.max) {
+            const overExperience = exp - level.max;
+            return Math.max(70, 100 - overExperience * 5);
+        }
+
+        return 50;
+    }
+
+    /**
+     * Calculate salary match score
+     */
+    calculateSalaryMatchScore(studentSalaryExp, jobSalaryRange) {
+        if (!studentSalaryExp || !jobSalaryRange) return 50;
+
+        const studentMin = studentSalaryExp.min || 0;
+        const studentMax = studentSalaryExp.max || studentMin * 1.5;
+        const jobMin = jobSalaryRange.min || 0;
+        const jobMax = jobSalaryRange.max || jobMin * 1.5;
+
+        // Student expectations overlap with job range
+        const overlap = Math.max(0, Math.min(studentMax, jobMax) - Math.max(studentMin, jobMin));
+        const studentRange = studentMax - studentMin;
+        const jobRange = jobMax - jobMin;
+
+        if (overlap === 0) return 10; // No overlap
+
+        const overlapRatio = overlap / Math.max(studentRange, jobRange);
+        return Math.round(overlapRatio * 100);
+    }
+
+    /**
+     * Calculate overall match score for a job recommendation
+     */
+    calculateJobMatchScore(studentProfile, job) {
+        const weights = {
+            skills: 0.4,
+            workMode: 0.15,
+            location: 0.15,
+            experience: 0.15,
+            salary: 0.15,
+        };
+
+        const scores = {
+            skills: this.calculateSkillMatchScore(
+                studentProfile.skills,
+                job.requiredSkills,
+                job.niceToHaveSkills
+            ),
+            workMode: this.calculateWorkModeMatchScore(
+                studentProfile.workModePreference,
+                job.workMode
+            ),
+            location: this.calculateLocationMatchScore(
+                studentProfile.locationPreference,
+                job.location
+            ),
+            experience: this.calculateExperienceMatchScore(
+                studentProfile.yearsOfExperience,
+                job.experienceLevel
+            ),
+            salary: this.calculateSalaryMatchScore(
+                studentProfile.salaryExpectation,
+                job.salaryRange
+            ),
+        };
+
+        const totalScore = Object.entries(weights).reduce((total, [key, weight]) => {
+            return total + scores[key] * weight;
+        }, 0);
+
+        return {
+            totalScore: Math.round(totalScore),
+            breakdown: scores,
+            weights: weights,
+        };
+    }
+
+    /**
+     * Get job recommendations for a student
+     */
+    async getJobRecommendations(userId, limit = 10) {
+        await this.simulateDelay();
+
+        const studentProfile = this.cvProfiles.find((cv) => cv.userId === userId);
+        if (!studentProfile) {
+            throw new Error('Student profile not found');
+        }
+
+        // Get active jobs
+        const activeJobs = this.jobs.filter((job) => job.status === 'active');
+
+        // Calculate match scores for all jobs
+        const recommendations = activeJobs.map((job) => {
+            const matchResult = this.calculateJobMatchScore(studentProfile, job);
+            return {
+                job,
+                matchScore: matchResult.totalScore,
+                matchBreakdown: matchResult.breakdown,
+            };
+        });
+
+        // Sort by match score (descending) and prioritize premium jobs
+        recommendations.sort((a, b) => {
+            // First by match score
+            if (a.matchScore !== b.matchScore) {
+                return b.matchScore - a.matchScore;
+            }
+            // Then by priority status
+            if (a.job.isPriority !== b.job.isPriority) {
+                return b.job.isPriority ? 1 : -1;
+            }
+            // Finally by creation date (newer first)
+            return new Date(b.job.createdAt) - new Date(a.job.createdAt);
+        });
+
+        // Track recommendation view analytics
+        recommendations.slice(0, limit).forEach((rec) => {
+            this.trackRecommendationView(rec.job.id);
+        });
+
+        return recommendations.slice(0, limit);
+    }
+
+    /**
+     * Track when a job is viewed through recommendations
+     */
+    async trackRecommendationView(jobId) {
+        const jobIndex = this.jobs.findIndex((j) => j.id === jobId);
+        if (jobIndex !== -1) {
+            this.jobs[jobIndex].recommendationViews++;
+            this.saveToStorage();
+        }
+    }
+
+    /**
+     * Track when a job is clicked through recommendations
+     */
+    async trackRecommendationClick(jobId) {
+        const jobIndex = this.jobs.findIndex((j) => j.id === jobId);
+        if (jobIndex !== -1) {
+            this.jobs[jobIndex].recommendationClicks++;
+            this.saveToStorage();
+        }
+    }
+
+    /**
+     * Track when an application comes from recommendations
+     */
+    async trackRecommendationApplication(jobId) {
+        const jobIndex = this.jobs.findIndex((j) => j.id === jobId);
+        if (jobIndex !== -1) {
+            this.jobs[jobIndex].recommendationApplications++;
+            this.saveToStorage();
+        }
     }
 }
 

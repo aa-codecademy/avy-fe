@@ -8,6 +8,7 @@ import authService from '../../services/authService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
+/*A6-01 Data */
 const platformOverviewTrends = [
     { month: 'Nov', totalStudents: 168, activeJobs: 98, totalApplications: 742, eventsHeld: 21 },
     { month: 'Dec', totalStudents: 181, activeJobs: 106, totalApplications: 816, eventsHeld: 24 },
@@ -17,6 +18,7 @@ const platformOverviewTrends = [
     { month: 'Apr', totalStudents: 245, activeJobs: 156, totalApplications: 1247, eventsHeld: 38 },
 ];
 
+/*A6-02 Data */
 const studentEngagementMetrics = {
     profileCompletionRate: 76,
     averageLoginFrequency: 3.4,
@@ -68,6 +70,7 @@ const studentEngagementMetrics = {
     ],
 };
 
+/*A6-03 Data */
 const jobApplicationFunnelMetrics = {
     stages: [
         { label: 'Job Views', count: 8420, conversionRate: 100 },
@@ -116,6 +119,51 @@ const jobApplicationFunnelMetrics = {
     ],
 };
 
+/*A6-07 Report Builder Labels*/
+const reportBuilderOptions = {
+    metrics: [
+        { id: 'platformOverview', label: 'Platform Overview' },
+        { id: 'studentEngagement', label: 'Student Engagement' },
+        { id: 'jobApplicationFunnel', label: 'Job Application Funnel' },
+        { id: 'eventAttendance', label: 'Event Attendance' },
+        { id: 'companyPerformance', label: 'Company Performance' },
+        { id: 'recommendationAnalytics', label: 'Recommendation Analytics' },
+    ],
+    filters: [
+        { id: 'last7Days', label: 'Last 7 Days' },
+        { id: 'last30Days', label: 'Last 30 Days' },
+        { id: 'last90Days', label: 'Last 90 Days' },
+        { id: 'location', label: 'Location' },
+        { id: 'employmentType', label: 'Employment Type' },
+        { id: 'experienceLevel', label: 'Experience Level' },
+    ],
+    dimensions: [
+        { id: 'students', label: 'Students' },
+        { id: 'jobs', label: 'Jobs' },
+        { id: 'applications', label: 'Applications' },
+        { id: 'employers', label: 'Employers' },
+        { id: 'events', label: 'Events' },
+        { id: 'recommendations', label: 'Recommendations' },
+    ],
+    formats: [
+        { id: 'charts', label: 'Charts' },
+        { id: 'tables', label: 'Tables' },
+        { id: 'summaryCards', label: 'Summary Cards' },
+    ],
+};
+
+const reportBuilderState = {
+    selectedMetrics: [],
+    selectedFilters: [],
+    selectedDimensions: [],
+    selectedFormats: [],
+    reportName: '',
+    recipients: 'eadmin@avy.com',
+    frequency: 'weekly',
+    scheduleTime: '08:00',
+};
+
+/*MAIN ANALYTICS FUNCTION */
 export default async function adminAnalyticsController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
@@ -126,38 +174,181 @@ export default async function adminAnalyticsController() {
     }
 
     const analytics = await mockDataService.getAnalytics();
-    const events = mockDataService.generateMockEvents();
     const companies = mockDataService.generateMockCompanies();
     const jobs = mockDataService.generateMockJobs();
     const applications = mockDataService.generateMockApplications();
     const companyMetrics = getCompanyPerformanceMetrics(companies, jobs, applications);
     const unresponsiveEmployers = identifyUnresponsiveEmployers(companies, jobs, applications);
-    const recommendationAnalytics = await mockDataService.getRecommendationAnalytics();
+    const events = mockDataService.generateMockEvents();
+    const recommendationAnalytics = await getRecommendationAnalytics();
+    const scheduledReports = await mockDataService.getScheduledReports();
+    const scheduledReportDeliveries = await mockDataService.getScheduledReportDeliveries();
 
+    //start navigation links
     app.innerHTML = `
-        ${renderAppHeader(user, window.location.pathname)}
-        <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
-                <div class="fade-in">
+    ${renderAppHeader(user, window.location.pathname)}
+
+    <div class="bg-gray-50 min-h-screen py-8">
+        <div class="container mx-auto px-4">
+
+            <!-- MAIN LAYOUT -->
+            <div class="flex gap-8">
+
+                <!-- CONTENT -->
+                <section id="platform-analytics" class="flex-1 fade-in">
+
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-chart-line text-purple-600 mr-3"></i>
                             Platform Analytics
                         </h1>
-                        <p class="text-gray-600">Platform growth, health, and student engagement metrics</p>
+
+                        <p class="text-gray-600">
+                            Platform growth, health, and student engagement metrics
+                        </p>
                     </div>
 
                     ${renderPlatformOverviewSection(analytics, platformOverviewTrends)}
                     ${renderStudentEngagementSection(studentEngagementMetrics)}
                     ${renderJobApplicationFunnelSection(jobApplicationFunnelMetrics)}
-                    ${renderEventAttendanceAnalyticsSection(events)}
                     ${renderCompanyPerformanceSection(companyMetrics)}
                     ${renderUnresponsiveEmployersSection(unresponsiveEmployers)}
+                    ${renderEventAttendanceAnalyticsSection(events)}
                     ${renderRecommendationAnalyticsSection(recommendationAnalytics)}
+                    ${renderReportBuilderSection(reportBuilderOptions)}
+                    ${renderScheduledExportsSection(scheduledReports, scheduledReportDeliveries)}
+
+                </section>
+
+                <!-- RIGHT SIDE VERTICAL NAVIGATION -->
+    <div class="hidden lg:block w-72">
+
+    <div class="sticky top-24 bg-white border border-gray-200 rounded-2xl shadow-xl p-6">
+
+        <!-- TITLE -->
+        <div class="flex items-center gap-3 mb-6">
+
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center shadow-md">
+                <i class="fas fa-chart-pie text-white"></i>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold text-gray-800">
+                    Analytics Navigation
+                </h3>
+
+                <p class="text-xs text-gray-500">
+                    Quick access sections
+                </p>
+            </div>
+
+        </div>
+
+        <!-- NAVIGATION LINKS -->
+        <div class="flex flex-col text-sm font-medium">
+
+            <a
+                href="#platform-analytics"
+                class="group flex items-center gap-3 p-3 rounded-xl text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-all duration-300"
+            >
+                <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center group-hover:scale-110 transition">
+                    <i class="fas fa-chart-line text-purple-600"></i>
                 </div>
+
+                <span>Platform Overview Analytics</span>
+            </a>
+
+            <a
+                href="#student-engagement"
+                class="group flex items-center gap-3 p-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-green-700 transition-all duration-300"
+            >
+                <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center group-hover:scale-110 transition">
+                    <i class="fas fa-users text-green-600"></i>
+                </div>
+
+                <span>Student Engagement Metrics</span>
+            </a>
+
+            <a
+                href="#job-application-funnel"
+                class="group flex items-center gap-3 p-3 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-all duration-300"
+            >
+                <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:scale-110 transition">
+                    <i class="fas fa-briefcase text-blue-600"></i>
+                </div>
+
+                <span>Job and Application Funnel Analytics</span>
+            </a>
+
+            <a
+                href="#employer-performance"
+                class="group flex items-center gap-3 p-3 rounded-xl text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-all duration-300"
+            >
+                <div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center group-hover:scale-110 transition">
+                    <i class="fas fa-building text-orange-600"></i>
+                </div>
+
+                <span>Employer Performance Metrics</span>
+            </a>
+
+            <a
+                href="#event-attendance"
+                class="group flex items-center gap-3 p-3 rounded-xl text-gray-700 hover:bg-pink-50 hover:text-pink-700 transition-all duration-300"
+            >
+                <div class="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center group-hover:scale-110 transition">
+                    <i class="fas fa-calendar-check text-pink-600"></i>
+                </div>
+
+                <span>Event Attendance Analytics</span>
+            </a>
+
+            <a
+                href="#recommendation-analytics"
+                class="group flex items-center gap-3 p-3 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-all duration-300"
+            >
+                <div class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center group-hover:scale-110 transition">
+                    <i class="fas fa-robot text-yellow-600"></i>
+                </div>
+
+                <span>Recommendation Algorithm Performance</span>
+            </a>
+
+            <a
+                href="#report-builder"
+                class="group flex items-center gap-3 p-3 rounded-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-300"
+            >
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:scale-110 transition">
+                    <i class="fas fa-file-alt text-indigo-600"></i>
+                </div>
+
+                <span>Custom Report Builder</span>
+            </a>
+
+            <a
+                href="#scheduled-exports"
+                class="group flex items-center gap-3 p-3 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-700 transition-all duration-300"
+            >
+                <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center group-hover:scale-110 transition">
+                    <i class="fas fa-download text-red-600"></i>
+                </div>
+
+                <span>Scheduled Exports</span>
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
             </div>
         </div>
-    `;
+    </div>
+`;
+    //end navigation links
+
+    // Enable smooth scrolling behavior for anchor links
+    document.documentElement.style.scrollBehavior = 'smooth';
 
     setTimeout(() => {
         initializeEventCharts({
@@ -175,13 +366,30 @@ export default async function adminAnalyticsController() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => authService.logout());
     }
+
+    // Add click handlers to all navigation links for smooth scrolling
+    const navLinks = document.querySelectorAll('a[href^="#"]');
+    navLinks.forEach((link) => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (href !== '#' && href !== '#platform-analytics') {
+                e.preventDefault();
+                const targetElement = document.querySelector(href);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    });
 }
 
+/*A6-01 Platform overview analytics*/
 function renderPlatformOverviewSection(analytics, trends) {
+    const sectionId = 'platform-analytics';
     const latestEventsHeld = getLatestTrendValue(trends, 'eventsHeld');
 
     return `
-        <section>
+        <section id="platform-analytics">
             <div class="grid md:grid-cols-4 gap-6 mb-8">
                 ${renderPlatformKpiCard(
                     'Total Students',
@@ -279,9 +487,10 @@ function renderPlatformTrendRow(trend) {
     `;
 }
 
+/*A6-02 Student engagement  metrics*/
 function renderStudentEngagementSection(metrics) {
     return `
-        <section class="mt-8">
+        <section id="student-engagement" class="mt-8">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">
                     <i class="fas fa-user-check text-purple-600 mr-2"></i>
@@ -421,13 +630,14 @@ function renderRiskBadge(risk) {
     `;
 }
 
+/*A6-03 Job and application funnel analytics*/
 function renderJobApplicationFunnelSection(metrics) {
     const firstStageCount = metrics.stages[0].count;
     const finalStageCount = metrics.stages[metrics.stages.length - 1].count;
     const outcomeRate = Math.round((finalStageCount / firstStageCount) * 100);
 
     return `
-        <section class="mt-8">
+        <section id="job-application-funnel" class="mt-8">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">
                     <i class="fas fa-filter text-purple-600 mr-2"></i>
@@ -555,101 +765,483 @@ function renderListingFunnelRow(listing) {
     `;
 }
 
-function getStageDropOff(previousStage, currentStage) {
-    if (!previousStage?.count) return 0;
-    return Math.round(((previousStage.count - currentStage.count) / previousStage.count) * 100);
+/*A6-04 Employer Performance metrics */
+function renderCompanyPerformanceSection(companyMetrics) {
+    const excellentCompanies = companyMetrics.filter((m) => m.healthStatus === 'excellent').length;
+    const warningCompanies = companyMetrics.filter((m) => m.healthStatus === 'warning').length;
+    const criticalCompanies = companyMetrics.filter((m) => m.healthStatus === 'critical').length;
+
+    return `
+        <section id="employer-performance" class="mt-10">
+
+            <!-- HEADER -->
+            <div class="mb-6">
+
+                <div class="flex items-center gap-3 mb-2">
+
+                    <div class="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-building text-purple-600 text-xl"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            Employer Performance Metrics
+                        </h2>
+
+                        <p class="text-sm text-gray-500 mt-1">
+                            Company performance metrics impacting student experience
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- SUMMARY CARDS -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+                <!-- EXCELLENT -->
+                <div class="bg-green-50 border border-green-200 rounded-3xl shadow-sm p-5">
+
+                    <div class="flex items-center justify-between mb-4">
+
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-wide text-green-700 mb-2">
+                                Excellent
+                            </p>
+
+                            <h3 class="text-3xl font-bold text-green-900">
+                                ${excellentCompanies}
+                            </h3>
+                        </div>
+
+                        <div class="w-11 h-11 rounded-2xl bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-star text-green-600"></i>
+                        </div>
+
+                    </div>
+
+                    <p class="text-xs text-green-700">
+                        Excellent employer response
+                    </p>
+
+                </div>
+
+                <!-- WARNING -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-3xl shadow-sm p-5">
+
+                    <div class="flex items-center justify-between mb-4">
+
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-wide text-yellow-700 mb-2">
+                                Warning
+                            </p>
+
+                            <h3 class="text-3xl font-bold text-yellow-900">
+                                ${warningCompanies}
+                            </h3>
+                        </div>
+
+                        <div class="w-11 h-11 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                            <i class="fas fa-triangle-exclamation text-yellow-600"></i>
+                        </div>
+
+                    </div>
+
+                    <p class="text-xs text-yellow-700">
+                        Needs attention
+                    </p>
+
+                </div>
+
+                <!-- CRITICAL -->
+                <div class="bg-red-50 border border-red-200 rounded-3xl shadow-sm p-5">
+
+                    <div class="flex items-center justify-between mb-4">
+
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-wide text-red-700 mb-2">
+                                Critical
+                            </p>
+
+                            <h3 class="text-3xl font-bold text-red-900">
+                                ${criticalCompanies}
+                            </h3>
+                        </div>
+
+                        <div class="w-11 h-11 rounded-2xl bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-circle-xmark text-red-600"></i>
+                        </div>
+
+                    </div>
+
+                    <p class="text-xs text-red-700">
+                        Immediate action required
+                    </p>
+
+                </div>
+
+                <!-- TOTAL -->
+                <div class="bg-blue-50 border border-blue-200 rounded-3xl shadow-sm p-5">
+
+                    <div class="flex items-center justify-between mb-4">
+
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-wide text-blue-700 mb-2">
+                                Companies
+                            </p>
+
+                            <h3 class="text-3xl font-bold text-blue-900">
+                                ${companyMetrics.length}
+                            </h3>
+                        </div>
+
+                        <div class="w-11 h-11 rounded-2xl bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-building text-blue-600"></i>
+                        </div>
+
+                    </div>
+
+                    <p class="text-xs text-blue-700">
+                        Partner companies tracked
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- COMPANY LIST -->
+            <div class="card">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-table text-purple-600 mr-2"></i>
+                        Company Performance Details
+                    </h3>
+                    <p class="text-gray-600 text-sm">Real-time metrics for all employers by company.</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left">
+                        <thead>
+                            <tr class="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
+                                <th class="py-3 pr-4 font-semibold">Company</th>
+                                <th class="py-3 px-4 font-semibold">Plan</th>
+                                <th class="py-3 px-4 font-semibold">Jobs Posted</th>
+                                <th class="py-3 px-4 font-semibold">Response Rate</th>
+                                <th class="py-3 px-4 font-semibold">Avg. Status Update</th>
+                                <th class="py-3 px-4 font-semibold">Profile Access</th>
+                                <th class="py-3 pl-4 font-semibold">Health</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            ${companyMetrics
+                                .map((metric) => {
+                                    const statusClasses =
+                                        metric.healthStatus === 'excellent'
+                                            ? 'bg-green-50 border-l-4 border-green-500'
+                                            : metric.healthStatus === 'warning'
+                                              ? 'bg-yellow-50 border-l-4 border-yellow-500'
+                                              : 'bg-red-50 border-l-4 border-red-500';
+                                    const responseClass =
+                                        metric.applicationResponseRate >= 80
+                                            ? 'text-green-600'
+                                            : metric.applicationResponseRate >= 60
+                                              ? 'text-yellow-600'
+                                              : 'text-red-600';
+                                    const updateClass =
+                                        metric.averageTimeToUpdateStatus <= 5
+                                            ? 'text-green-600'
+                                            : metric.averageTimeToUpdateStatus <= 12
+                                              ? 'text-yellow-600'
+                                              : 'text-red-600';
+                                    return `
+                                <tr class="${statusClasses} hover:bg-opacity-80 transition-colors">
+                                    <td class="py-4 pr-4 font-semibold text-gray-900">${metric.companyName}</td>
+                                    <td class="py-4 px-4">
+                                        <span class="px-3 py-1 text-xs rounded-full font-semibold ${metric.subscriptionPlan === 'premium' ? 'bg-purple-100 text-purple-800' : metric.subscriptionPlan === 'advanced' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
+                                            ${metric.subscriptionPlan}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4 font-medium text-gray-700">${metric.jobsPosted}</td>
+                                    <td class="py-4 px-4 font-semibold ${responseClass}">${metric.applicationResponseRate}%</td>
+                                    <td class="py-4 px-4 font-semibold ${updateClass}">${metric.averageTimeToUpdateStatus}d</td>
+                                    <td class="py-4 px-4 text-gray-700 font-medium">${metric.profileAccessRequests}</td>
+                                    <td class="py-4 pl-4">
+                                        <span class="px-3 py-1 text-xs rounded-full font-semibold ${metric.healthStatus === 'excellent' ? 'bg-green-100 text-green-800' : metric.healthStatus === 'warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                                            ${metric.healthStatus}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `;
+                                })
+                                .join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    `;
 }
 
-function getLatestTrendValue(trends, key) {
-    return trends[trends.length - 1][key] || 0;
+function renderPerformanceSummaryCard(title, value, icon, backgroundClass, subtitle) {
+    return `
+        <div class="card ${backgroundClass} text-white">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-white/80 mb-1">${title}</p>
+                    <h3 class="text-4xl font-bold">${value}</h3>
+                    <p class="text-sm mt-3 text-white/80">${subtitle}</p>
+                </div>
+                <i class="fas ${icon} text-3xl text-white/40"></i>
+            </div>
+        </div>
+    `;
 }
 
-function getTrendChange(trends, key) {
-    if (trends.length < 2 || !trends[0][key]) return 0;
+function renderUnresponsiveEmployersSection(unresponsiveEmployers) {
+    if (unresponsiveEmployers.length === 0) {
+        return `
+            <section class="mt-10">
 
-    const firstValue = trends[0][key];
-    const latestValue = getLatestTrendValue(trends, key);
+                <div class="bg-green-50 border border-green-200 rounded-3xl shadow-sm p-5">
 
-    return Math.round(((latestValue - firstValue) / firstValue) * 100);
+                    <div class="flex items-center gap-4">
+
+                        <div class="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-green-900">
+                                All Employers Are Responsive
+                            </h3>
+
+                            <p class="text-sm text-green-700 mt-1">
+                                No unresponsive employers detected
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+        `;
+    }
+
+    const criticalCount = unresponsiveEmployers.filter(
+        (item) => item.severity === 'critical'
+    ).length;
+
+    const warningCount = unresponsiveEmployers.filter((item) => item.severity === 'warning').length;
+
+    return `
+        <section class="mt-10">
+
+            <!-- HEADER -->
+            <div class="mb-6">
+
+                <div class="flex items-center gap-3 mb-2">
+
+                    <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            Unresponsive Employers
+                        </h2>
+
+                        <p class="text-sm text-gray-500 mt-1">
+                            Employers flagged for low response or inactivity
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- STATS -->
+            <div class="grid md:grid-cols-2 gap-4 mb-6">
+
+                <!-- CRITICAL -->
+                <div class="bg-red-50 border border-red-200 rounded-3xl shadow-sm p-5">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">
+                                Critical
+                            </p>
+
+                            <h3 class="text-3xl font-bold text-red-900">
+                                ${criticalCount}
+                            </h3>
+
+                            <p class="text-xs text-red-700 mt-1">
+                                Immediate action required
+                            </p>
+                        </div>
+
+                        <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-circle-exclamation text-red-600"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- WARNING -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-3xl shadow-sm p-5">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-xs font-semibold text-yellow-700 uppercase tracking-wide mb-2">
+                                Warning
+                            </p>
+
+                            <h3 class="text-3xl font-bold text-yellow-900">
+                                ${warningCount}
+                            </h3>
+
+                            <p class="text-xs text-yellow-700 mt-1">
+                                Needs monitoring
+                            </p>
+                        </div>
+
+                        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                            <i class="fas fa-triangle-exclamation text-yellow-600"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- EMPLOYER LIST -->
+            <div class="space-y-4">
+
+                ${unresponsiveEmployers
+                    .map((employer) => {
+                        const isCritical = employer.severity === 'critical';
+
+                        const cardClass = isCritical
+                            ? 'border-red-200 bg-red-50'
+                            : 'border-yellow-200 bg-yellow-50';
+
+                        const badgeClass = isCritical
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-700';
+
+                        return `
+                            <div class="border ${cardClass} rounded-3xl shadow-sm p-5">
+
+                                <!-- TOP -->
+                                <div class="flex items-start justify-between gap-3 mb-4">
+
+                                    <div>
+
+                                        <h4 class="text-sm font-bold text-gray-900">
+                                            ${employer.companyName}
+                                        </h4>
+
+                                        <p class="text-xs text-gray-600 mt-1">
+                                            ${employer.industry} • ${employer.subscriptionPlan} plan
+                                        </p>
+
+                                    </div>
+
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold ${badgeClass}">
+                                        ${employer.severity}
+                                    </span>
+
+                                </div>
+
+                                <!-- STATS -->
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+
+                                    <div class="bg-white rounded-2xl p-3 border border-gray-100">
+
+                                        <p class="text-[11px] text-gray-500 mb-1">
+                                            Response Rate
+                                        </p>
+
+                                        <p class="text-sm font-bold text-gray-800">
+                                            ${employer.applicationResponseRate}%
+                                        </p>
+
+                                    </div>
+
+                                    <div class="bg-white rounded-2xl p-3 border border-gray-100">
+
+                                        <p class="text-[11px] text-gray-500 mb-1">
+                                            Avg. Update
+                                        </p>
+
+                                        <p class="text-sm font-bold text-gray-800">
+                                            ${employer.averageTimeToUpdateStatus} days
+                                        </p>
+
+                                    </div>
+
+                                    <div class="bg-white rounded-2xl p-3 border border-gray-100">
+
+                                        <p class="text-[11px] text-gray-500 mb-1">
+                                            Jobs Posted
+                                        </p>
+
+                                        <p class="text-sm font-bold text-gray-800">
+                                            ${employer.jobsPosted}
+                                        </p>
+
+                                    </div>
+
+                                    <div class="bg-white rounded-2xl p-3 border border-gray-100">
+
+                                        <p class="text-[11px] text-gray-500 mb-1">
+                                            Profile Access
+                                        </p>
+
+                                        <p class="text-sm font-bold text-gray-800">
+                                            ${employer.profileAccessRequests}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- FLAGS -->
+                                <div class="space-y-2">
+
+                                    ${employer.flags
+                                        .map(
+                                            (flag) => `
+                                                <div class="flex items-start gap-2 text-xs text-gray-700">
+
+                                                    <i class="fas fa-circle text-[6px] mt-1.5 text-gray-400"></i>
+
+                                                    <span>${flag}</span>
+
+                                                </div>
+                                            `
+                                        )
+                                        .join('')}
+
+                                </div>
+
+                            </div>
+                        `;
+                    })
+                    .join('')}
+
+            </div>
+
+        </section>
+    `;
 }
 
-function formatNumber(value) {
-    return new Intl.NumberFormat('en-US').format(value || 0);
-}
-
-/**EVENT ATTENDANCE ANALYTICS FUNCTIONS*/
-
-// Function to get registration counts across all events
-function getRegistrationCounts(events) {
-    return events.reduce((total, event) => total + (event.registeredCount || 0), 0);
-}
-
-// Function to get actual attendance rates across all events
-function getActualAttendanceRates(events) {
-    const totalRegistered = events.reduce((sum, event) => sum + (event.registeredCount || 0), 0);
-    const totalAttended = events.reduce((sum, event) => sum + (event.actualAttendance || 0), 0);
-    const rate = totalRegistered > 0 ? Math.round((totalAttended / totalRegistered) * 100) : 0;
-    return { totalRegistered, totalAttended, rate };
-}
-
-// Function to get no-show rates across all events
-function getNoShowRates(events) {
-    const totalRegistered = events.reduce((sum, event) => sum + (event.registeredCount || 0), 0);
-    const totalAttended = events.reduce((sum, event) => sum + (event.actualAttendance || 0), 0);
-    const noShows = totalRegistered - totalAttended;
-    const rate = totalRegistered > 0 ? Math.round((noShows / totalRegistered) * 100) : 0;
-    return { totalRegistered, noShows, rate };
-}
-
-// Function to get breakdown by student programme across all events
-function getProgrammeBreakdown(events) {
-    const programmes = {};
-
-    events.forEach((event) => {
-        if (Array.isArray(event.byProgramme)) {
-            event.byProgramme.forEach((prog) => {
-                if (!programmes[prog.programme]) {
-                    programmes[prog.programme] = {
-                        registered: 0,
-                        attended: 0,
-                        noShow: 0,
-                    };
-                }
-                programmes[prog.programme].registered += prog.registered || 0;
-                programmes[prog.programme].attended += prog.attended || 0;
-                programmes[prog.programme].noShow += prog.noShow || 0;
-            });
-        }
-    });
-
-    return Object.entries(programmes).map(([name, data]) => ({
-        programme: name,
-        ...data,
-        attendanceRate:
-            data.registered > 0 ? Math.round((data.attended / data.registered) * 100) : 0,
-    }));
-}
-
-// Function to evaluate event effectiveness
-function evaluateEventEffectiveness(events) {
-    const effectiveness = events.map((event) => {
-        const registered = event.registeredCount || 0;
-        const attended = event.actualAttendance || 0;
-        const rate = registered > 0 ? Math.round((attended / registered) * 100) : 0;
-        let category = 'Low';
-        if (rate >= 85) category = 'High';
-        else if (rate >= 75) category = 'Medium';
-        return { title: event.title, rate, category };
-    });
-
-    const highCount = effectiveness.filter((e) => e.category === 'High').length;
-    const mediumCount = effectiveness.filter((e) => e.category === 'Medium').length;
-    const lowCount = effectiveness.filter((e) => e.category === 'Low').length;
-
-    return { effectiveness, highCount, mediumCount, lowCount };
-}
-
-// Function to render event attendance analytics section
+/*A6-05 Event attendance analytics*/
 function renderEventAttendanceAnalyticsSection(events) {
     const registrationCounts = getRegistrationCounts(events);
     const attendanceRates = getActualAttendanceRates(events);
@@ -667,7 +1259,7 @@ function renderEventAttendanceAnalyticsSection(events) {
     };
 
     return `
-        <section class="mt-8">
+        <section id="event-attendance" class="mt-8">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">
                     <i class="fas fa-calendar-check text-purple-600 mr-2"></i>
@@ -863,515 +1455,13 @@ function renderEventAttendanceAnalyticsSection(events) {
     `;
 }
 
-// Function to initialize charts using Chart.js
-function initializeEventCharts(chartData) {
-    if (typeof Chart === 'undefined') {
-        console.warn('Chart.js not loaded');
-        return;
-    }
-
-    Chart.getChart('attendanceRateChart')?.destroy();
-    Chart.getChart('registrationVsAttendanceChart')?.destroy();
-    Chart.getChart('programmeBreakdownChart')?.destroy();
-    Chart.getChart('effectivenessChart')?.destroy();
-    Chart.getChart('noShowChart')?.destroy();
-
-    const { events, programmeBreakdown, effectiveness } = chartData;
-
-    // Attendance Rate Chart
-    const ctx1 = document.getElementById('attendanceRateChart');
-    if (ctx1) {
-        const attendanceRates = getActualAttendanceRates(events);
-        new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: events.map((e) => e.title.substring(0, 20)),
-                datasets: [
-                    {
-                        label: 'Attendance Rate (%)',
-                        data: events.map((e) => {
-                            const reg = e.registeredCount || 0;
-                            const att = Math.round(reg * 0.82);
-                            return reg > 0 ? Math.round((att / reg) * 100) : 0;
-                        }),
-                        backgroundColor: 'rgba(139, 92, 246, 0.8)',
-                        borderColor: 'rgba(139, 92, 246, 1)',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, max: 100 } },
-            },
-        });
-    }
-
-    // No-Show Rate Chart
-    const ctx5 = document.getElementById('noShowChart');
-    if (ctx5) {
-        new Chart(ctx5, {
-            type: 'line',
-            data: {
-                labels: events.map((e) => e.title.substring(0, 20)),
-                datasets: [
-                    {
-                        label: 'No-Show Rate (%)',
-                        data: events.map((e) => {
-                            const registered = e.registeredCount || 0;
-                            const attended = e.actualAttendance || 0;
-                            const noShow = Math.max(0, registered - attended);
-                            return registered > 0 ? Math.round((noShow / registered) * 100) : 0;
-                        }),
-                        borderColor: 'rgba(239, 68, 68, 1)',
-                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointBackgroundColor: 'rgba(239, 68, 68, 1)',
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'top' } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                    },
-                },
-            },
-        });
-    }
-
-    // Registration vs Attendance Chart
-    const ctx2 = document.getElementById('registrationVsAttendanceChart');
-    if (ctx2) {
-        new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: events.map((e) => e.title.substring(0, 20)),
-                datasets: [
-                    {
-                        label: 'Registered',
-                        data: events.map((e) => e.registeredCount || 0),
-                        borderColor: 'rgba(59, 130, 246, 1)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                    },
-                    {
-                        label: 'Attended',
-                        data: events.map((e) => Math.round((e.registeredCount || 0) * 0.82)),
-                        borderColor: 'rgba(16, 185, 129, 1)',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'top' } },
-            },
-        });
-    }
-
-    // Programme Breakdown Chart
-    const ctx3 = document.getElementById('programmeBreakdownChart');
-    if (ctx3) {
-        new Chart(ctx3, {
-            type: 'doughnut',
-            data: {
-                labels: programmeBreakdown.map((p) => p.programme),
-                datasets: [
-                    {
-                        data: programmeBreakdown.map((p) => p.attended),
-                        backgroundColor: [
-                            'rgba(139, 92, 246, 0.8)',
-                            'rgba(59, 130, 246, 0.8)',
-                            'rgba(16, 185, 129, 0.8)',
-                            'rgba(249, 115, 22, 0.8)',
-                        ],
-                        borderColor: [
-                            'rgba(139, 92, 246, 1)',
-                            'rgba(59, 130, 246, 1)',
-                            'rgba(16, 185, 129, 1)',
-                            'rgba(249, 115, 22, 1)',
-                        ],
-                        borderWidth: 2,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } },
-            },
-        });
-    }
-
-    // Event Effectiveness Chart
-    const ctx4 = document.getElementById('effectivenessChart');
-    if (ctx4) {
-        new Chart(ctx4, {
-            type: 'doughnut',
-            data: {
-                labels: ['High (85%+)', 'Medium (75-85%)', 'Low (<75%)'],
-                datasets: [
-                    {
-                        data: [
-                            effectiveness.highCount,
-                            effectiveness.mediumCount,
-                            effectiveness.lowCount,
-                        ],
-                        backgroundColor: [
-                            'rgba(16, 185, 129, 0.8)',
-                            'rgba(249, 115, 22, 0.8)',
-                            'rgba(239, 68, 68, 0.8)',
-                        ],
-                        borderColor: [
-                            'rgba(16, 185, 129, 1)',
-                            'rgba(249, 115, 22, 1)',
-                            'rgba(239, 68, 68, 1)',
-                        ],
-                        borderWidth: 2,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } },
-            },
-        });
-    }
-}
-
-/*EMPLOYERS*/
-
-// Employer performance dashboard sections
-function renderCompanyPerformanceSection(companyMetrics) {
-    const excellentCompanies = companyMetrics.filter((m) => m.healthStatus === 'excellent').length;
-    const warningCompanies = companyMetrics.filter((m) => m.healthStatus === 'warning').length;
-    const criticalCompanies = companyMetrics.filter((m) => m.healthStatus === 'critical').length;
-
-    return `
-        <section class="mt-8">
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">
-                    <i class="fas fa-building text-purple-600 mr-2"></i>
-                    Employer Performance Metrics
-                </h2>
-                <p class="text-gray-600">Partner company performance metrics that impact student experience</p>
-            </div>
-
-            <div class="grid md:grid-cols-4 gap-6 mb-8">
-                ${renderPerformanceSummaryCard('Excellent Performers', excellentCompanies, 'fa-star', 'bg-gradient-to-br from-green-500 to-green-600', 'Excellent response')}
-                ${renderPerformanceSummaryCard('Needs Attention', warningCompanies, 'fa-exclamation-triangle', 'bg-gradient-to-br from-yellow-500 to-yellow-600', 'Monitor closely')}
-                ${renderPerformanceSummaryCard('Critical Issues', criticalCompanies, 'fa-circle-xmark', 'bg-gradient-to-br from-red-500 to-red-600', 'Immediate action')}
-                ${renderPerformanceSummaryCard('Companies Tracked', companyMetrics.length, 'fa-building', 'bg-gradient-to-br from-blue-500 to-blue-600', 'Total partner companies')}
-            </div>
-
-            <div class="card">
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">
-                        <i class="fas fa-table text-purple-600 mr-2"></i>
-                        Company Performance Details
-                    </h3>
-                    <p class="text-gray-600 text-sm">Real-time metrics for all employers by company.</p>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-left">
-                        <thead>
-                            <tr class="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
-                                <th class="py-3 pr-4 font-semibold">Company</th>
-                                <th class="py-3 px-4 font-semibold">Plan</th>
-                                <th class="py-3 px-4 font-semibold">Jobs Posted</th>
-                                <th class="py-3 px-4 font-semibold">Response Rate</th>
-                                <th class="py-3 px-4 font-semibold">Avg. Status Update</th>
-                                <th class="py-3 px-4 font-semibold">Profile Access</th>
-                                <th class="py-3 pl-4 font-semibold">Health</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            ${companyMetrics
-                                .map((metric) => {
-                                    const statusClasses =
-                                        metric.healthStatus === 'excellent'
-                                            ? 'bg-green-50 border-l-4 border-green-500'
-                                            : metric.healthStatus === 'warning'
-                                              ? 'bg-yellow-50 border-l-4 border-yellow-500'
-                                              : 'bg-red-50 border-l-4 border-red-500';
-                                    const responseClass =
-                                        metric.applicationResponseRate >= 80
-                                            ? 'text-green-600'
-                                            : metric.applicationResponseRate >= 60
-                                              ? 'text-yellow-600'
-                                              : 'text-red-600';
-                                    const updateClass =
-                                        metric.averageTimeToUpdateStatus <= 5
-                                            ? 'text-green-600'
-                                            : metric.averageTimeToUpdateStatus <= 12
-                                              ? 'text-yellow-600'
-                                              : 'text-red-600';
-                                    return `
-                                <tr class="${statusClasses} hover:bg-opacity-80 transition-colors">
-                                    <td class="py-4 pr-4 font-semibold text-gray-900">${metric.companyName}</td>
-                                    <td class="py-4 px-4">
-                                        <span class="px-3 py-1 text-xs rounded-full font-semibold ${metric.subscriptionPlan === 'premium' ? 'bg-purple-100 text-purple-800' : metric.subscriptionPlan === 'advanced' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
-                                            ${metric.subscriptionPlan}
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-4 font-medium text-gray-700">${metric.jobsPosted}</td>
-                                    <td class="py-4 px-4 font-semibold ${responseClass}">${metric.applicationResponseRate}%</td>
-                                    <td class="py-4 px-4 font-semibold ${updateClass}">${metric.averageTimeToUpdateStatus}d</td>
-                                    <td class="py-4 px-4 text-gray-700 font-medium">${metric.profileAccessRequests}</td>
-                                    <td class="py-4 pl-4">
-                                        <span class="px-3 py-1 text-xs rounded-full font-semibold ${metric.healthStatus === 'excellent' ? 'bg-green-100 text-green-800' : metric.healthStatus === 'warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
-                                            ${metric.healthStatus}
-                                        </span>
-                                    </td>
-                                </tr>
-                            `;
-                                })
-                                .join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    `;
-}
-
-function renderPerformanceSummaryCard(title, value, icon, backgroundClass, subtitle) {
-    return `
-        <div class="card ${backgroundClass} text-white">
-            <div class="flex items-start justify-between gap-4">
-                <div>
-                    <p class="text-white/80 mb-1">${title}</p>
-                    <h3 class="text-4xl font-bold">${value}</h3>
-                    <p class="text-sm mt-3 text-white/80">${subtitle}</p>
-                </div>
-                <i class="fas ${icon} text-3xl text-white/40"></i>
-            </div>
-        </div>
-    `;
-}
-
-function renderUnresponsiveEmployersSection(unresponsiveEmployers) {
-    if (unresponsiveEmployers.length === 0) {
-        return `
-            <section class="mt-8">
-                <div class="card bg-green-50 border border-green-200">
-                    <div class="flex items-center gap-4 p-6">
-                        <div class="p-3 bg-green-100 rounded-lg">
-                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-green-900">All employers are responsive</h3>
-                            <p class="text-green-700 mt-1">Student experience is protected; no unresponsive employers detected.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        `;
-    }
-
-    const criticalCount = unresponsiveEmployers.filter(
-        (item) => item.severity === 'critical'
-    ).length;
-    const warningCount = unresponsiveEmployers.filter((item) => item.severity === 'warning').length;
-    return `
-        <section class="mt-8">
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">
-                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
-                    Unresponsive Employers
-                </h2>
-                <p class="text-gray-600">Employers flagged for low response, slow updates, or inactivity.</p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-6 mb-8">
-                <div class="card bg-red-50 border border-red-200 p-6">
-                    <h3 class="text-lg font-bold text-red-800 mb-2">Critical</h3>
-                    <p class="text-3xl font-bold text-red-900">${criticalCount}</p>
-                    <p class="text-sm text-red-700 mt-1">Needs immediate follow-up.</p>
-                </div>
-                <div class="card bg-yellow-50 border border-yellow-200 p-6">
-                    <h3 class="text-lg font-bold text-yellow-800 mb-2">Warning</h3>
-                    <p class="text-3xl font-bold text-yellow-900">${warningCount}</p>
-                    <p class="text-sm text-yellow-700 mt-1">Monitor these employers closely.</p>
-                </div>
-            </div>
-
-            <div class="space-y-4">
-                ${unresponsiveEmployers
-                    .map((employer) => {
-                        const isCritical = employer.severity === 'critical';
-                        const badgeClass = isCritical
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800';
-                        return `
-                            <div class="card border ${isCritical ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'} p-6">
-                                <div class="flex items-start justify-between gap-4 mb-4">
-                                    <div>
-                                        <h4 class="text-lg font-bold text-gray-900">${employer.companyName}</h4>
-                                        <p class="text-sm text-gray-600">${employer.industry} • ${employer.subscriptionPlan} plan</p>
-                                    </div>
-                                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}">${employer.severity}</span>
-                                </div>
-                                <div class="grid lg:grid-cols-4 gap-3 text-sm text-gray-700">
-                                    <div>
-                                        <p class="font-semibold">Response Rate</p>
-                                        <p>${employer.applicationResponseRate}%</p>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold">Avg. Update Time</p>
-                                        <p>${employer.averageTimeToUpdateStatus} days</p>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold">Jobs Posted</p>
-                                        <p>${employer.jobsPosted}</p>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold">Profile Access</p>
-                                        <p>${employer.profileAccessRequests}</p>
-                                    </div>
-                                </div>
-                                <div class="mt-4 text-sm text-gray-700">
-                                    ${employer.flags.map((flag) => `<p class="mb-1">• ${flag}</p>`).join('')}
-                                </div>
-                            </div>
-                        `;
-                    })
-                    .join('')}
-            </div>
-        </section>
-    `;
-}
-
-function getJobsPostedByCompany(companyId, jobs) {
-    return jobs.filter((job) => job.companyId === companyId && job.status === 'active').length;
-}
-
-function getApplicationResponseRate(companyId, jobs, applications) {
-    const companyJobIds = jobs.filter((job) => job.companyId === companyId).map((job) => job.id);
-    const companyApps = applications.filter((app) => companyJobIds.includes(app.jobId));
-    if (!companyApps.length) return 0;
-    const responded = companyApps.filter(
-        (app) =>
-            app.status !== 'pending' ||
-            (app.statusUpdateHistory && app.statusUpdateHistory.length > 1)
-    ).length;
-    return Math.round((responded / companyApps.length) * 100);
-}
-
-function getAverageTimeToUpdateStatus(companyId, jobs, applications) {
-    const companyJobIds = jobs.filter((job) => job.companyId === companyId).map((job) => job.id);
-    const companyApps = applications.filter((app) => companyJobIds.includes(app.jobId));
-    const updateIntervals = companyApps
-        .filter((app) => app.statusUpdateHistory && app.statusUpdateHistory.length > 1)
-        .map((app) => {
-            const appliedAt = new Date(app.appliedAt).getTime();
-            const firstUpdateAt = new Date(app.statusUpdateHistory[1].updatedAt).getTime();
-            return (firstUpdateAt - appliedAt) / (1000 * 60 * 60 * 24);
-        });
-    if (!updateIntervals.length) return 0;
-    return (
-        Math.round(
-            (updateIntervals.reduce((sum, days) => sum + days, 0) / updateIntervals.length) * 10
-        ) / 10
-    );
-}
-
-function getProfileAccessRequests(companyId, companies) {
-    return companies.find((company) => company.id === companyId)?.profileAccessRequests || 0;
-}
-
-function getCompanyMetrics(companyId, company, jobs, applications) {
-    const jobsPosted = getJobsPostedByCompany(companyId, jobs);
-    const applicationResponseRate = getApplicationResponseRate(companyId, jobs, applications);
-    const averageTimeToUpdateStatus = getAverageTimeToUpdateStatus(companyId, jobs, applications);
-    const profileAccessRequests = getProfileAccessRequests(companyId, [company]);
-    const totalApplications = applications.filter((app) =>
-        jobs.some((j) => j.companyId === companyId && j.id === app.jobId)
-    ).length;
-    let healthStatus = 'excellent';
-    if (applicationResponseRate < 50 || averageTimeToUpdateStatus > 15) {
-        healthStatus = 'critical';
-    } else if (applicationResponseRate < 70 || averageTimeToUpdateStatus > 10) {
-        healthStatus = 'warning';
-    }
-    return {
-        companyId,
-        companyName: company.name,
-        industry: company.industry,
-        subscriptionPlan: company.subscriptionPlan,
-        jobsPosted,
-        totalApplications,
-        applicationResponseRate,
-        averageTimeToUpdateStatus,
-        profileAccessRequests,
-        lastActivityDate: company.lastActivityDate,
-        healthStatus,
-    };
-}
-
-function getCompanyPerformanceMetrics(companies, jobs, applications) {
-    return companies.map((company) => getCompanyMetrics(company.id, company, jobs, applications));
-}
-
-function identifyUnresponsiveEmployers(companies, jobs, applications) {
-    const metrics = getCompanyPerformanceMetrics(companies, jobs, applications);
-    const inactivityThreshold = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
-    return metrics
-        .map((metric) => {
-            const lastActivity = new Date(metric.lastActivityDate);
-            const flags = [];
-            if (metric.applicationResponseRate < 60) {
-                flags.push(`Low response rate: ${metric.applicationResponseRate}%`);
-            }
-            if (metric.averageTimeToUpdateStatus > 12) {
-                flags.push(`Slow status updates: ${metric.averageTimeToUpdateStatus} days`);
-            }
-            if (lastActivity < inactivityThreshold) {
-                const daysInactive = Math.floor(
-                    (Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24)
-                );
-                flags.push(`Inactive for ${daysInactive} days`);
-            }
-            return {
-                ...metric,
-                flags,
-                severity:
-                    metric.applicationResponseRate < 40 ||
-                    metric.averageTimeToUpdateStatus > 20 ||
-                    lastActivity < new Date(Date.now() - 20 * 24 * 60 * 60 * 1000)
-                        ? 'critical'
-                        : 'warning',
-            };
-        })
-        .filter((item) => item.flags.length);
-}
-
-/**
- * RECOMMENDATION ALGORITHM ANALYTICS FUNCTIONS
- */
-
-// Function to render recommendation algorithm analytics section
+/*A6-06 Recomemndation algorithm performance*/
 function renderRecommendationAnalyticsSection(analytics) {
     const { overall, performanceByScoreRange, jobPerformance } = analytics;
 
     return `
         <br>
-        <section class="mb-8">
+        <section id="recommendation-analytics" class="mb-8">
             <div class="mb-6">
                 <h2 class="text-3xl font-bold text-gray-800 mb-2">
                     <i class="fas fa-robot text-indigo-600 mr-3"></i>
@@ -1577,4 +1667,1020 @@ function renderRecommendationAnalyticsSection(analytics) {
             </div>
         </section>
     `;
+}
+
+/*A6-07 Custome Report Builder*/
+function renderReportBuilderSection(options) {
+    return `
+        <section id="report-builder" class="mt-10">
+
+            <!-- HEADER -->
+            <div class="mb-6">
+
+                <div class="flex items-center gap-3 mb-2">
+
+                    <div class="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-file-export text-purple-600 text-xl"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            Custom Report Builder
+                        </h2>
+
+                        <p class="text-sm text-gray-500 mt-1">
+                            Create analytics reports with custom metrics and export settings
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- MAIN CARD -->
+            <div class="bg-white border border-gray-200 rounded-3xl shadow-md p-6">
+
+                <div class="grid lg:grid-cols-2 gap-8">
+
+                    <!-- LEFT SIDE -->
+                    <div>
+
+                        <h3 class="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
+                            <i class="fas fa-sliders-h text-purple-600 text-sm"></i>
+                            Select Report Content
+                        </h3>
+
+                        <div class="space-y-6">
+
+                            <!-- METRICS -->
+                            <div>
+
+                                <p class="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-chart-line text-purple-500 text-xs"></i>
+                                    Metrics
+                                </p>
+
+                                <div class="grid grid-cols-2 gap-3">
+
+                                    ${options.metrics
+                                        .map(
+                                            (metric) => `
+                                                <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition cursor-pointer">
+
+                                                    <input 
+                                                        type="checkbox" 
+                                                        data-report-input="metric" 
+                                                        value="${metric.id}" 
+                                                        class="h-3.5 w-3.5 text-purple-600 rounded border-gray-300"
+                                                    />
+
+                                                    <span class="text-xs text-gray-700 font-medium">
+                                                        ${metric.label}
+                                                    </span>
+
+                                                </label>
+                                            `
+                                        )
+                                        .join('')}
+
+                                </div>
+
+                            </div>
+
+                            <!-- FILTERS -->
+                            <div>
+
+                                <p class="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-filter text-blue-500 text-xs"></i>
+                                    Filters
+                                </p>
+
+                                <div class="grid grid-cols-2 gap-3">
+
+                                    ${options.filters
+                                        .map(
+                                            (filter) => `
+                                                <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition cursor-pointer">
+
+                                                    <input 
+                                                        type="checkbox" 
+                                                        data-report-input="filter" 
+                                                        value="${filter.id}" 
+                                                        class="h-3.5 w-3.5 text-blue-600 rounded border-gray-300"
+                                                    />
+
+                                                    <span class="text-xs text-gray-700 font-medium">
+                                                        ${filter.label}
+                                                    </span>
+
+                                                </label>
+                                            `
+                                        )
+                                        .join('')}
+
+                                </div>
+
+                            </div>
+
+                            <!-- DIMENSIONS -->
+                            <div>
+
+                                <p class="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-layer-group text-green-500 text-xs"></i>
+                                    Dimensions
+                                </p>
+
+                                <div class="grid grid-cols-2 gap-3">
+
+                                    ${options.dimensions
+                                        .map(
+                                            (dimension) => `
+                                                <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition cursor-pointer">
+
+                                                    <input 
+                                                        type="checkbox" 
+                                                        data-report-input="dimension" 
+                                                        value="${dimension.id}" 
+                                                        class="h-3.5 w-3.5 text-green-600 rounded border-gray-300"
+                                                    />
+
+                                                    <span class="text-xs text-gray-700 font-medium">
+                                                        ${dimension.label}
+                                                    </span>
+
+                                                </label>
+                                            `
+                                        )
+                                        .join('')}
+
+                                </div>
+
+                            </div>
+
+                            <!-- FORMATS -->
+                            <div>
+
+                                <p class="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-file-alt text-orange-500 text-xs"></i>
+                                    Formats
+                                </p>
+
+                                <div class="grid grid-cols-2 gap-3">
+
+                                    ${options.formats
+                                        .map(
+                                            (format) => `
+                                                <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition cursor-pointer">
+
+                                                    <input 
+                                                        type="checkbox" 
+                                                        data-report-input="format" 
+                                                        value="${format.id}" 
+                                                        class="h-3.5 w-3.5 text-orange-600 rounded border-gray-300"
+                                                    />
+
+                                                    <span class="text-xs text-gray-700 font-medium">
+                                                        ${format.label}
+                                                    </span>
+
+                                                </label>
+                                            `
+                                        )
+                                        .join('')}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT SIDE -->
+                    <div>
+
+                        <h3 class="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
+                            <i class="fas fa-cog text-indigo-600 text-sm"></i>
+                            Report Details
+                        </h3>
+
+                        <div class="space-y-5">
+
+                            <!-- REPORT NAME -->
+                            <div>
+
+                                <label class="block text-xs font-semibold text-gray-700 mb-2">
+                                    Report Name
+                                </label>
+
+                                <input 
+                                    id="reportNameInput" 
+                                    type="text"
+                                    placeholder="Weekly student and job metrics"
+                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400 outline-none transition"
+                                />
+
+                            </div>
+
+                            <!-- RECIPIENTS -->
+                            <div>
+
+                                <label class="block text-xs font-semibold text-gray-700 mb-2">
+                                    Recipients
+                                </label>
+
+                                <input 
+                                    id="reportRecipientsInput" 
+                                    type="text"
+                                    value="admin@avy.com"
+                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
+                                />
+
+                                <p class="text-[11px] text-gray-500 mt-1">
+                                    Separate emails with commas
+                                </p>
+
+                            </div>
+
+                            <!-- FREQUENCY -->
+                            <div>
+
+                                <label class="block text-xs font-semibold text-gray-700 mb-2">
+                                    Frequency
+                                </label>
+
+                                <select 
+                                    id="reportFrequencyInput"
+                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 focus:border-green-400 outline-none transition"
+                                >
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly" selected>Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+
+                            </div>
+
+                            <!-- TIME -->
+                            <div>
+
+                                <label class="block text-xs font-semibold text-gray-700 mb-2">
+                                    Send At
+                                </label>
+
+                                <input 
+                                    id="reportScheduleTimeInput"
+                                    type="time"
+                                    value="08:00"
+                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
+                                />
+
+                            </div>
+
+                            <!-- BUTTON -->
+                            <button 
+                                id="saveReportBuilderBtn"
+                                class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow hover:shadow-lg transition-all duration-300"
+                            >
+                                <i class="fas fa-save text-xs"></i>
+                                Save Report
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+    `;
+}
+
+/*A6-07 Schduled Export */
+function renderScheduledExportsSection(reports, deliveries) {
+    return `
+        <section id="scheduled-exports" class="mt-10">
+
+            <!-- HEADER -->
+            <div class="mb-6">
+
+                <div class="flex items-center gap-3 mb-2">
+
+                    <div class="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-calendar-days text-purple-600 text-xl"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            Scheduled Exports
+                        </h2>
+
+                        <p class="text-sm text-gray-500 mt-1">
+                            Manage report schedules and review delivered exports
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- MAIN GRID -->
+            <div class="grid lg:grid-cols-2 gap-6 mb-8">
+
+                <!-- ACTIVE REPORTS -->
+                <div class="bg-white border border-gray-200 rounded-3xl shadow-md p-6">
+
+                    <h3 class="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
+                        <i class="fas fa-clock text-purple-600 text-sm"></i>
+                        Active Scheduled Reports
+                    </h3>
+
+                    ${
+                        reports.length > 0
+                            ? `
+                                <div class="space-y-4">
+
+                                    ${reports
+                                        .map(
+                                            (report) => `
+                                                <div class="border border-gray-200 rounded-2xl p-4 hover:border-purple-300 hover:bg-purple-50 transition">
+
+                                                    <!-- TOP -->
+                                                    <div class="flex items-start justify-between gap-3 mb-4">
+
+                                                        <div>
+                                                            <p class="text-sm font-semibold text-gray-800">
+                                                                ${report.name}
+                                                            </p>
+
+                                                            <p class="text-xs text-gray-500 mt-1">
+                                                                ${report.description || 'Custom analytics report'}
+                                                            </p>
+                                                        </div>
+
+                                                        <span class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-[11px] font-semibold">
+                                                            ${report.frequency}
+                                                        </span>
+
+                                                    </div>
+
+                                                    <!-- DETAILS -->
+                                                    <div class="space-y-2 text-xs text-gray-700">
+
+                                                        <p>
+                                                            <span class="font-semibold text-gray-800">
+                                                                Metrics:
+                                                            </span>
+                                                            ${report.selectedMetrics.join(', ') || 'None'}
+                                                        </p>
+
+                                                        <p>
+                                                            <span class="font-semibold text-gray-800">
+                                                                Filters:
+                                                            </span>
+                                                            ${report.selectedFilters.join(', ') || 'None'}
+                                                        </p>
+
+                                                        <p>
+                                                            <span class="font-semibold text-gray-800">
+                                                                Dimensions:
+                                                            </span>
+                                                            ${report.selectedDimensions.join(', ') || 'None'}
+                                                        </p>
+
+                                                        <p>
+                                                            <span class="font-semibold text-gray-800">
+                                                                Next Run:
+                                                            </span>
+                                                            ${report.nextRun || 'Not scheduled'}
+                                                        </p>
+
+                                                        <p>
+                                                            <span class="font-semibold text-gray-800">
+                                                                Recipients:
+                                                            </span>
+                                                            ${report.recipients}
+                                                        </p>
+
+                                                    </div>
+
+                                                </div>
+                                            `
+                                        )
+                                        .join('')}
+
+                                </div>
+                            `
+                            : `
+                                <div class="flex flex-col items-center justify-center text-center py-10">
+
+                                    <div class="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
+                                        <i class="fas fa-folder-open text-gray-400 text-lg"></i>
+                                    </div>
+
+                                    <p class="text-sm text-gray-500">
+                                        No scheduled reports configured yet
+                                    </p>
+
+                                </div>
+                            `
+                    }
+
+                </div>
+
+                <!-- RECENT DELIVERIES -->
+                <div class="bg-white border border-gray-200 rounded-3xl shadow-md p-6">
+
+                    <h3 class="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
+                        <i class="fas fa-paper-plane text-indigo-600 text-sm"></i>
+                        Recent Deliveries
+                    </h3>
+
+                    ${
+                        deliveries.length > 0
+                            ? `
+                                <div class="space-y-4">
+
+                                    ${deliveries
+                                        .slice(0, 5)
+                                        .map(
+                                            (delivery) => `
+                                                <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50 hover:bg-indigo-50 hover:border-indigo-200 transition">
+
+                                                    <!-- TOP -->
+                                                    <div class="flex items-start justify-between gap-3 mb-3">
+
+                                                        <div>
+                                                            <p class="text-sm font-semibold text-gray-800">
+                                                                ${delivery.name}
+                                                            </p>
+
+                                                            <p class="text-[11px] text-gray-500 mt-1">
+                                                                ${new Date(delivery.deliveredAt).toLocaleString()}
+                                                            </p>
+                                                        </div>
+
+                                                        <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center">
+                                                            <i class="fas fa-check text-indigo-600 text-xs"></i>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- CONTENT -->
+                                                    <div class="space-y-2">
+
+                                                        <p class="text-xs text-gray-700">
+                                                            Delivered to
+                                                            <span class="font-semibold">
+                                                                ${delivery.recipients.join(', ')}
+                                                            </span>
+                                                        </p>
+
+                                                        <p class="text-[11px] text-gray-500 leading-relaxed">
+                                                            ${delivery.summary}
+                                                        </p>
+
+                                                    </div>
+
+                                                </div>
+                                            `
+                                        )
+                                        .join('')}
+
+                                </div>
+                            `
+                            : `
+                                <div class="flex flex-col items-center justify-center text-center py-10">
+
+                                    <div class="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
+                                        <i class="fas fa-inbox text-gray-400 text-lg"></i>
+                                    </div>
+
+                                    <p class="text-sm text-gray-500">
+                                        No exports delivered yet
+                                    </p>
+
+                                </div>
+                            `
+                    }
+
+                </div>
+
+            </div>
+
+            <!-- BACK TO TOP -->
+            <div class="flex justify-end">
+
+                <a 
+                    href="#platform-analytics"
+                    class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                >
+                    <i class="fas fa-arrow-up text-xs"></i>
+                    Back to Top
+                </a>
+
+            </div>
+
+        </section>
+    `;
+}
+
+function getStageDropOff(previousStage, currentStage) {
+    if (!previousStage?.count) return 0;
+    return Math.round(((previousStage.count - currentStage.count) / previousStage.count) * 100);
+}
+
+function getLatestTrendValue(trends, key) {
+    return trends[trends.length - 1][key] || 0;
+}
+
+function getTrendChange(trends, key) {
+    if (trends.length < 2 || !trends[0][key]) return 0;
+
+    const firstValue = trends[0][key];
+    const latestValue = getLatestTrendValue(trends, key);
+
+    return Math.round(((latestValue - firstValue) / firstValue) * 100);
+}
+
+function formatNumber(value) {
+    return new Intl.NumberFormat('en-US').format(value || 0);
+}
+
+/*EVENT ATTENDANCE HELPER ANALYTICS FUNCTIONS*/
+// Function to get registration counts across all events
+function getRegistrationCounts(events) {
+    return events.reduce((total, event) => total + (event.registeredCount || 0), 0);
+}
+
+// Function to get actual attendance rates across all events
+function getActualAttendanceRates(events) {
+    const totalRegistered = events.reduce((sum, event) => sum + (event.registeredCount || 0), 0);
+    const totalAttended = events.reduce((sum, event) => sum + (event.actualAttendance || 0), 0);
+    const rate = totalRegistered > 0 ? Math.round((totalAttended / totalRegistered) * 100) : 0;
+    return { totalRegistered, totalAttended, rate };
+}
+
+// Function to get no-show rates across all events
+function getNoShowRates(events) {
+    const totalRegistered = events.reduce((sum, event) => sum + (event.registeredCount || 0), 0);
+    const totalAttended = events.reduce((sum, event) => sum + (event.actualAttendance || 0), 0);
+    const noShows = totalRegistered - totalAttended;
+    const rate = totalRegistered > 0 ? Math.round((noShows / totalRegistered) * 100) : 0;
+    return { totalRegistered, noShows, rate };
+}
+
+// Function to get breakdown by student programme across all events
+function getProgrammeBreakdown(events) {
+    const programmes = {};
+
+    events.forEach((event) => {
+        if (Array.isArray(event.byProgramme)) {
+            event.byProgramme.forEach((prog) => {
+                if (!programmes[prog.programme]) {
+                    programmes[prog.programme] = {
+                        registered: 0,
+                        attended: 0,
+                        noShow: 0,
+                    };
+                }
+                programmes[prog.programme].registered += prog.registered || 0;
+                programmes[prog.programme].attended += prog.attended || 0;
+                programmes[prog.programme].noShow += prog.noShow || 0;
+            });
+        }
+    });
+
+    return Object.entries(programmes).map(([name, data]) => ({
+        programme: name,
+        ...data,
+        attendanceRate:
+            data.registered > 0 ? Math.round((data.attended / data.registered) * 100) : 0,
+    }));
+}
+
+// Function to evaluate event effectiveness
+function evaluateEventEffectiveness(events) {
+    const effectiveness = events.map((event) => {
+        const registered = event.registeredCount || 0;
+        const attended = event.actualAttendance || 0;
+        const rate = registered > 0 ? Math.round((attended / registered) * 100) : 0;
+        let category = 'Low';
+        if (rate >= 85) category = 'High';
+        else if (rate >= 75) category = 'Medium';
+        return { title: event.title, rate, category };
+    });
+
+    const highCount = effectiveness.filter((e) => e.category === 'High').length;
+    const mediumCount = effectiveness.filter((e) => e.category === 'Medium').length;
+    const lowCount = effectiveness.filter((e) => e.category === 'Low').length;
+
+    return { effectiveness, highCount, mediumCount, lowCount };
+}
+
+// Function to initialize charts using Chart.js
+function initializeEventCharts(chartData) {
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not loaded');
+        return;
+    }
+
+    Chart.getChart('attendanceRateChart')?.destroy();
+    Chart.getChart('registrationVsAttendanceChart')?.destroy();
+    Chart.getChart('programmeBreakdownChart')?.destroy();
+    Chart.getChart('effectivenessChart')?.destroy();
+    Chart.getChart('noShowChart')?.destroy();
+
+    const { events, programmeBreakdown, effectiveness } = chartData;
+
+    // Attendance Rate Chart
+    const ctx1 = document.getElementById('attendanceRateChart');
+    if (ctx1) {
+        const attendanceRates = getActualAttendanceRates(events);
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: events.map((e) => e.title.substring(0, 20)),
+                datasets: [
+                    {
+                        label: 'Attendance Rate (%)',
+                        data: events.map((e) => {
+                            const reg = e.registeredCount || 0;
+                            const att = Math.round(reg * 0.82);
+                            return reg > 0 ? Math.round((att / reg) * 100) : 0;
+                        }),
+                        backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                        borderColor: 'rgba(139, 92, 246, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 100 } },
+            },
+        });
+    }
+
+    // No-Show Rate Chart
+    const ctx5 = document.getElementById('noShowChart');
+    if (ctx5) {
+        new Chart(ctx5, {
+            type: 'line',
+            data: {
+                labels: events.map((e) => e.title.substring(0, 20)),
+                datasets: [
+                    {
+                        label: 'No-Show Rate (%)',
+                        data: events.map((e) => {
+                            const registered = e.registeredCount || 0;
+                            const attended = e.actualAttendance || 0;
+                            const noShow = Math.max(0, registered - attended);
+                            return registered > 0 ? Math.round((noShow / registered) * 100) : 0;
+                        }),
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                    },
+                },
+            },
+        });
+    }
+
+    // Registration vs Attendance Chart
+    const ctx2 = document.getElementById('registrationVsAttendanceChart');
+    if (ctx2) {
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: events.map((e) => e.title.substring(0, 20)),
+                datasets: [
+                    {
+                        label: 'Registered',
+                        data: events.map((e) => e.registeredCount || 0),
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                    },
+                    {
+                        label: 'Attended',
+                        data: events.map((e) => Math.round((e.registeredCount || 0) * 0.82)),
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+            },
+        });
+    }
+
+    // Programme Breakdown Chart
+    const ctx3 = document.getElementById('programmeBreakdownChart');
+    if (ctx3) {
+        new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                labels: programmeBreakdown.map((p) => p.programme),
+                datasets: [
+                    {
+                        data: programmeBreakdown.map((p) => p.attended),
+                        backgroundColor: [
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(249, 115, 22, 0.8)',
+                        ],
+                        borderColor: [
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(249, 115, 22, 1)',
+                        ],
+                        borderWidth: 2,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+            },
+        });
+    }
+
+    // Event Effectiveness Chart
+    const ctx4 = document.getElementById('effectivenessChart');
+    if (ctx4) {
+        new Chart(ctx4, {
+            type: 'doughnut',
+            data: {
+                labels: ['High (85%+)', 'Medium (75-85%)', 'Low (<75%)'],
+                datasets: [
+                    {
+                        data: [
+                            effectiveness.highCount,
+                            effectiveness.mediumCount,
+                            effectiveness.lowCount,
+                        ],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(249, 115, 22, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(249, 115, 22, 1)',
+                            'rgba(239, 68, 68, 1)',
+                        ],
+                        borderWidth: 2,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+            },
+        });
+    }
+}
+
+/*EMPLOYER PERFORMANCE HELPER ANALYTICS FUNCTIONS*/
+// Helper functions to calculate employer performance metrics
+function getJobsPostedByCompany(companyId, jobs) {
+    return jobs.filter((job) => job.companyId === companyId && job.status === 'active').length;
+}
+
+// Calculate application response rate for a company
+function getApplicationResponseRate(companyId, jobs, applications) {
+    const companyJobIds = jobs.filter((job) => job.companyId === companyId).map((job) => job.id);
+    const companyApps = applications.filter((app) => companyJobIds.includes(app.jobId));
+    if (!companyApps.length) return 0;
+    const responded = companyApps.filter(
+        (app) =>
+            app.status !== 'pending' ||
+            (app.statusUpdateHistory && app.statusUpdateHistory.length > 1)
+    ).length;
+    return Math.round((responded / companyApps.length) * 100);
+}
+
+// Calculate average time to first status update for a company's applications
+function getAverageTimeToUpdateStatus(companyId, jobs, applications) {
+    const companyJobIds = jobs.filter((job) => job.companyId === companyId).map((job) => job.id);
+    const companyApps = applications.filter((app) => companyJobIds.includes(app.jobId));
+    const updateIntervals = companyApps
+        .filter((app) => app.statusUpdateHistory && app.statusUpdateHistory.length > 1)
+        .map((app) => {
+            const appliedAt = new Date(app.appliedAt).getTime();
+            const firstUpdateAt = new Date(app.statusUpdateHistory[1].updatedAt).getTime();
+            return (firstUpdateAt - appliedAt) / (1000 * 60 * 60 * 24);
+        });
+    if (!updateIntervals.length) return 0;
+    return (
+        Math.round(
+            (updateIntervals.reduce((sum, days) => sum + days, 0) / updateIntervals.length) * 10
+        ) / 10
+    );
+}
+
+// Get number of profile access requests for a company
+function getProfileAccessRequests(companyId, companies) {
+    return companies.find((company) => company.id === companyId)?.profileAccessRequests || 0;
+}
+
+// Aggregate all metrics to get a performance overview for a company
+function getCompanyMetrics(companyId, company, jobs, applications) {
+    const jobsPosted = getJobsPostedByCompany(companyId, jobs);
+    const applicationResponseRate = getApplicationResponseRate(companyId, jobs, applications);
+    const averageTimeToUpdateStatus = getAverageTimeToUpdateStatus(companyId, jobs, applications);
+    const profileAccessRequests = getProfileAccessRequests(companyId, [company]);
+    const totalApplications = applications.filter((app) =>
+        jobs.some((j) => j.companyId === companyId && j.id === app.jobId)
+    ).length;
+    let healthStatus = 'excellent';
+    if (applicationResponseRate < 50 || averageTimeToUpdateStatus > 15) {
+        healthStatus = 'critical';
+    } else if (applicationResponseRate < 70 || averageTimeToUpdateStatus > 10) {
+        healthStatus = 'warning';
+    }
+    return {
+        companyId,
+        companyName: company.name,
+        industry: company.industry,
+        subscriptionPlan: company.subscriptionPlan,
+        jobsPosted,
+        totalApplications,
+        applicationResponseRate,
+        averageTimeToUpdateStatus,
+        profileAccessRequests,
+        lastActivityDate: company.lastActivityDate,
+        healthStatus,
+    };
+}
+
+// Get performance metrics for all companies
+function getCompanyPerformanceMetrics(companies, jobs, applications) {
+    return companies.map((company) => getCompanyMetrics(company.id, company, jobs, applications));
+}
+
+// Identify unresponsive employers based on defined criteria and flag them for review
+function identifyUnresponsiveEmployers(companies, jobs, applications) {
+    const metrics = getCompanyPerformanceMetrics(companies, jobs, applications);
+    const inactivityThreshold = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+    return metrics
+        .map((metric) => {
+            const lastActivity = new Date(metric.lastActivityDate);
+            const flags = [];
+            if (metric.applicationResponseRate < 60) {
+                flags.push(`Low response rate: ${metric.applicationResponseRate}%`);
+            }
+            if (metric.averageTimeToUpdateStatus > 12) {
+                flags.push(`Slow status updates: ${metric.averageTimeToUpdateStatus} days`);
+            }
+            if (lastActivity < inactivityThreshold) {
+                const daysInactive = Math.floor(
+                    (Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24)
+                );
+                flags.push(`Inactive for ${daysInactive} days`);
+            }
+            return {
+                ...metric,
+                flags,
+                severity:
+                    metric.applicationResponseRate < 40 ||
+                    metric.averageTimeToUpdateStatus > 20 ||
+                    lastActivity < new Date(Date.now() - 20 * 24 * 60 * 60 * 1000)
+                        ? 'critical'
+                        : 'warning',
+            };
+        })
+        .filter((item) => item.flags.length);
+}
+
+/**
+ * Get recommendation algorithm performance analytics
+ */
+async function getRecommendationAnalytics() {
+    await mockDataService.simulateDelay();
+
+    //const jobs = this.jobs.filter(job => job.status === 'active');
+    const jobs = mockDataService.generateMockJobs().filter((job) => job.status === 'active');
+
+    // Calculate overall metrics
+    const totalRecommendationViews = jobs.reduce((sum, job) => sum + job.recommendationViews, 0);
+    const totalRecommendationClicks = jobs.reduce((sum, job) => sum + job.recommendationClicks, 0);
+    const totalRecommendationApplications = jobs.reduce(
+        (sum, job) => sum + job.recommendationApplications,
+        0
+    );
+
+    // Click-through rate (CTR)
+    const clickThroughRate =
+        totalRecommendationViews > 0
+            ? (totalRecommendationClicks / totalRecommendationViews) * 100
+            : 0;
+
+    // Apply rate (from clicks)
+    const applyRate =
+        totalRecommendationClicks > 0
+            ? (totalRecommendationApplications / totalRecommendationClicks) * 100
+            : 0;
+
+    // Apply rate (from views)
+    const applyRateFromViews =
+        totalRecommendationViews > 0
+            ? (totalRecommendationApplications / totalRecommendationViews) * 100
+            : 0;
+
+    // Average match quality
+    const jobsWithMatches = jobs.filter((job) => job.averageMatchScore > 0);
+    const averageMatchQuality =
+        jobsWithMatches.length > 0
+            ? jobsWithMatches.reduce((sum, job) => sum + job.averageMatchScore, 0) /
+              jobsWithMatches.length
+            : 0;
+
+    // Performance by match score ranges
+    const performanceByScoreRange = {
+        excellent: { min: 80, max: 100, views: 0, clicks: 0, applications: 0 },
+        good: { min: 60, max: 79, views: 0, clicks: 0, applications: 0 },
+        fair: { min: 40, max: 59, views: 0, clicks: 0, applications: 0 },
+        poor: { min: 0, max: 39, views: 0, clicks: 0, applications: 0 },
+    };
+
+    jobs.forEach((job) => {
+        const score = job.averageMatchScore;
+        let range = 'poor';
+        if (score >= 80) range = 'excellent';
+        else if (score >= 60) range = 'good';
+        else if (score >= 40) range = 'fair';
+
+        performanceByScoreRange[range].views += job.recommendationViews;
+        performanceByScoreRange[range].clicks += job.recommendationClicks;
+        performanceByScoreRange[range].applications += job.recommendationApplications;
+    });
+
+    // Calculate CTR and apply rates for each range
+    Object.keys(performanceByScoreRange).forEach((range) => {
+        const data = performanceByScoreRange[range];
+        data.clickThroughRate = data.views > 0 ? (data.clicks / data.views) * 100 : 0;
+        data.applyRate = data.clicks > 0 ? (data.applications / data.clicks) * 100 : 0;
+    });
+
+    return {
+        overall: {
+            totalRecommendationViews,
+            totalRecommendationClicks,
+            totalRecommendationApplications,
+            clickThroughRate: Math.round(clickThroughRate * 100) / 100,
+            applyRate: Math.round(applyRate * 100) / 100,
+            applyRateFromViews: Math.round(applyRateFromViews * 100) / 100,
+            averageMatchQuality: Math.round(averageMatchQuality * 100) / 100,
+        },
+        performanceByScoreRange,
+        jobPerformance: jobs.map((job) => ({
+            jobId: job.id,
+            title: job.title,
+            companyId: job.companyId,
+            recommendationViews: job.recommendationViews,
+            recommendationClicks: job.recommendationClicks,
+            recommendationApplications: job.recommendationApplications,
+            averageMatchScore: job.averageMatchScore,
+            clickThroughRate:
+                job.recommendationViews > 0
+                    ? Math.round((job.recommendationClicks / job.recommendationViews) * 10000) / 100
+                    : 0,
+            applyRate:
+                job.recommendationClicks > 0
+                    ? Math.round(
+                          (job.recommendationApplications / job.recommendationClicks) * 10000
+                      ) / 100
+                    : 0,
+        })),
+    };
 }
