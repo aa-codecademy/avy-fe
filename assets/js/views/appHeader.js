@@ -42,7 +42,6 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/admin/jobs', 'fa-briefcase', 'Jobs', ['/admin/jobs'])}
             ${L('/admin/companies', 'fa-building', 'Companies', ['/admin/companies'])}
             ${L('/admin/analytics', 'fa-chart-bar', 'Analytics', ['/admin/analytics'])}
-            ${L('/admin/events', 'fa-calendar', 'Events', ['/admin/events'])}
             ${L('/admin/resources', 'fa-newspaper', 'Resources', ['/admin/resources'])}
             ${L('/admin/notifications', 'fa-bell', 'Alerts', ['/admin/notifications'])}
         `;
