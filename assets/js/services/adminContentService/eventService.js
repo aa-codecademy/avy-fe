@@ -71,8 +71,8 @@ class EventService {
         if (!event) throw new Error(`No event with id of '${id}' was found`);
 
         Object.entries(updatePackage).forEach(([key, value]) => {
-            if (key === id) return;
-            event[key] = isNaN(value) ? value : Number(value);
+            if (key === 'id') return;
+            event[key] = value !== '' && !isNaN(value) ? Number(value) : value;
         });
     }
 

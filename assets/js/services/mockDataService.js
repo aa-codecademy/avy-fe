@@ -752,7 +752,9 @@ class MockDataService {
      * EVENTS
      */
     generateMockEvents() {
-        const futureDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+        const date1 = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+        const date2 = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+        const date3 = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
         return [
             new Event({
@@ -760,7 +762,7 @@ class MockDataService {
                 title: 'Career Day 2026',
                 description: 'Meet top employers and explore career opportunities.',
                 type: 'career-day',
-                date: futureDate.toISOString().split('T')[0],
+                date: date1.toISOString().split('T')[0],
                 time: '10:00',
                 location: 'Avenga Academy - Skopje',
                 isOnline: false,
@@ -791,11 +793,11 @@ class MockDataService {
                 title: 'Web Development Workshop',
                 description: 'Hands-on workshop on modern web development practices.',
                 type: 'workshop',
-                date: futureDate.toISOString().split('T')[0],
+                date: date2.toISOString().split('T')[0],
                 time: '14:00',
                 location: 'Online',
                 isOnline: true,
-                maxParticipants: 4,
+                maxParticipants: 3,
                 registeredUsers: [
                     new User({
                         id: 'u4',
@@ -809,12 +811,6 @@ class MockDataService {
                         role: 'alumni',
                         email: 'testuser5@gmail.com',
                     }),
-                    new User({
-                        id: 'u6',
-                        name: 'Test User 6',
-                        role: 'student',
-                        email: 'testuser6@gmail.com',
-                    }),
                 ],
             }),
             new Event({
@@ -822,22 +818,28 @@ class MockDataService {
                 title: 'Netwroking Day',
                 description: 'Meet up with other students and establish networks.',
                 type: 'networking',
-                date: futureDate.toISOString().split('T')[0],
+                date: date3.toISOString().split('T')[0],
                 time: '09:00',
                 location: 'Avenga Academy - Skopje',
                 isOnline: false,
-                maxParticipants: 3,
+                maxParticipants: 4,
                 registeredUsers: [
+                    new User({
+                        id: 'u6',
+                        name: 'Test User 6',
+                        role: 'student',
+                        email: 'testuser6@gmail.com',
+                    }),
                     new User({
                         id: 'u7',
                         name: 'Test User 7',
-                        role: 'student',
+                        role: 'alumni',
                         email: 'testuser7@gmail.com',
                     }),
                     new User({
                         id: 'u8',
-                        name: 'Test User 8',
-                        role: 'alumni',
+                        name: 'Test User8',
+                        role: 'student',
                         email: 'testuser8@gmail.com',
                     }),
                     new User({
@@ -912,7 +914,7 @@ class MockDataService {
                 externalUrl: 'https://www.figma.com',
                 isGlobal: false,
                 programs: ['graphic-design'],
-                status: 'archived',
+                status: 'active',
                 viewCount: 33,
                 organizerId: 'admin_01',
                 createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
@@ -1618,7 +1620,7 @@ class MockDataService {
         return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     }
 
-    simulateDelay(ms = 300) {
+    simulateDelay(ms = 0) {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 }
