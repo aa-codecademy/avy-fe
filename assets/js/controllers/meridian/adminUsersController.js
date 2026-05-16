@@ -356,7 +356,6 @@ function renderUsersTable(users) {
     return users
         .map(
             (entry) => `
->>>>>>> dev-meridian
             <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
                 <td class="px-4 py-4">
                     <div class="flex items-center gap-3">

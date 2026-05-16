@@ -48,7 +48,7 @@ window.authService = authService;
 /**
  * Initialize application
  */
-function initApp() {
+async function initApp() {
     console.log(
         '%c🚀 Avy Application Started',
         'color: #667eea; font-size: 16px; font-weight: bold;'
@@ -58,7 +58,9 @@ function initApp() {
     // Register routes
     registerRoutes();
 
-    // Initialize router (will handle initial navigation)
+    // Trigger the first navigation only after routes are registered.
+    await router.navigate(window.location.pathname, false);
+
     console.log('✅ Router initialized');
 }
 

@@ -856,6 +856,52 @@ class MockDataService {
         return this.events;
     }
 
+    generateMockResources() {
+        return [
+            new Resource({
+                id: 'r1',
+                title: 'Build a Job-Ready CV',
+                description:
+                    'A practical checklist for structuring your CV for entry-level software roles.',
+                type: 'cv-guide',
+                contentBody:
+                    'Start with a concise summary, highlight measurable project outcomes, and keep your technical stack specific. Tailor the top section for every application so employers can quickly match your profile to the role.',
+                externalUrl: 'https://example.com/resources/job-ready-cv',
+                isGlobal: true,
+                programs: ['frontend', 'backend', 'qa'],
+                status: 'active',
+                viewCount: 184,
+            }),
+            new Resource({
+                id: 'r2',
+                title: 'Interview Preparation Workbook',
+                description:
+                    'Common technical and behavioural prompts with a framework for better answers.',
+                type: 'interview-prep',
+                contentBody:
+                    'Prepare short stories that cover teamwork, debugging, ownership, and delivery under pressure. For technical interviews, practice explaining tradeoffs clearly instead of only focusing on the final answer.',
+                isGlobal: true,
+                programs: ['frontend', 'backend'],
+                status: 'active',
+                viewCount: 126,
+            }),
+            new Resource({
+                id: 'r3',
+                title: 'Portfolio Case Study Template',
+                description:
+                    'A reusable outline for turning academy and freelance work into stronger portfolio entries.',
+                type: 'portfolio-template',
+                contentBody:
+                    'Document the problem, constraints, implementation choices, and measurable impact. Strong case studies explain why decisions were made, not just what was built.',
+                externalUrl: 'https://example.com/resources/portfolio-template',
+                isGlobal: false,
+                programs: ['frontend'],
+                status: 'archived',
+                viewCount: 72,
+            }),
+        ];
+    }
+
     /**
      * ANALYTICS
      */
