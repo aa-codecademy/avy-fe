@@ -31,10 +31,15 @@ export default async function adminResourcesController() {
                             </button>
                         </div>
                     </div>
+
+                    <button id="create-resource-button" class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-3 rounded-xl transition-all duration-300 shadow-md">
+                        <i class="fas fa-plus-circle text-lg"></i>
+                        Post Resource
+                    </button>
                 </div>
 
-                <div class="grid grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white shadow-md rounded-2xl p-5 flex items-center gap-4">
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white shadow-md rounded-2xl p-5 flex items-center gap-4 w-full">
                         <div class="bg-purple-100 rounded-xl p-3">
                             <i class="fas fa-layer-group text-2xl text-purple-600"></i>
                         </div>
@@ -43,7 +48,7 @@ export default async function adminResourcesController() {
                             <p class="text-2xl font-bold text-gray-800" id="resource-total">—</p>
                         </div>
                     </div>
-                    <div class="bg-white shadow-md rounded-2xl p-5 flex items-center gap-4">
+                    <div class="bg-white shadow-md rounded-2xl p-5 flex items-center gap-4 w-full">
                         <div class="bg-green-100 rounded-xl p-3">
                             <i class="fas fa-eye text-2xl text-green-600"></i>
                         </div>
@@ -52,7 +57,7 @@ export default async function adminResourcesController() {
                             <p class="text-2xl font-bold text-gray-800" id="resource-active">—</p>
                         </div>
                     </div>
-                    <div class="bg-white shadow-md rounded-2xl p-5 flex items-center gap-4">
+                    <div class="bg-white shadow-md rounded-2xl p-5 flex items-center gap-4 w-full">
                         <div class="bg-yellow-100 rounded-xl p-3">
                             <i class="fas fa-box-archive text-2xl text-yellow-600"></i>
                         </div>
@@ -127,8 +132,11 @@ class AdminResourcesController {
         const card = document.createElement('div');
         card.classList.add(
             'flex',
-            'items-center',
-            'justify-between',
+            'flex-col', // stack vertically on mobile
+            'md:flex-row', // side by side on md+
+            'md:items-center',
+            'md:justify-between',
+            'gap-4',
             'bg-gray-50',
             'rounded-xl',
             'px-5',
@@ -171,10 +179,10 @@ class AdminResourcesController {
                 <div class="bg-purple-100 rounded-xl p-3 shrink-0">
                     <i class="fas ${type.icon} text-purple-600 text-xl"></i>
                 </div>
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1 min-w-0">
                     <p class="font-semibold text-gray-800">${resource.title}</p>
-                    <p class="text-xs text-gray-400 line-clamp-1 max-w-md">${resource.description}</p>
-                    <div class="flex items-center gap-3 mt-0.5">
+                    <p class="text-xs text-gray-400 line-clamp-1">${resource.description}</p>
+                    <div class="flex flex-wrap items-center gap-2 mt-0.5">
                         <span class="text-xs font-semibold rounded-full px-2 py-0.5 ${status.color}">${status.label}</span>
                         <span class="text-xs font-semibold rounded-full px-2 py-0.5 ${type.color}"><i class="fas fa-tag mr-1"></i>${type.label}</span>
                         <span class="text-xs text-gray-400"><i class="fas fa-eye mr-1"></i>${resource.viewCount} views</span>
@@ -183,7 +191,7 @@ class AdminResourcesController {
                 </div>
             </div>
 
-            <div class="flex items-center gap-1 shrink-0">
+            <div class="flex items-center gap-1 shrink-0 flex-wrap">
                 <button class="resource-view-btn text-sm text-gray-500 hover:text-gray-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-all duration-300">
                     <i class="fas fa-info-circle mr-1"></i>More
                 </button>

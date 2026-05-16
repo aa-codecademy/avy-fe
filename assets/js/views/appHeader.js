@@ -42,7 +42,6 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/admin/settings', 'fa-sliders-h', 'Settings', ['/admin/settings'])}
             ${L('/admin/jobs', 'fa-briefcase', 'Jobs', ['/admin/jobs'])}
             ${L('/admin/companies', 'fa-building', 'Companies', ['/admin/companies'])}
-            ${L('/admin/events', 'fa-calendar-alt', 'Events', ['/admin/events'])}
             ${L('/admin/analytics', 'fa-chart-bar', 'Analytics', ['/admin/analytics'])}
             ${L('/admin/resources', 'fa-newspaper', 'Resources', ['/admin/resources'])}
             ${L('/admin/notifications', 'fa-bell', 'Alerts', ['/admin/notifications'])}
