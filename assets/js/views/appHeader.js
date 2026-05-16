@@ -26,6 +26,7 @@ export function renderAppHeader(user, currentPath = '') {
         const active = matchPrefixes.some(
             (p) => path === p || (p !== '/' && path.startsWith(p + '/'))
         );
+
         const cls = active
             ? 'text-purple-600 font-semibold'
             : 'text-gray-600 hover:text-purple-600 transition';
@@ -54,6 +55,7 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/employer/candidates', 'fa-users', 'Candidates', ['/employer/candidates'])}
             ${L('/employer/messages', 'fa-envelope', 'Messages', ['/employer/messages'])}
             ${L('/employer/notifications', 'fa-bell', 'Notifications', ['/employer/notifications'])}
+            ${L('/employer/company-profile', 'fa-building', 'Company Profile', ['/employer/company-profile'])}
         `;
     } else {
         links = `
