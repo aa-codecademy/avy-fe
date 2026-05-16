@@ -32,6 +32,7 @@ const EventManager = {
     async initialize(user) {
         EventManager.user = user;
         EventManager.events = await eventService.getEvents();
+        EventManager.filterState = { activeType: 'all', sortBy: 'date-asc' };
         EventManager.render.page();
         EventManager.render.cards();
         EventManager.listeners.atachAll();
