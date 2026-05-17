@@ -31,6 +31,7 @@ class MockDataService {
 
             if (!this.messages) this.messages = this.generateMockMessages();
             if (!this.notifications) this.notifications = this.generateMockNotifications();
+            if (!this.notificationPreferences) this.notificationPreferences = this.generateMockNotificationPreferences();
         } else {
             this.initializeMockData();
             this.saveToStorage();
@@ -50,6 +51,7 @@ class MockDataService {
         this.events = this.generateMockEvents();
         this.messages = this.generateMockMessages();
         this.notifications = this.generateMockNotifications();
+        this.notificationPreferences = this.generateMockNotificationPreferences();
         this.analytics = this.generateMockAnalytics();
     }
 
@@ -69,6 +71,7 @@ class MockDataService {
                 events: this.events,
                 messages: this.messages,
                 notifications: this.notifications,
+                notificationPreferences: this.notificationPreferences,
                 analytics: this.analytics,
             })
         );
@@ -994,6 +997,48 @@ class MockDataService {
         this.notifications.filter((n) => n.userId === userId).forEach((n) => (n.read = true));
         this.saveToStorage();
         return true;
+    }
+
+    generateMockNotificationPreferences() {
+    return {
+        '1': {
+            messages: { enabled: true, channel: 'both' },
+            interviewInvites: { enabled: true, channel: 'browser' },
+            applicationStatus: { enabled: true, channel: 'email' },
+            successfulApplication: { enabled: true, channel: 'browser' },
+            passwordChange: { enabled: true, channel: 'both' },
+        },
+    };
+}
+
+    async getNotificationPreferences(userId) {
+        await this.simulateDelay();
+
+        if (!this.notificationPreferences) {
+            this.notificationPreferences = this.generateMockNotificationPreferences();
+        }
+
+        if (!this.notificationPreferences[userId]) {
+            this.notificationPreferences[userId] = {
+                messages: { enabled: true, channel: 'both' },
+                interviewInvites: { enabled: true, channel: 'browser' },
+                applicationStatus: { enabled: true, channel: 'email' },
+                successfulApplication: { enabled: true, channel: 'browser' },
+                passwordChange: { enabled: true, channel: 'both' },
+            };
+            this.saveToStorage();
+        }
+
+        return structuredClone(this.notificationPreferences[userId]);
+    }
+
+    async updateNotificationPreferences(userId, preferences) {
+        await this.simulateDelay();
+
+        this.notificationPreferences[userId] = structuredClone(preferences);
+        this.saveToStorage();
+
+        return structuredClone(this.notificationPreferences[userId]);
     }
 
     /**
