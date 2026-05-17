@@ -344,6 +344,14 @@ function renderJobGrid(jobs, companyMap) {
                                 </div>
 
                                 <button
+                                    class="btn btn-outline interest-btn"
+                                    data-job-id="${job.id}"
+                                >
+                                    <i class="fas fa-heart mr-1 text-red-500"></i>
+                                    Save Job
+                                </button>
+
+                                <button
                                     class="btn btn-primary easy-apply-btn"
                                     data-job-id="${job.id}"
                                 >
@@ -380,6 +388,38 @@ function setupEventListeners(allJobs, companyMap) {
         searchInput.value = pendingSearch;
         sessionStorage.removeItem('avy_job_search');
     }
+
+   
+const setupInterestButtons = () => {
+
+    if(window.__interestListener) return;
+    window.__interestListener = true;
+
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.interest-btn');
+        if (!btn) return;
+
+        e.stopPropagation();
+
+        const jobId = btn.dataset.jobId;
+        const job = allJobs.find(j => String(j.id) === String(jobId));
+        if (!job) return;
+
+        const existing = JSON.parse(localStorage.getItem('interestedJobs') || '[]');
+
+        if (existing.some(j => j.id === job.id)) {
+            alert('Already added to saved jobs');
+            return;
+        }
+
+        localStorage.setItem(
+            'interestedJobs',
+            JSON.stringify([...existing, job])
+        );
+
+        alert('Saved successfully');
+    });
+};
 
     const setupJobCardNavigation = () => {
 
@@ -524,6 +564,7 @@ function setupEventListeners(allJobs, companyMap) {
             setupJobCardNavigation();
 
             setupEasyApplyButtons();
+
         }
 
         jobCount.textContent = filteredJobs.length;
@@ -558,6 +599,8 @@ function setupEventListeners(allJobs, companyMap) {
     setupJobCardNavigation();
 
     setupEasyApplyButtons();
+
+    setupInterestButtons();
 
     if (pendingSearch) {
         applyFilters();
