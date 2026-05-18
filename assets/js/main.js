@@ -30,7 +30,7 @@ import adminAnalyticsController from './controllers/meridian/adminAnalyticsContr
 import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
 import notFoundController from './controllers/notFoundController.js';
-import applicantsPipelineController from './controllers/evergreen/applicantsPipelineController.js'; //test route for pipeline view
+
 // feature/forgot-password-at-login [Ognen]
 import resetPasswordController from './controllers/resetPasswordController.js';
 // END Ognen Manevski
@@ -91,7 +91,6 @@ function registerRoutes() {
     router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
     router.addRoute('/employer/notifications', employerNotificationsController, true, ['employer']);
-    router.addRoute('/employer/pipeline', applicantsPipelineController, true, ['employer']); // test route for pipeline view
 
     router.addRoute('/employer/company-profile', companyProfileController, true, ['employer']);
 

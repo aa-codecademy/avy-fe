@@ -163,7 +163,10 @@ export class Application {
         this.coverLetter = data.coverLetter || '';
         this.cvDocument = data.cvDocument || ''; // URL to uploaded CV
         this.additionalDocuments = data.additionalDocuments || []; // Array of URLs
-        this.notes = data.notes || ''; // Internal company notes
+        this.notes = data.notes || ''; // Internal company notes (latest)
+        this.notesAuthorId = data.notesAuthorId || ''; // user id of last editor
+        this.notesAuthorName = data.notesAuthorName || ''; // readable name of last editor
+        this.notesUpdatedAt = data.notesUpdatedAt || '';
         this.appliedAt = data.appliedAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
     }

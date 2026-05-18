@@ -8,33 +8,33 @@ class AuthService {
         this.userKey = 'avy_user';
         this.apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:3000/api';
     }
-    
+
     /**
      * Login user
-     * @param {string} email 
-     * @param {string} password 
+     * @param {string} email
+     * @param {string} password
      * @returns {Promise<Object>} User object
      */
     async login(email, password) {
         try {
             // Phase 1: Mock authentication without backend
             // In Phase 2, this will call actual API endpoint
-            
+
             // Mock validation
             if (!email || !password) {
                 throw new Error('Email and password are required');
             }
-            
+
             // Mock user data based on email pattern
             const mockUser = this.getMockUser(email);
             const mockToken = this.generateMockToken();
-            
+
             // Store token and user
             localStorage.setItem(this.tokenKey, mockToken);
             localStorage.setItem(this.userKey, JSON.stringify(mockUser));
-            
+
             return mockUser;
-            
+
             // Phase 2 implementation (commented out):
             /*
             const response = await fetch(`${this.apiBaseUrl}/auth/login`, {
@@ -44,17 +44,17 @@ class AuthService {
                 },
                 body: JSON.stringify({ email, password })
             });
-            
+
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || 'Login failed');
             }
-            
+
             const data = await response.json();
-            
+
             localStorage.setItem(this.tokenKey, data.token);
             localStorage.setItem(this.userKey, JSON.stringify(data.user));
-            
+
             return data.user;
             */
         } catch (error) {
@@ -62,7 +62,7 @@ class AuthService {
             throw error;
         }
     }
-    
+
     /**
      * Register new user
      * @param {Object} userData - User registration data
@@ -77,7 +77,7 @@ class AuthService {
                 name: userData.name,
                 role: userData.role || 'student',
                 avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=667eea&color=fff`,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
             };
             if (mockUser.role === 'employer') {
                 mockUser.companyId = userData.companyId || 'c1';
@@ -85,14 +85,14 @@ class AuthService {
                 if (userData.companyIndustry) mockUser.companyIndustry = userData.companyIndustry;
                 if (userData.companySize) mockUser.companySize = userData.companySize;
             }
-            
+
             const mockToken = this.generateMockToken();
-            
+
             localStorage.setItem(this.tokenKey, mockToken);
             localStorage.setItem(this.userKey, JSON.stringify(mockUser));
-            
+
             return mockUser;
-            
+
             // Phase 2 implementation (commented out):
             /*
             const response = await fetch(`${this.apiBaseUrl}/auth/register`, {
@@ -102,17 +102,17 @@ class AuthService {
                 },
                 body: JSON.stringify(userData)
             });
-            
+
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || 'Registration failed');
             }
-            
+
             const data = await response.json();
-            
+
             localStorage.setItem(this.tokenKey, data.token);
             localStorage.setItem(this.userKey, JSON.stringify(data.user));
-            
+
             return data.user;
             */
         } catch (error) {
@@ -120,7 +120,7 @@ class AuthService {
             throw error;
         }
     }
-    
+
     /**
      * Logout user
      */
@@ -129,7 +129,7 @@ class AuthService {
         localStorage.removeItem(this.userKey);
         window.location.href = '/';
     }
-    
+
     /**
      * Check if user is authenticated
      * @returns {boolean}
@@ -139,7 +139,7 @@ class AuthService {
         const user = localStorage.getItem(this.userKey);
         return !!(token && user);
     }
-    
+
     /**
      * Get current authenticated user
      * @returns {Object|null}
@@ -148,7 +148,7 @@ class AuthService {
         const userJson = localStorage.getItem(this.userKey);
         return userJson ? JSON.parse(userJson) : null;
     }
-    
+
     /**
      * Get authentication token
      * @returns {string|null}
@@ -156,31 +156,33 @@ class AuthService {
     getToken() {
         return localStorage.getItem(this.tokenKey);
     }
-    
+
     /**
      * Check if user has specific role
-     * @param {string} role 
+     * @param {string} role
      * @returns {boolean}
      */
     hasRole(role) {
         const user = this.getCurrentUser();
         return user && user.role === role;
     }
-    
+
     /**
      * Generate mock JWT token for Phase 1
      * @private
      */
     generateMockToken() {
         const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-        const payload = btoa(JSON.stringify({
-            exp: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
-            iat: Date.now()
-        }));
+        const payload = btoa(
+            JSON.stringify({
+                exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+                iat: Date.now(),
+            })
+        );
         const signature = btoa('mock_signature');
         return `${header}.${payload}.${signature}`;
     }
-    
+
     /**
      * Get mock user based on email pattern
      * @private
@@ -188,31 +190,41 @@ class AuthService {
     getMockUser(email) {
         let role = 'student';
         let name = email.split('@')[0];
-        
+        let id = Date.now().toString();
+        let companyId = null;
+
         // Determine role based on email pattern
         if (email.includes('admin')) {
             role = 'admin';
             name = 'Admin User';
+            id = '4';
         } else if (email.includes('company') || email.includes('employer')) {
             role = 'employer';
-            name = 'Company Representative';
+            name = 'Alice Johnson';
+            id = '3';
+            companyId = 'c1';
         } else if (email.includes('alumni')) {
             role = 'alumni';
-            name = 'Alumni Member';
+            name = 'Jane Smith';
+            id = '2';
+        } else if (email.includes('student')) {
+            role = 'student';
+            name = 'John Doe';
+            id = '1';
         } else {
             name = 'Student User';
         }
-        
+
         const base = {
-            id: Date.now().toString(),
+            id,
             email,
             name,
             role,
             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=667eea&color=fff`,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
         };
-        if (role === 'employer') {
-            base.companyId = 'c1';
+        if (companyId) {
+            base.companyId = companyId;
         }
         return base;
     }

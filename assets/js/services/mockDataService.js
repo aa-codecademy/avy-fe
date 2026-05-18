@@ -560,16 +560,43 @@ class MockDataService {
         return null;
     }
 
-    async updateApplicationNotes(id, notes) {
+    async updateApplicationNotes(id, notes, userOrId = null) {
         await this.simulateDelay();
         const index = this.applications.findIndex((a) => a.id === id);
         if (index !== -1) {
+            // Optional permission check - the controller should also gate UI
+            if (userOrId) {
+                const allowed = await this.canViewOrEditNotes(userOrId, id);
+                if (!allowed) return null;
+            }
+
             this.applications[index].notes = notes;
+            if (userOrId) {
+                const user =
+                    typeof userOrId === 'object'
+                        ? userOrId
+                        : this.users.find((u) => u.id === userOrId) || null;
+                this.applications[index].notesAuthorId = user ? user.id : '';
+                this.applications[index].notesAuthorName = user ? user.name : '';
+            }
+            this.applications[index].notesUpdatedAt = new Date().toISOString();
             this.applications[index].updatedAt = new Date().toISOString();
             this.saveToStorage();
             return this.applications[index];
         }
         return null;
+    }
+
+    async canViewOrEditNotes(userOrId, applicationId) {
+        await this.simulateDelay();
+        const user =
+            typeof userOrId === 'object' ? userOrId : this.users.find((u) => u.id === userOrId);
+        if (!user || user.role !== 'employer') return false;
+        const app = this.applications.find((a) => a.id === applicationId);
+        if (!app) return false;
+        const job = this.jobs.find((j) => j.id === app.jobId);
+        if (!job) return false;
+        return user.companyId && job.companyId && user.companyId === job.companyId;
     }
 
     async getApplicationById(id) {
