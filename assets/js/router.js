@@ -111,6 +111,11 @@ class Router {
             } else {
                 await route.controller();
             }
+            // Refresh the header notification badge after every successful navigation
+            const user = window.authService?.getCurrentUser();
+            if (user?.id && typeof window.refreshHeaderBadge === 'function') {
+                window.refreshHeaderBadge(user.id);
+            }
         } catch (error) {
             console.error('Error loading route:', error);
             this.appContainer.innerHTML = `

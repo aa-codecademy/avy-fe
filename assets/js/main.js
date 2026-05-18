@@ -38,10 +38,15 @@ import resetPasswordController from './controllers/resetPasswordController.js';
 // Import services (make available globally)
 import authService from './services/authService.js';
 import { renderAppHeader } from './views/appHeader.js';
+import { refreshHeaderBadge } from './views/appHeader.js';
+import mockDataService from './services/mockDataService.js';
+import { initEmailJS } from './services/notificationService.js';
 
 // Make router globally available
 window.router = router;
 window.authService = authService;
+window.mockDataService = mockDataService;
+window.refreshHeaderBadge = refreshHeaderBadge;
 
 /**
  * Initialize application
@@ -52,6 +57,9 @@ function initApp() {
         'color: #667eea; font-size: 16px; font-weight: bold;'
     );
     console.log('%c📦 Phase 1: Frontend Only Mode', 'color: #764ba2; font-size: 12px;');
+
+    // Initialize EmailJS for email notifications
+    initEmailJS();
 
     // Register routes
     registerRoutes();
@@ -170,3 +178,9 @@ if (document.readyState === 'loading') {
 } else {
     initApp();
 }
+
+// Poll badge every 60 seconds to pick up any changes
+setInterval(() => {
+    const user = authService.getCurrentUser();
+    if (user) refreshHeaderBadge(user.id);
+}, 60_000);
