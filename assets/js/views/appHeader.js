@@ -7,6 +7,16 @@ export function renderAppHeader(user, currentPath = '') {
     const path = currentPath || (typeof window !== 'undefined' ? window.location.pathname : '');
     const role = user?.role || 'student';
 
+    // Synchronously read unread notification count from localStorage
+    const unreadCount = (() => {
+        try {
+            const raw = localStorage.getItem('mockData');
+            if (!raw) return 0;
+            const data = JSON.parse(raw);
+            return (data.notifications || []).filter(n => n.userId === user?.id && !n.read).length;
+        } catch { return 0; }
+    })();
+
     const logo = `
         <a href="/dashboard" data-link class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent hover:opacity-90">
             Avy
@@ -21,6 +31,21 @@ export function renderAppHeader(user, currentPath = '') {
             </button>
         </div>
     `;
+
+    // Notification link with optional red badge
+    const LN = (href, icon, label, matchPrefixes) => {
+        const active = matchPrefixes.some(
+            (p) => path === p || (p !== '/' && path.startsWith(p + '/'))
+        );
+        const cls = active
+            ? 'text-purple-600 font-semibold'
+            : 'text-gray-600 hover:text-purple-600 transition';
+        const badgeClass = 'absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 leading-none pointer-events-none';
+        const badge = unreadCount > 0
+            ? `<span id="headerNotifBadge" class="${badgeClass}">${unreadCount > 99 ? '99+' : unreadCount}</span>`
+            : `<span id="headerNotifBadge" class="hidden"></span>`;
+        return `<a href="${href}" data-link class="${cls}"><span class="relative inline-block mr-1"><i class="fas ${icon}"></i>${badge}</span>${label}</a>`;
+    };
 
     const L = (href, icon, label, matchPrefixes) => {
         const active = matchPrefixes.some(
@@ -43,7 +68,7 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/admin/companies', 'fa-building', 'Companies', ['/admin/companies'])}
             ${L('/admin/events', 'fa-calendar-alt', 'Events', ['/admin/events'])}
             ${L('/admin/analytics', 'fa-chart-bar', 'Analytics', ['/admin/analytics'])}
-            ${L('/admin/notifications', 'fa-bell', 'Alerts', ['/admin/notifications'])}
+            ${LN('/admin/notifications', 'fa-bell', 'Alerts', ['/admin/notifications'])}
         `;
     } else if (role === 'employer') {
         links = `
@@ -52,7 +77,7 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/employer/post-job', 'fa-plus-circle', 'Post Job', ['/employer/post-job'])}
             ${L('/employer/candidates', 'fa-users', 'Candidates', ['/employer/candidates'])}
             ${L('/employer/messages', 'fa-envelope', 'Messages', ['/employer/messages'])}
-            ${L('/employer/notifications', 'fa-bell', 'Notifications', ['/employer/notifications'])}
+            ${LN('/employer/notifications', 'fa-bell', 'Notifications', ['/employer/notifications'])}
             ${L('/employer/company-profile', 'fa-building', 'Company Profile', ['/employer/company-profile'])}
         `;
     } else {
@@ -63,7 +88,7 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/applications', 'fa-clipboard-list', 'Applications', ['/applications'])}
             ${L('/events', 'fa-calendar-alt', 'Events', ['/events'])}
             ${L('/messages', 'fa-envelope', 'Messages', ['/messages'])}
-            ${L('/notifications', 'fa-bell', 'Notifications', ['/notifications'])}
+            ${LN('/notifications', 'fa-bell', 'Notifications', ['/notifications'])}
             ${L('/profile', 'fa-user', 'Profile', ['/profile'])}
         `;
     }
@@ -84,4 +109,27 @@ export function renderAppHeader(user, currentPath = '') {
             </div>
         </nav>
     `;
+}
+
+/**
+ * Refresh the header notification badge count without re-rendering the whole header.
+ * Call this after mark-as-read operations on pages that don't do a full re-render.
+ * @param {string} userId
+ */
+export function refreshHeaderBadge(userId) {
+    try {
+        const raw = localStorage.getItem('mockData');
+        const data = raw ? JSON.parse(raw) : { notifications: [] };
+        const count = (data.notifications || []).filter((n) => n.userId === userId && !n.read).length;
+        const el = document.getElementById('headerNotifBadge');
+        if (!el) return;
+        const badgeClass = 'absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 leading-none pointer-events-none';
+        if (count > 0) {
+            el.textContent = count > 99 ? '99+' : count;
+            el.className = badgeClass;
+        } else {
+            el.textContent = '';
+            el.className = 'hidden';
+        }
+    } catch { /* ignore */ }
 }

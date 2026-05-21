@@ -31,10 +31,30 @@ class MockDataService {
 
             if (!this.messages) this.messages = this.generateMockMessages();
             if (!this.notifications) this.notifications = this.generateMockNotifications();
+            if (!this.notificationPreferences) this.notificationPreferences = this.generateMockNotificationPreferences();
         } else {
             this.initializeMockData();
             this.saveToStorage();
         }
+
+        // Eagerly seed demo notifications for the currently logged-in user
+        // so the header badge shows immediately without visiting the notifications page first.
+        this._seedCurrentUserNotifications();
+    }
+
+    _seedCurrentUserNotifications() {
+        try {
+            const raw = localStorage.getItem('avy_user');
+            if (!raw) return;
+            const user = JSON.parse(raw);
+            if (!user?.id) return;
+            const hasNotifs = this.notifications.some((n) => n.userId === user.id);
+            if (!hasNotifs) {
+                const demo = this.generateDemoNotificationsForUser(user.id);
+                this.notifications.push(...demo);
+                this.saveToStorage();
+            }
+        } catch { /* ignore */ }
     }
 
     /**
@@ -50,6 +70,7 @@ class MockDataService {
         this.events = this.generateMockEvents();
         this.messages = this.generateMockMessages();
         this.notifications = this.generateMockNotifications();
+        this.notificationPreferences = this.generateMockNotificationPreferences();
         this.analytics = this.generateMockAnalytics();
     }
 
@@ -69,6 +90,7 @@ class MockDataService {
                 events: this.events,
                 messages: this.messages,
                 notifications: this.notifications,
+                notificationPreferences: this.notificationPreferences,
                 analytics: this.analytics,
             })
         );
@@ -900,7 +922,11 @@ class MockDataService {
      */
     generateMockNotifications() {
         const now = Date.now();
+        const h = (n) => n * 60 * 60 * 1000;
+        const d = (n) => n * 24 * 60 * 60 * 1000;
+
         return [
+            // --- application_status ---
             new Notification({
                 id: 'n1',
                 userId: '1',
@@ -909,18 +935,42 @@ class MockDataService {
                 message: 'Your application for Frontend Developer at TechCorp is now Under Review.',
                 link: '/applications',
                 read: false,
-                createdAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - h(2)).toISOString(),
             }),
+            new Notification({
+                id: 'n6',
+                userId: '1',
+                type: 'application_status',
+                title: 'Application shortlisted',
+                message: 'Great news! Your application for Full Stack Developer at TechCorp has been shortlisted.',
+                link: '/applications',
+                read: true,
+                createdAt: new Date(now - d(3)).toISOString(),
+            }),
+
+            // --- message_received ---
             new Notification({
                 id: 'n2',
                 userId: '1',
                 type: 'message_received',
-                title: 'New message',
+                title: 'New message from TechCorp',
                 message: 'You have a new message from TechCorp Solutions.',
                 link: '/messages',
                 read: false,
-                createdAt: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - h(6)).toISOString(),
             }),
+            new Notification({
+                id: 'n7',
+                userId: '1',
+                type: 'message_received',
+                title: 'New message from InnoSoft',
+                message: 'InnoSoft has sent you a follow-up about your Backend Developer application.',
+                link: '/messages',
+                read: true,
+                createdAt: new Date(now - d(4)).toISOString(),
+            }),
+
+            // --- event_reminder ---
             new Notification({
                 id: 'n3',
                 userId: '1',
@@ -929,8 +979,20 @@ class MockDataService {
                 message: "Don't forget to attend Career Day 2026 next week.",
                 link: '/events',
                 read: true,
-                createdAt: new Date(now - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - d(1)).toISOString(),
             }),
+            new Notification({
+                id: 'n8',
+                userId: '1',
+                type: 'event_reminder',
+                title: 'Web Development Workshop tomorrow',
+                message: 'The Web Development Workshop starts tomorrow at 14:00. Join online.',
+                link: '/events',
+                read: false,
+                createdAt: new Date(now - h(12)).toISOString(),
+            }),
+
+            // --- application_submitted ---
             new Notification({
                 id: 'n4',
                 userId: '1',
@@ -939,8 +1001,130 @@ class MockDataService {
                 message: 'Your application for Data Analyst Intern was successfully submitted.',
                 link: '/applications',
                 read: true,
-                createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - d(2)).toISOString(),
             }),
+            new Notification({
+                id: 'n9',
+                userId: '1',
+                type: 'application_submitted',
+                title: 'Application submitted',
+                message: 'Your application for Backend Developer at InnoSoft was successfully submitted.',
+                link: '/applications',
+                read: false,
+                createdAt: new Date(now - d(1)).toISOString(),
+            }),
+
+            // --- interview_invitation ---
+            new Notification({
+                id: 'n10',
+                userId: '1',
+                type: 'interview_invitation',
+                title: 'Interview invitation from TechCorp',
+                message: 'TechCorp Solutions has invited you to interview for the Frontend Developer role.',
+                link: '/messages',
+                read: false,
+                createdAt: new Date(now - h(3)).toISOString(),
+            }),
+            new Notification({
+                id: 'n11',
+                userId: '1',
+                type: 'interview_invitation',
+                title: 'Interview scheduled with DataWorks',
+                message: 'Your interview for Data Analyst Intern at DataWorks Analytics is confirmed for next Monday.',
+                link: '/messages',
+                read: true,
+                createdAt: new Date(now - d(5)).toISOString(),
+            }),
+
+            // --- password_changed ---
+            new Notification({
+                id: 'n12',
+                userId: '1',
+                type: 'password_changed',
+                title: 'Password changed successfully',
+                message: 'Your account password was changed. If this was not you, contact support immediately.',
+                link: '',
+                read: true,
+                createdAt: new Date(now - d(7)).toISOString(),
+            }),
+            new Notification({
+                id: 'n13',
+                userId: '1',
+                type: 'password_changed',
+                title: 'Password reset completed',
+                message: 'Your password was reset via the reset link. You are now logged in securely.',
+                link: '',
+                read: true,
+                createdAt: new Date(now - d(14)).toISOString(),
+            }),
+
+            // --- registration_success ---
+            new Notification({
+                id: 'n14',
+                userId: '1',
+                type: 'registration_success',
+                title: 'Welcome to Avy!',
+                message: 'Your account has been created. Complete your profile to get started.',
+                link: '/profile',
+                read: true,
+                createdAt: new Date(now - d(30)).toISOString(),
+            }),
+            new Notification({
+                id: 'n15',
+                userId: '1',
+                type: 'registration_success',
+                title: 'Profile activation confirmed',
+                message: 'Your Avy profile is now active and visible to employers.',
+                link: '/profile',
+                read: true,
+                createdAt: new Date(now - d(20)).toISOString(),
+            }),
+
+            // --- system_alert ---
+            new Notification({
+                id: 'n16',
+                userId: '1',
+                type: 'system_alert',
+                title: 'Your profile is 80% complete',
+                message: 'Add your work experience to reach 100% and improve your visibility to employers.',
+                link: '/profile',
+                read: false,
+                createdAt: new Date(now - h(2)).toISOString(),
+            }),
+            new Notification({
+                id: 'n17',
+                userId: '1',
+                type: 'system_alert',
+                title: '3 new job matches found',
+                message: 'Based on your profile, 3 new jobs match your skills and preferences.',
+                link: '/jobs',
+                read: true,
+                createdAt: new Date(now - d(1)).toISOString(),
+            }),
+
+            // --- info ---
+            new Notification({
+                id: 'n18',
+                userId: '1',
+                type: 'info',
+                title: 'Platform update: new features',
+                message: 'We have added new filtering options and an improved job board. Check it out!',
+                link: '',
+                read: true,
+                createdAt: new Date(now - d(3)).toISOString(),
+            }),
+            new Notification({
+                id: 'n19',
+                userId: '1',
+                type: 'info',
+                title: 'CloudTech Systems joined Avy',
+                message: 'A new employer, CloudTech Systems, is now on the platform and is actively hiring.',
+                link: '/jobs',
+                read: false,
+                createdAt: new Date(now - h(5)).toISOString(),
+            }),
+
+            // --- employer (userId: '3') ---
             new Notification({
                 id: 'n5',
                 userId: '3',
@@ -949,14 +1133,51 @@ class MockDataService {
                 message: 'John Doe has applied to your Frontend Developer posting.',
                 link: '/employer/jobs',
                 read: false,
-                createdAt: new Date(now - 5 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - h(5)).toISOString(),
             }),
+        ];
+    }
+
+    generateDemoNotificationsForUser(userId) {
+        const now = Date.now();
+        const h = (n) => n * 60 * 60 * 1000;
+        const d = (n) => n * 24 * 60 * 60 * 1000;
+        const base = this.notifications.length;
+
+        return [
+            new Notification({ id: `n${base+1}`,  userId, type: 'application_status',    title: 'Application status updated',          message: 'Your application for Frontend Developer at TechCorp is now Under Review.',                 link: '/applications', read: false, createdAt: new Date(now - h(2)).toISOString() }),
+            new Notification({ id: `n${base+2}`,  userId, type: 'application_status',    title: 'Application shortlisted',             message: 'Great news! Your application for Full Stack Developer at TechCorp has been shortlisted.',  link: '/applications', read: true,  createdAt: new Date(now - d(3)).toISOString() }),
+            new Notification({ id: `n${base+3}`,  userId, type: 'message_received',      title: 'New message from TechCorp',           message: 'You have a new message from TechCorp Solutions.',                                          link: '/messages',     read: false, createdAt: new Date(now - h(6)).toISOString() }),
+            new Notification({ id: `n${base+4}`,  userId, type: 'message_received',      title: 'New message from InnoSoft',           message: 'InnoSoft has sent you a follow-up about your Backend Developer application.',              link: '/messages',     read: true,  createdAt: new Date(now - d(4)).toISOString() }),
+            new Notification({ id: `n${base+5}`,  userId, type: 'event_reminder',        title: 'Career Day 2026 is coming up',        message: "Don't forget to attend Career Day 2026 next week.",                                        link: '/events',       read: true,  createdAt: new Date(now - d(1)).toISOString() }),
+            new Notification({ id: `n${base+6}`,  userId, type: 'event_reminder',        title: 'Web Development Workshop tomorrow',   message: 'The Web Development Workshop starts tomorrow at 14:00. Join online.',                      link: '/events',       read: false, createdAt: new Date(now - h(12)).toISOString() }),
+            new Notification({ id: `n${base+7}`,  userId, type: 'application_submitted', title: 'Application submitted',               message: 'Your application for Data Analyst Intern was successfully submitted.',                      link: '/applications', read: true,  createdAt: new Date(now - d(2)).toISOString() }),
+            new Notification({ id: `n${base+8}`,  userId, type: 'application_submitted', title: 'Application submitted',               message: 'Your application for Backend Developer at InnoSoft was successfully submitted.',           link: '/applications', read: false, createdAt: new Date(now - d(1)).toISOString() }),
+            new Notification({ id: `n${base+9}`,  userId, type: 'interview_invitation',  title: 'Interview invitation from TechCorp',  message: 'TechCorp Solutions has invited you to interview for the Frontend Developer role.',         link: '/messages',     read: false, createdAt: new Date(now - h(3)).toISOString() }),
+            new Notification({ id: `n${base+10}`, userId, type: 'interview_invitation',  title: 'Interview scheduled with DataWorks',  message: 'Your interview for Data Analyst Intern at DataWorks Analytics is confirmed for next Monday.', link: '/messages',   read: true,  createdAt: new Date(now - d(5)).toISOString() }),
+            new Notification({ id: `n${base+11}`, userId, type: 'password_changed',      title: 'Password changed successfully',       message: 'Your account password was changed. If this was not you, contact support immediately.',     link: '',              read: true,  createdAt: new Date(now - d(7)).toISOString() }),
+            new Notification({ id: `n${base+12}`, userId, type: 'password_changed',      title: 'Password reset completed',            message: 'Your password was reset via the reset link. You are now logged in securely.',              link: '',              read: true,  createdAt: new Date(now - d(14)).toISOString() }),
+            new Notification({ id: `n${base+13}`, userId, type: 'registration_success',  title: 'Welcome to Avy!',                     message: 'Your account has been created. Complete your profile to get started.',                     link: '/profile',      read: true,  createdAt: new Date(now - d(30)).toISOString() }),
+            new Notification({ id: `n${base+14}`, userId, type: 'registration_success',  title: 'Profile activation confirmed',        message: 'Your Avy profile is now active and visible to employers.',                                 link: '/profile',      read: true,  createdAt: new Date(now - d(20)).toISOString() }),
+            new Notification({ id: `n${base+15}`, userId, type: 'system_alert',          title: 'Your profile is 80% complete',        message: 'Add your work experience to reach 100% and improve your visibility to employers.',         link: '/profile',      read: false, createdAt: new Date(now - h(2)).toISOString() }),
+            new Notification({ id: `n${base+16}`, userId, type: 'system_alert',          title: '3 new job matches found',             message: 'Based on your profile, 3 new jobs match your skills and preferences.',                     link: '/jobs',         read: true,  createdAt: new Date(now - d(1)).toISOString() }),
+            new Notification({ id: `n${base+17}`, userId, type: 'info',                  title: 'Platform update: new features',       message: 'We have added new filtering options and an improved job board. Check it out!',             link: '',              read: true,  createdAt: new Date(now - d(3)).toISOString() }),
+            new Notification({ id: `n${base+18}`, userId, type: 'info',                  title: 'CloudTech Systems joined Avy',        message: 'A new employer, CloudTech Systems, is now on the platform and is actively hiring.',        link: '/jobs',         read: false, createdAt: new Date(now - h(5)).toISOString() }),
         ];
     }
 
     async getNotifications(userId, options = {}) {
         await this.simulateDelay();
         let list = this.notifications.filter((n) => n.userId === userId);
+
+        // Seed demo notifications for any user who has none yet (e.g. users created via mock login)
+        if (list.length === 0) {
+            const demo = this.generateDemoNotificationsForUser(userId);
+            this.notifications.push(...demo);
+            this.saveToStorage();
+            list = demo;
+        }
+
         if (options.unreadOnly) {
             list = list.filter((n) => !n.read);
         }
@@ -994,6 +1215,48 @@ class MockDataService {
         this.notifications.filter((n) => n.userId === userId).forEach((n) => (n.read = true));
         this.saveToStorage();
         return true;
+    }
+
+    generateMockNotificationPreferences() {
+    return {
+        '1': {
+            messages: { enabled: true, channel: 'both' },
+            interviewInvites: { enabled: true, channel: 'browser' },
+            applicationStatus: { enabled: true, channel: 'email' },
+            successfulApplication: { enabled: true, channel: 'browser' },
+            passwordChange: { enabled: true, channel: 'both' },
+        },
+    };
+}
+
+    async getNotificationPreferences(userId) {
+        await this.simulateDelay();
+
+        if (!this.notificationPreferences) {
+            this.notificationPreferences = this.generateMockNotificationPreferences();
+        }
+
+        if (!this.notificationPreferences[userId]) {
+            this.notificationPreferences[userId] = {
+                messages: { enabled: true, channel: 'both' },
+                interviewInvites: { enabled: true, channel: 'browser' },
+                applicationStatus: { enabled: true, channel: 'email' },
+                successfulApplication: { enabled: true, channel: 'browser' },
+                passwordChange: { enabled: true, channel: 'both' },
+            };
+            this.saveToStorage();
+        }
+
+        return structuredClone(this.notificationPreferences[userId]);
+    }
+
+    async updateNotificationPreferences(userId, preferences) {
+        await this.simulateDelay();
+
+        this.notificationPreferences[userId] = structuredClone(preferences);
+        this.saveToStorage();
+
+        return structuredClone(this.notificationPreferences[userId]);
     }
 
     /**

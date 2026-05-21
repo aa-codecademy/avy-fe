@@ -11,7 +11,7 @@
  *  - mockDataService.markAllAsRead(userId)
  */
 import authService from '../../services/authService.js';
-import { renderAppHeader } from '../../views/appHeader.js';
+import { renderAppHeader, refreshHeaderBadge } from '../../views/appHeader.js';
 import mockDataService from '../../services/mockDataService.js';
 
 const POLL_INTERVAL_MS = 30000; // 30 seconds
@@ -138,6 +138,7 @@ async function refreshNotifications(user) {
     const count = await mockDataService.getUnreadCount(user.id);
     const badge = document.getElementById('notificationBadge');
     if (badge) badge.textContent = count > 0 ? count : '';
+    refreshHeaderBadge(user.id);
 }
 
 async function markAllAsRead(user) {
