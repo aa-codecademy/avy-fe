@@ -111,10 +111,11 @@ class Router {
             } else {
                 await route.controller();
             }
-            // Refresh the header notification badge after every successful navigation
+            // Refresh header badges after every successful navigation
             const user = window.authService?.getCurrentUser();
-            if (user?.id && typeof window.refreshHeaderBadge === 'function') {
-                window.refreshHeaderBadge(user.id);
+            if (user?.id) {
+                if (typeof window.refreshHeaderBadge === 'function') window.refreshHeaderBadge(user.id);
+                if (typeof window.refreshMessagesHeaderBadge === 'function') window.refreshMessagesHeaderBadge(user.id);
             }
         } catch (error) {
             console.error('Error loading route:', error);
