@@ -100,6 +100,7 @@ async function loadNotifications(user) {
     }
 
     container.innerHTML = notifications
+        .filter(n => n.type !== 'message_received')
         .map((notification) => renderNotificationItem(notification))
         .join('');
 
@@ -194,6 +195,12 @@ export default async function employerNotificationsController() {
             await markAllAsRead(user);
         });
     }
+
+    // Pre-seed seen IDs with all existing notifications so the initial render
+    // doesn't fire browser popups for pre-existing data — only truly new
+    // notifications arriving after page load should trigger desktop alerts.
+    const existing = await mockDataService.getNotifications(user.id, { unreadOnly: false });
+    existing.forEach(n => seenNotificationIds.add(n.id));
 
     await refreshNotifications(user);
 

@@ -10,6 +10,7 @@
 import authService from '../../services/authService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
+import { requestDesktopPermission, dispatchNewNotification } from '../../services/notificationService.js';
 
 const NOTIFICATION_CATEGORIES = [
   { key: 'messages', label: 'Messages' },
@@ -99,7 +100,6 @@ function filterNotifications(notifications, filter) {
         case 'unread': return notifications.filter(n => !n.read);
         case 'events': return notifications.filter(n => n.type === 'event_reminder');
         case 'applications': return notifications.filter(n => APPLICATION_TYPES.includes(n.type));
-        case 'messages': return notifications.filter(n => n.type === 'message_received');
         default: return notifications;
     }
 }
@@ -229,13 +229,16 @@ export default async function notificationsController() {
                                         <div class="md:col-span-6">
                                             <div class="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-6">
                                                 <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-                                                    <input type="radio" name="channel-${key}" value="browser" class="pref-channel accent-purple-600" data-key="${key}" ${v.channel === 'browser' ? 'checked' : ''} ${!v.enabled ? 'disabled' : ''}/> Browser
+                                                    <input type="radio" name="channel-${key}" value="browser" class="pref-channel accent-purple-600" data-key="${key}" ${v.channel === 'browser' ? 'checked' : ''} ${!v.enabled ? 'disabled' : ''}/> In-app
+                                                </label>
+                                                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                                                    <input type="radio" name="channel-${key}" value="desktop" class="pref-channel accent-purple-600" data-key="${key}" ${v.channel === 'desktop' ? 'checked' : ''} ${!v.enabled ? 'disabled' : ''}/> Desktop
                                                 </label>
                                                 <label class="inline-flex items-center gap-2 text-sm text-gray-700">
                                                     <input type="radio" name="channel-${key}" value="email" class="pref-channel accent-purple-600" data-key="${key}" ${v.channel === 'email' ? 'checked' : ''} ${!v.enabled ? 'disabled' : ''}/> Email
                                                 </label>
                                                 <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-                                                    <input type="radio" name="channel-${key}" value="both" class="pref-channel accent-purple-600" data-key="${key}" ${v.channel === 'both' ? 'checked' : ''} ${!v.enabled ? 'disabled' : ''}/> Both
+                                                    <input type="radio" name="channel-${key}" value="both" class="pref-channel accent-purple-600" data-key="${key}" ${v.channel === 'both' ? 'checked' : ''} ${!v.enabled ? 'disabled' : ''}/> All
                                                 </label>
                                             </div>
                                         </div>
@@ -244,9 +247,14 @@ export default async function notificationsController() {
                             }).join('')}
                         </div>
                     </div>
-                    <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
-                        <button id="cancelNotificationSettings" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Cancel</button>
-                        <button id="saveNotificationSettings" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Save changes</button>
+                    <div class="flex items-center justify-between gap-3 p-6 border-t border-gray-200">
+                        <button id="fireTestNotification" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                            <i class="fas fa-paper-plane mr-2"></i>Fire test notification
+                        </button>
+                        <div class="flex items-center gap-3">
+                            <button id="cancelNotificationSettings" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                            <button id="saveNotificationSettings" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Save changes</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -262,7 +270,6 @@ export default async function notificationsController() {
             { key: 'unread',       label: 'Unread',         count: unreadCount },
             { key: 'events',       label: 'Events & News',  count: notifications.filter(n => n.type === 'event_reminder').length },
             { key: 'applications', label: 'Applications',   count: notifications.filter(n => APPLICATION_TYPES.includes(n.type)).length },
-            { key: 'messages',     label: 'Messages',       count: notifications.filter(n => n.type === 'message_received').length },
         ];
 
         const tabsHtml = tabs.map(t => {
@@ -417,6 +424,21 @@ export default async function notificationsController() {
             await mockDataService.updateNotificationPreferences(user.id, draft);
             Object.assign(preferences, draft);
             closeModal();
+        });
+
+        document.getElementById('fireTestNotification')?.addEventListener('click', async () => {
+            await requestDesktopPermission();
+            const testNotif = {
+                id: `test_${Date.now()}`,
+                userId: user.id,
+                type: 'system_alert',
+                title: 'Test notification',
+                message: 'This is a test firing all enabled channels (in-app, desktop, email).',
+                link: null,
+                read: false,
+                createdAt: new Date().toISOString(),
+            };
+            await dispatchNewNotification(testNotif, user);
         });
     }
 

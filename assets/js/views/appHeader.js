@@ -7,13 +7,22 @@ export function renderAppHeader(user, currentPath = '') {
     const path = currentPath || (typeof window !== 'undefined' ? window.location.pathname : '');
     const role = user?.role || 'student';
 
-    // Synchronously read unread notification count from localStorage
+    // Unread counts split by type so each nav link shows the right number
     const unreadCount = (() => {
         try {
             const raw = localStorage.getItem('mockData');
             if (!raw) return 0;
             const data = JSON.parse(raw);
-            return (data.notifications || []).filter(n => n.userId === user?.id && !n.read).length;
+            return (data.notifications || []).filter(n => n.userId === user?.id && !n.read && n.type !== 'message_received').length;
+        } catch { return 0; }
+    })();
+
+    const unreadMessages = (() => {
+        try {
+            const raw = localStorage.getItem('mockData');
+            if (!raw) return 0;
+            const data = JSON.parse(raw);
+            return (data.notifications || []).filter(n => n.userId === user?.id && !n.read && n.type === 'message_received').length;
         } catch { return 0; }
     })();
 
@@ -32,8 +41,8 @@ export function renderAppHeader(user, currentPath = '') {
         </div>
     `;
 
-    // Notification link with optional red badge
-    const LN = (href, icon, label, matchPrefixes) => {
+    // Notification link with optional red badge — pass a custom count to override the default
+    const LN = (href, icon, label, matchPrefixes, count = unreadCount) => {
         const active = matchPrefixes.some(
             (p) => path === p || (p !== '/' && path.startsWith(p + '/'))
         );
@@ -41,9 +50,10 @@ export function renderAppHeader(user, currentPath = '') {
             ? 'text-purple-600 font-semibold'
             : 'text-gray-600 hover:text-purple-600 transition';
         const badgeClass = 'absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 leading-none pointer-events-none';
-        const badge = unreadCount > 0
-            ? `<span id="headerNotifBadge" class="${badgeClass}">${unreadCount > 99 ? '99+' : unreadCount}</span>`
-            : `<span id="headerNotifBadge" class="hidden"></span>`;
+        const badgeId = href.includes('message') ? 'headerMessagesBadge' : 'headerNotifBadge';
+        const badge = count > 0
+            ? `<span id="${badgeId}" class="${badgeClass}">${count > 99 ? '99+' : count}</span>`
+            : `<span id="${badgeId}" class="hidden"></span>`;
         return `<a href="${href}" data-link class="${cls}"><span class="relative inline-block mr-1"><i class="fas ${icon}"></i>${badge}</span>${label}</a>`;
     };
 
@@ -76,7 +86,7 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/employer/jobs', 'fa-briefcase', 'My Jobs', ['/employer/jobs'])}
             ${L('/employer/post-job', 'fa-plus-circle', 'Post Job', ['/employer/post-job'])}
             ${L('/employer/candidates', 'fa-users', 'Candidates', ['/employer/candidates'])}
-            ${L('/employer/messages', 'fa-envelope', 'Messages', ['/employer/messages'])}
+            ${LN('/employer/messages', 'fa-envelope', 'Messages', ['/employer/messages'], unreadMessages)}
             ${LN('/employer/notifications', 'fa-bell', 'Notifications', ['/employer/notifications'])}
             ${L('/employer/company-profile', 'fa-building', 'Company Profile', ['/employer/company-profile'])}
         `;
@@ -87,7 +97,7 @@ export function renderAppHeader(user, currentPath = '') {
             ${L('/companies', 'fa-building', 'Companies', ['/companies'])}
             ${L('/applications', 'fa-clipboard-list', 'Applications', ['/applications'])}
             ${L('/events', 'fa-calendar-alt', 'Events', ['/events'])}
-            ${L('/messages', 'fa-envelope', 'Messages', ['/messages'])}
+            ${LN('/messages', 'fa-envelope', 'Messages', ['/messages'], unreadMessages)}
             ${LN('/notifications', 'fa-bell', 'Notifications', ['/notifications'])}
             ${L('/profile', 'fa-user', 'Profile', ['/profile'])}
         `;
@@ -120,8 +130,30 @@ export function refreshHeaderBadge(userId) {
     try {
         const raw = localStorage.getItem('mockData');
         const data = raw ? JSON.parse(raw) : { notifications: [] };
-        const count = (data.notifications || []).filter((n) => n.userId === userId && !n.read).length;
+        const count = (data.notifications || []).filter((n) => n.userId === userId && !n.read && n.type !== 'message_received').length;
         const el = document.getElementById('headerNotifBadge');
+        if (!el) return;
+        const badgeClass = 'absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 leading-none pointer-events-none';
+        if (count > 0) {
+            el.textContent = count > 99 ? '99+' : count;
+            el.className = badgeClass;
+        } else {
+            el.textContent = '';
+            el.className = 'hidden';
+        }
+    } catch { /* ignore */ }
+}
+
+/**
+ * Refresh the messages badge count in the header nav.
+ * @param {string} userId
+ */
+export function refreshMessagesHeaderBadge(userId) {
+    try {
+        const raw = localStorage.getItem('mockData');
+        const data = raw ? JSON.parse(raw) : { notifications: [] };
+        const count = (data.notifications || []).filter((n) => n.userId === userId && !n.read && n.type === 'message_received').length;
+        const el = document.getElementById('headerMessagesBadge');
         if (!el) return;
         const badgeClass = 'absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 leading-none pointer-events-none';
         if (count > 0) {

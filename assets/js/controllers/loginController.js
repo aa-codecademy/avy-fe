@@ -2,7 +2,6 @@
  * Login Page Controller
  */
 import authService from '../services/authService.js';
-import { requestDesktopPermission, dispatchNewNotification } from '../services/notificationService.js';
 
 export default async function loginController() {
     const app = document.getElementById('app');
@@ -136,40 +135,6 @@ export default async function loginController() {
 
             // Seed demo notifications immediately so the header badge shows on first render
             window.mockDataService?._seedCurrentUserNotifications();
-
-            // Request desktop notification permission now, inside the user gesture,
-            // and await it so the 5s demo timer only starts after the user responds.
-            await requestDesktopPermission();
-
-            // ── DEMO: fire a new notification 5 seconds after login ──────────
-            setTimeout(async () => {
-                const loggedInUser = authService.getCurrentUser();
-                if (!loggedInUser || !window.mockDataService) return;
-
-                const demoNotif = {
-                    id: `demo_${Date.now()}`,
-                    userId: loggedInUser.id,
-                    type: 'system_alert',
-                    title: '3 new job matches found!',
-                    message: 'Based on your profile, 3 companies are actively looking for your skillset. Check them out!',
-                    link: '/jobs',
-                    read: false,
-                    createdAt: new Date().toISOString(),
-                };
-
-                // Persist the notification
-                window.mockDataService.notifications.push(demoNotif);
-                window.mockDataService.saveToStorage();
-
-                // Update header badge
-                if (typeof window.refreshHeaderBadge === 'function') {
-                    window.refreshHeaderBadge(loggedInUser.id);
-                }
-
-                // Fire all three channels: toast + desktop + email
-                await dispatchNewNotification(demoNotif, loggedInUser);
-            }, 5000);
-            // ── END DEMO ─────────────────────────────────────────────────────
 
             // Success - navigate to dashboard
             window.router.navigate('/dashboard');

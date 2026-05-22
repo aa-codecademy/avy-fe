@@ -38,7 +38,7 @@ import resetPasswordController from './controllers/resetPasswordController.js';
 // Import services (make available globally)
 import authService from './services/authService.js';
 import { renderAppHeader } from './views/appHeader.js';
-import { refreshHeaderBadge } from './views/appHeader.js';
+import { refreshHeaderBadge, refreshMessagesHeaderBadge } from './views/appHeader.js';
 import mockDataService from './services/mockDataService.js';
 import { initEmailJS } from './services/notificationService.js';
 
@@ -47,6 +47,7 @@ window.router = router;
 window.authService = authService;
 window.mockDataService = mockDataService;
 window.refreshHeaderBadge = refreshHeaderBadge;
+window.refreshMessagesHeaderBadge = refreshMessagesHeaderBadge;
 
 /**
  * Initialize application
@@ -182,5 +183,8 @@ if (document.readyState === 'loading') {
 // Poll badge every 60 seconds to pick up any changes
 setInterval(() => {
     const user = authService.getCurrentUser();
-    if (user) refreshHeaderBadge(user.id);
+    if (user) {
+        refreshHeaderBadge(user.id);
+        refreshMessagesHeaderBadge(user.id);
+    }
 }, 60_000);
