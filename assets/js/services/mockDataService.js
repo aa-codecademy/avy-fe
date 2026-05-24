@@ -35,6 +35,9 @@ class MockDataService {
             if (!this.scheduledReports) this.scheduledReports = this.generateMockScheduledReports();
             if (!this.scheduledReportDeliveries)
                 this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
+            if (!this.pendingActions) this.pendingActions = this.generateMockPendingActions();
+            if (!this.alerts) this.alerts = this.generateMockAlerts();
+            if (!this.resourceObjects) this.resourceObjects = this.generateMockResourceObjects();
         } else {
             this.initializeMockData();
             this.saveToStorage();
@@ -52,6 +55,7 @@ class MockDataService {
         this.cvProfiles = this.generateMockCVProfiles();
         this.successStories = this.generateMockSuccessStories();
         this.events = this.generateMockEvents();
+        this.resourceObjects = this.generateMockResourceObjects();
         this.resources = this.generateMockResources();
         this.analytics = this.generateMockAnalytics();
         this.scheduledReports = this.generateMockScheduledReports();
@@ -1091,6 +1095,7 @@ class MockDataService {
                     { programme: 'QA Engineering', registered: 9, attended: 8, noShow: 1 },
                     { programme: 'Data Analytics', registered: 9, attended: 7, noShow: 2 },
                 ],
+                maxRegistrations: 5,
                 registeredUsers: [
                     new User({
                         id: 'u1',
@@ -1130,6 +1135,7 @@ class MockDataService {
                     { programme: 'QA Engineering', registered: 6, attended: 5, noShow: 1 },
                     { programme: 'Data Analytics', registered: 6, attended: 4, noShow: 2 },
                 ],
+                maxRegistrations: 5,
                 registeredUsers: [
                     new User({
                         id: 'u4',
@@ -1151,10 +1157,19 @@ class MockDataService {
                 description: 'Meet up with other students and establish networks.',
                 type: 'networking',
                 date: date3.toISOString().split('T')[0],
-                time: '09:00',
+                time: '02:00',
                 location: 'Avenga Academy - Skopje',
                 isOnline: false,
-                maxParticipants: 4,
+                maxParticipants: 50,
+                registeredCount: 32,
+                actualAttendance: 26,
+                byProgramme: [
+                    { programme: 'Frontend Development', registered: 12, attended: 10, noShow: 2 },
+                    { programme: 'Backend Development', registered: 8, attended: 7, noShow: 1 },
+                    { programme: 'QA Engineering', registered: 6, attended: 5, noShow: 1 },
+                    { programme: 'Data Analytics', registered: 6, attended: 4, noShow: 2 },
+                ],
+                maxRegistrations: 5,
                 registeredUsers: [
                     new User({
                         id: 'u6',
@@ -1188,7 +1203,7 @@ class MockDataService {
     /**
      * RESOURCES
      */
-    generateMockResources() {
+    generateMockResourceObjects() {
         return [
             new Resource({
                 id: this.generateId('r_'),

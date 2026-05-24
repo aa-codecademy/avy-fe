@@ -5,20 +5,130 @@
  */
 
 import apiService from '../apiService.js';
-import mockDataService from '../mockDataService.js';
-import { Event, EventNotification } from '../../models/DataModels.js';
+import { User, Event, EventNotification } from '../../models/DataModels.js';
+
+// Generating Mock Events
+const generateEvents = () => {
+    const date1 = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+    const date2 = new Date(Date.now() + 20 * 24 * 60 * 60 * 1000);
+    const date3 = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    const eventArray = [
+        new Event({
+            id: generateId('e'),
+            title: 'Career Day 2026',
+            description: 'Meet top employers and explore career opportunities.',
+            type: 'career-day',
+            date: date1.toISOString().split('T')[0],
+            time: '10:00',
+            location: 'Avenga Academy - Skopje',
+            isOnline: false,
+            maxParticipants: 7,
+            registeredUsers: [
+                new User({
+                    id: 'u1',
+                    name: 'Test User 1',
+                    role: 'student',
+                    email: 'testuser1@gmail.com',
+                }),
+                new User({
+                    id: 'u2',
+                    name: 'Test User 2',
+                    role: 'alumni',
+                    email: 'testuser2@gmail.com',
+                }),
+                new User({
+                    id: 'u3',
+                    name: 'Test User 3',
+                    role: 'student',
+                    email: 'testuser3@gmail.com',
+                }),
+            ],
+        }),
+        new Event({
+            id: generateId('e'),
+            title: 'Web Development Workshop',
+            description: 'Hands-on workshop on modern web development practices.',
+            type: 'workshop',
+            date: date2.toISOString().split('T')[0],
+            time: '14:00',
+            location: 'Online',
+            isOnline: true,
+            maxParticipants: 3,
+            registeredUsers: [
+                new User({
+                    id: 'u4',
+                    name: 'Test User 4',
+                    role: 'alumni',
+                    email: 'testuser4@gmail.com',
+                }),
+                new User({
+                    id: 'u5',
+                    name: 'Test User 5',
+                    role: 'alumni',
+                    email: 'testuser5@gmail.com',
+                }),
+            ],
+        }),
+        new Event({
+            id: generateId('e'),
+            title: 'Netwroking Day',
+            description: 'Meet up with other students and establish networks.',
+            type: 'networking',
+            date: date3.toISOString().split('T')[0],
+            time: '02:00',
+            location: 'Avenga Academy - Skopje',
+            isOnline: false,
+            maxParticipants: 4,
+            registeredUsers: [
+                new User({
+                    id: 'u6',
+                    name: 'Test User 6',
+                    role: 'student',
+                    email: 'testuser6@gmail.com',
+                }),
+                new User({
+                    id: 'u7',
+                    name: 'Test User 7',
+                    role: 'alumni',
+                    email: 'testuser7@gmail.com',
+                }),
+                new User({
+                    id: 'u8',
+                    name: 'Test User8',
+                    role: 'student',
+                    email: 'testuser8@gmail.com',
+                }),
+                new User({
+                    id: 'u9',
+                    name: 'Test User 9',
+                    role: 'student',
+                    email: 'testuser9@gmail.com',
+                }),
+            ],
+        }),
+    ];
+
+    return eventArray;
+};
+
+const generateId = (prefix) => {
+    return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
+};
 
 class EventService {
-    /* Event Methods */
+    constructor() {
+        this.events = generateEvents();
+    }
+
     /**
      * Retrieves all events.
      * @returns {Promise<Event[]>} List of events
      */
     async getEvents() {
         //return await apiService.get('/events'); // For Phase 2
-        //await mockDataService.simulateDelay();
 
-        return mockDataService.events;
+        return this.events;
     }
 
     /**
@@ -29,7 +139,6 @@ class EventService {
      */
     async getEventById(id) {
         //return await apiService.get('/events/:id'); // For Phase 2
-        await mockDataService.simulateDelay();
 
         const events = await this.getEvents();
         const event = events.find((event) => event.id === id);
@@ -44,14 +153,13 @@ class EventService {
      */
     async createEvent(data) {
         //return await apiService.post('/events', data); // For Phase 2
-        await mockDataService.simulateDelay();
 
         const newEvent = new Event({
             ...data,
-            id: mockDataService.generateId('e_'),
+            id: generateId('e'),
             status: 'upcoming',
         });
-        mockDataService.events.push(newEvent);
+        this.events.push(newEvent);
         return newEvent;
     }
 
@@ -64,7 +172,6 @@ class EventService {
      */
     async updateEvent(id, updatePackage) {
         //return await apiService.put('/events/:id', updatePackage); // For Phase 2
-        await mockDataService.simulateDelay();
 
         const events = await this.getEvents();
         const event = events.find((event) => event.id === id);
@@ -84,7 +191,6 @@ class EventService {
      */
     async deleteEvent(id) {
         //return await apiService.delete('/events/:id'); // For Phase 2
-        await mockDataService.simulateDelay();
 
         const events = await this.getEvents();
         const event = events.find((event) => event.id === id);
@@ -103,7 +209,6 @@ class EventService {
      */
     async updateEventStatus(id, updatedStatus) {
         //return await apiService.put('/events/:id', updatedStatus); // For Phase 2
-        await mockDataService.simulateDelay();
 
         const events = await this.getEvents();
         const event = events.find((event) => event.id === id);
@@ -118,11 +223,10 @@ class EventService {
      */
     async createNotification(data) {
         //return await apiService.post('/events/notifications', data); // For Phase 2
-        await mockDataService.simulateDelay();
 
         //Simulation for backend logic
         const notification = new EventNotification({
-            id: mockDataService.generateId('en_'),
+            id: generateId('en'),
             eventId: data.eventId,
             message: data.message,
         });

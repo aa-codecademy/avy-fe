@@ -36,7 +36,6 @@ import adminPlatformSettingsController from './controllers/meridian/adminPlatfor
 import adminRolePermissionsController from './controllers/meridian/adminRolePermissionsController.js';
 import adminSettingsController from './controllers/meridian/adminSettingsController.js';
 import adminTemplatesController from './controllers/meridian/adminTemplatesController.js';
-import adminUsersController from './controllers/meridian/adminUsersController.js';
 import notFoundController from './controllers/notFoundController.js';
 // feature/forgot-password-at-login [Ognen]
 import resetPasswordController from './controllers/resetPasswordController.js';

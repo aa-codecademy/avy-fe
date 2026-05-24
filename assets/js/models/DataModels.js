@@ -259,7 +259,7 @@ export class Resource {
         this.isGlobal = data.isGlobal || true;
         this.programs = data.programs || [];
         this.status = data.status || 'active'; // archived
-        this.viewCount = data.viewCount || 14;
+        this.viewCount = data.viewCount || Math.floor(Math.random() * 90) + 10;
         this.organizerId = data.organizerId || '';
         this.createdAt = data.createdAt || new Date().toISOString();
     }
