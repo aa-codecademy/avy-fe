@@ -3,12 +3,14 @@
  * Job announcement form based on Avy User Requirements
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function postJobController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
+    const t = (key) => languageService.translate(key);
 
     if (!user || user.role !== 'employer') {
         window.router.navigate('/dashboard');
@@ -33,10 +35,10 @@ export default async function postJobController() {
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-plus-circle text-purple-600 mr-3"></i>
-                            Post a New Job
+                            ${t('nav.postJob')}
                         </h1>
                         <p class="text-gray-600">
-                            ${company.name} | Active Jobs: ${activeJobs} / ${company.jobPostingLimit}
+                            ${company.name} | ${t('nav.jobs')}: ${activeJobs} / ${company.jobPostingLimit}
                         </p>
                     </div>
                     
@@ -66,23 +68,23 @@ export default async function postJobController() {
                         <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-info-circle mr-2"></i>
-                                Basic Information
+                                ${t('dashboard.overview')}
                             </h2>
                             
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2">
-                                    <label class="form-label">Job Title *</label>
-                                    <input type="text" id="jobTitle" required class="form-input" placeholder="e.g., Senior Frontend Developer" />
+                                    <label class="form-label">${t('jobs.title')} *</label>
+                                    <input type="text" id="jobTitle" required class="form-input" placeholder="${t('forms.example')}" />
                                 </div>
                                 <div>
-                                    <label class="form-label">Employment Type *</label>
+                                    <label class="form-label">${t('applications.employmentType')} *</label>
                                     <select id="employmentType" required class="form-input">
-                                        <option value="">Select type...</option>
-                                        <option value="full-time">Full-time</option>
-                                        <option value="part-time">Part-time</option>
-                                        <option value="internship">Internship</option>
+                                        <option value="">${t('jobs.filter')}...</option>
+                                        <option value="full-time">${t('applications.fullTime')}</option>
+                                        <option value="part-time">${t('applications.partTime')}</option>
+                                        <option value="internship">${t('applications.internship')}</option>
                                         <option value="freelance">Freelance</option>
-                                        <option value="contract">Contract</option>
+                                        <option value="contract">${t('applications.contract')}</option>
                                     </select>
                                 </div>
                                 <div>
@@ -95,8 +97,8 @@ export default async function postJobController() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="form-label">Location *</label>
-                                    <input type="text" id="location" required class="form-input" placeholder="e.g., Skopje, Macedonia" />
+                                    <label class="form-label">${t('profile.location')} *</label>
+                                    <input type="text" id="location" required class="form-input" placeholder="${t('forms.example')}" />
                                 </div>
                                 <div>
                                     <label class="form-label">Experience Level *</label>
@@ -113,32 +115,32 @@ export default async function postJobController() {
                         <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-file-alt mr-2"></i>
-                                Job Description
+                                ${t('jobs.description')}
                             </h2>
                             <div class="mb-6">
-                                <label class="form-label">Description *</label>
-                                <textarea id="description" required rows="5" class="form-input" placeholder="Provide a detailed description of the role..."></textarea>
+                                <label class="form-label">${t('forms.description')} *</label>
+                                <textarea id="description" required rows="5" class="form-input" placeholder="${t('dashboard.overview')}"></textarea>
                             </div>
                             <div class="mb-6">
-                                <label class="form-label">Responsibilities *</label>
-                                <textarea id="responsibilities" required rows="4" class="form-input" placeholder="List key responsibilities (one per line)..."></textarea>
+                                <label class="form-label">${t('jobs.responsibilities')} *</label>
+                                <textarea id="responsibilities" required rows="4" class="form-input" placeholder="List key responsibilities"></textarea>
                                 <p class="text-xs text-gray-500 mt-1">Separate each responsibility with a new line</p>
                             </div>
                             <div class="mb-6">
                                 <label class="form-label">Qualifications *</label>
-                                <textarea id="qualifications" required rows="4" class="form-input" placeholder="List required qualifications (one per line)..."></textarea>
+                                <textarea id="qualifications" required rows="4" class="form-input" placeholder="List required qualifications"></textarea>
                                 <p class="text-xs text-gray-500 mt-1">Separate each qualification with a new line</p>
                             </div>
                             <div>
                                 <label class="form-label">Benefits</label>
-                                <textarea id="benefits" rows="3" class="form-input" placeholder="List benefits and perks (one per line)..."></textarea>
+                                <textarea id="benefits" rows="3" class="form-input" placeholder="List benefits and perks"></textarea>
                             </div>
                         </div>
                         
                         <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-code mr-2"></i>
-                                Required Skills
+                                ${t('forms.skills')}
                             </h2>
                             <div class="mb-6">
                                 <label class="form-label">Required Skills *</label>

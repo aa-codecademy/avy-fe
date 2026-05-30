@@ -12,11 +12,13 @@
  *  - mockDataService.createNotification(data)
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function adminNotificationsController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
+    const t = (key) => languageService.translate(key);
 
     if (!user || user.role !== 'admin') {
         window.router.navigate('/dashboard');

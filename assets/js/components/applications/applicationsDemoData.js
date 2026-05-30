@@ -6,20 +6,22 @@ export function generateDemoApplications(allJobs, companies, user) {
     const timestamp = Date.now();
 
     const safeGetJob = (index, fallbackId) => {
-        return allJobs[index] || {
-            id: fallbackId,
-            title: 'Unknown Position',
-            companyId: 'unknown',
-            location: 'Not specified',
-            employmentType: 'full-time'
-        };
+        return (
+            allJobs[index] || {
+                id: fallbackId,
+                title: 'Unknown Position',
+                companyId: 'unknown',
+                location: 'Not specified',
+                employmentType: 'full-time',
+            }
+        );
     };
 
     const safeGetCompany = (companyId, fallbackName, fallbackEmail) => {
-        const company = companies.find(c => c.id === companyId);
+        const company = companies.find((c) => c.id === companyId);
         return {
             name: company?.name || fallbackName,
-            email: company?.contactEmail || fallbackEmail
+            email: company?.contactEmail || fallbackEmail,
         };
     };
 
@@ -51,7 +53,7 @@ export function generateDemoApplications(allJobs, companies, user) {
             location: job1.location,
             employmentType: job1.employmentType,
             appliedDate: new Date(timestamp - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            notes: 'Application submitted - waiting for initial review',
+            notes: 'applications.applicationSubmitted',
             updatedAt: new Date(timestamp - 0.5 * 24 * 60 * 60 * 1000).toISOString(),
         },
         {
@@ -66,7 +68,7 @@ export function generateDemoApplications(allJobs, companies, user) {
             location: job2.location,
             employmentType: job2.employmentType,
             appliedDate: new Date(timestamp - 12 * 24 * 60 * 60 * 1000).toISOString(),
-            notes: 'Technical interview scheduled for next week',
+            notes: 'applications.technicalInterview',
             updatedAt: new Date(timestamp - 3 * 24 * 60 * 60 * 1000).toISOString(),
         },
         {
@@ -96,7 +98,7 @@ export function generateDemoApplications(allJobs, companies, user) {
             location: job4.location,
             employmentType: job4.employmentType,
             appliedDate: new Date(timestamp - 20 * 24 * 60 * 60 * 1000).toISOString(),
-            notes: 'Position filled by another candidate.',
+            notes: 'applications.positionFilled',
             updatedAt: new Date(timestamp - 8 * 24 * 60 * 60 * 1000).toISOString(),
         },
         {
@@ -111,8 +113,8 @@ export function generateDemoApplications(allJobs, companies, user) {
             location: job5.location,
             employmentType: job5.employmentType,
             appliedDate: new Date(timestamp - 14 * 24 * 60 * 60 * 1000).toISOString(),
-            notes: 'Application cancelled by student',
+            notes: 'applications.applicationCancelled',
             updatedAt: new Date(timestamp - 6 * 24 * 60 * 60 * 1000).toISOString(),
-        }
+        },
     ];
 }

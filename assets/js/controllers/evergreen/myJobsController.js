@@ -14,12 +14,14 @@
  *  - mockDataService.getApplicationsByJobId(jobId)
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function myJobsController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
+    const t = (key) => languageService.translate(key);
 
     if (!user || user.role !== 'employer') {
         window.router.navigate('/dashboard');
@@ -197,13 +199,13 @@ export default async function myJobsController() {
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Job Visibility</label>
                                 <select class="status-select form-input w-full py-2 px-3 text-sm" data-job-id="${job.id}">
                                     <option value="active" ${job.status === 'active' ? 'selected' : ''}>
-                                        <i class="fas fa-circle mr-1"></i> Active - Accepting Applications
+                                        <i class="fas fa-circle mr-1"></i> ${t('jobs.statusActive')}
                                     </option>
                                     <option value="paused" ${job.status === 'paused' ? 'selected' : ''}>
-                                        <i class="fas fa-pause-circle mr-1"></i> Paused - Temporarily Hidden
+                                        <i class="fas fa-pause-circle mr-1"></i> ${t('jobs.statusPaused')}
                                     </option>
                                     <option value="closed" ${job.status === 'closed' ? 'selected' : ''}>
-                                        <i class="fas fa-times-circle mr-1"></i> Closed - Position Filled
+                                        <i class="fas fa-times-circle mr-1"></i> ${t('jobs.statusClosed')}
                                     </option>
                                 </select>
                             </div>
@@ -351,19 +353,19 @@ export default async function myJobsController() {
                             <label class="form-label">Current Status *</label>
                             <select id="editJobStatus" required class="form-input text-base">
                                 <option value="active" ${job.status === 'active' ? 'selected' : ''}>
-                                    <i class="fas fa-circle mr-1"></i> Active - Accepting Applications
+                                    <i class="fas fa-circle mr-1"></i> ${t('jobs.statusActive')}
                                 </option>
                                 <option value="paused" ${job.status === 'paused' ? 'selected' : ''}>
-                                    <i class="fas fa-pause-circle mr-1"></i> Paused - Temporarily Hidden
+                                    <i class="fas fa-pause-circle mr-1"></i> ${t('jobs.statusPaused')}
                                 </option>
                                 <option value="closed" ${job.status === 'closed' ? 'selected' : ''}>
-                                    <i class="fas fa-times-circle mr-1"></i> Closed - Position Filled
+                                    <i class="fas fa-times-circle mr-1"></i> ${t('jobs.statusClosed')}
                                 </option>
                             </select>
                             <div class="mt-3 p-3 bg-white rounded border border-gray-200 text-sm text-gray-700">
-                                <p><strong>Active:</strong> Job is visible and accepting applications</p>
-                                <p><strong>Paused:</strong> Job is hidden but can be re-activated later</p>
-                                <p><strong>Closed:</strong> Position has been filled</p>
+                                <p><strong>${t('jobs.statusActive').split(' - ')[0]}:</strong> ${t('jobs.descriptionActive')}</p>
+                                <p><strong>${t('jobs.statusPaused').split(' - ')[0]}:</strong> ${t('jobs.descriptionPaused')}</p>
+                                <p><strong>${t('jobs.statusClosed').split(' - ')[0]}:</strong> ${t('jobs.descriptionClosed')}</p>
                             </div>
                         </div>
                     </div>

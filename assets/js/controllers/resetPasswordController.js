@@ -10,9 +10,11 @@
 
 // feature/forgot-password-at-login [Ognen]
 import authService from '../services/authService.js';
+import languageService from '../services/languageService.js';
 
 export default async function resetPasswordController() {
     const app = document.getElementById('app');
+    const t = (key) => languageService.translate(key);
 
     // Phase 1: read token from localStorage
     // Phase 2: read from URL — const token = new URLSearchParams(window.location.search).get('token');
@@ -30,52 +32,55 @@ export default async function resetPasswordController() {
                             Avy
                         </h1>
                     </a>
-                    <p class="text-gray-600">Reset your password</p>
+                    <p class="text-gray-600">${t('resetPassword.title')}</p>
                 </div>
 
-                ${!token ? `
+                ${
+                    !token
+                        ? `
                 <!-- No valid token found -->
                 <div class="text-center py-6">
                     <i class="fas fa-link-slash text-5xl text-red-400 mb-4"></i>
-                    <h2 class="text-xl font-bold text-gray-800 mb-2">Invalid or expired link</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">${t('resetPassword.invalidLink')}</h2>
                     <p class="text-sm text-gray-600 mb-6">
-                        This reset link is no longer valid. Please request a new one.
+                        ${t('resetPassword.linkExpired')}
                     </p>
                     <a href="/login" data-link class="btn btn-secondary w-full">
                         <i class="fas fa-arrow-left mr-2"></i>
-                        Back to Sign In
+                        ${t('resetPassword.backToSignIn')}
                     </a>
                 </div>
-                ` : `
+                `
+                        : `
                 <!-- Reset form -->
                 <div id="resetFormSection">
-                    ${email ? `<p class="text-sm text-gray-500 text-center mb-6">Resetting password for <strong>${email}</strong></p>` : ''}
+                    ${email ? `<p class="text-sm text-gray-500 text-center mb-6">${t('resetPassword.resettingFor')} <strong>${email}</strong></p>` : ''}
                     <form id="resetPasswordForm" class="space-y-5">
                         <div class="form-group">
-                            <label for="newPassword" class="form-label">New Password</label>
+                            <label for="newPassword" class="form-label">${t('resetPassword.newPassword')}</label>
                             <input
                                 type="password"
                                 id="newPassword"
                                 class="form-input"
-                                placeholder="Choose a strong password"
+                                placeholder="${t('resetPassword.chooseStrong')}"
                                 minlength="6"
                                 required
                             />
                         </div>
                         <div class="form-group">
-                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <label for="confirmPassword" class="form-label">${t('resetPassword.confirmPassword')}</label>
                             <input
                                 type="password"
                                 id="confirmPassword"
                                 class="form-input"
-                                placeholder="Repeat your new password"
+                                placeholder="${t('resetPassword.repeatPassword')}"
                                 minlength="6"
                                 required
                             />
                         </div>
                         <div id="resetErrorMessage" class="hidden text-red-600 text-sm p-3 bg-red-50 rounded"></div>
                         <button type="submit" class="btn btn-primary w-full">
-                            <span id="resetBtnText">Set New Password</span>
+                            <span id="resetBtnText">${t('resetPassword.setNewPassword')}</span>
                             <i id="resetSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
                         </button>
                     </form>
@@ -84,22 +89,23 @@ export default async function resetPasswordController() {
                 <!-- Success state (hidden initially) -->
                 <div id="resetSuccessSection" class="hidden text-center py-6">
                     <i class="fas fa-circle-check text-5xl text-green-500 mb-4"></i>
-                    <h2 class="text-xl font-bold text-gray-800 mb-2">Password updated!</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">${t('resetPassword.success')}</h2>
                     <p class="text-sm text-gray-600 mb-6">
-                        Your password has been reset successfully. You can now sign in.
+                        ${t('resetPassword.successMessage')}
                     </p>
                     <a href="/login" data-link class="btn btn-primary w-full">
                         <i class="fas fa-sign-in-alt mr-2"></i>
-                        Go to Sign In
+                        ${t('resetPassword.goToSignIn')}
                     </a>
                 </div>
-                `}
+                `
+                }
 
                 <!-- Back to Sign In -->
                 <div class="mt-6 text-center">
                     <a href="/login" data-link class="text-gray-500 hover:text-gray-700 text-sm">
                         <i class="fas fa-arrow-left mr-1"></i>
-                        Back to Sign In
+                        ${t('resetPassword.backToSignIn')}
                     </a>
                 </div>
             </div>
@@ -123,12 +129,12 @@ export default async function resetPasswordController() {
         errorMsg.classList.add('hidden');
 
         if (newPassword !== confirmPassword) {
-            errorMsg.textContent = 'Passwords do not match.';
+            errorMsg.textContent = t('resetPassword.passwordMismatch');
             errorMsg.classList.remove('hidden');
             return;
         }
 
-        btnText.textContent = 'Updating...';
+        btnText.textContent = t('messages.loading');
         spinner.classList.remove('hidden');
         form.querySelector('button[type="submit"]').disabled = true;
 
@@ -138,9 +144,9 @@ export default async function resetPasswordController() {
             document.getElementById('resetFormSection').classList.add('hidden');
             document.getElementById('resetSuccessSection').classList.remove('hidden');
         } catch (error) {
-            errorMsg.textContent = error.message || 'Failed to reset password. Please try again.';
+            errorMsg.textContent = error.message || t('resetPassword.failed');
             errorMsg.classList.remove('hidden');
-            btnText.textContent = 'Set New Password';
+            btnText.textContent = t('resetPassword.setNewPassword');
             spinner.classList.add('hidden');
             form.querySelector('button[type="submit"]').disabled = false;
         }

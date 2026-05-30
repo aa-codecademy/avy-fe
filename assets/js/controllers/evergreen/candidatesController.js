@@ -3,12 +3,14 @@
  * Browse and search students/alumni for recruitment
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function candidatesController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
+    const t = (key) => languageService.translate(key);
 
     if (!user || user.role !== 'employer') {
         window.router.navigate('/dashboard');
@@ -28,9 +30,9 @@ export default async function candidatesController() {
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-users text-purple-600 mr-3"></i>
-                            Candidate Search
+                            ${t('nav.candidates')}
                         </h1>
-                        <p class="text-gray-600">Browse students and alumni from Avenga Academy</p>
+                        <p class="text-gray-600">${t('companies.about')}</p>
                     </div>
 
                     <div class="grid lg:grid-cols-4 gap-6">
@@ -42,13 +44,13 @@ export default async function candidatesController() {
                                 </h3>
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="form-label">Search</label>
+                                        <label class="form-label">${t('modals.search')}</label>
                                         <input type="text" id="searchCandidates" class="form-input" placeholder="Name, position, degree..." />
                                     </div>
                                     <div>
                                         <label class="form-label">Type</label>
                                         <select id="filterType" class="form-input">
-                                            <option value="">All</option>
+                                            <option value="">${t('jobs.all')}</option>
                                             <option value="student">Students Only</option>
                                             <option value="alumni">Alumni Only</option>
                                         </select>
@@ -60,12 +62,12 @@ export default async function candidatesController() {
                                     <div>
                                         <label class="form-label">Profile Visibility</label>
                                         <select id="filterVisibility" class="form-input">
-                                            <option value="">All</option>
+                                            <option value="">${t('jobs.all')}</option>
                                             <option value="public">Public Only</option>
                                         </select>
                                     </div>
-                                    <button id="applyFiltersBtn" class="btn btn-primary w-full">Apply Filters</button>
-                                    <button id="clearFiltersBtn" class="btn btn-secondary w-full">Clear</button>
+                                    <button id="applyFiltersBtn" class="btn btn-primary w-full">${t('applications.applyFilters')}</button>
+                                    <button id="clearFiltersBtn" class="btn btn-secondary w-full">${t('applications.clearAll')}</button>
                                 </div>
                             </div>
                         </div>
@@ -92,7 +94,7 @@ export default async function candidatesController() {
 
                             <div id="noCandidates" class="card text-center py-12 hidden">
                                 <i class="fas fa-user-slash text-gray-300 text-6xl mb-4"></i>
-                                <p class="text-gray-500 text-lg">No candidates match your filters</p>
+                                <p class="text-gray-500 text-lg">${t('dashboard.noCandidatesMatch')}</p>
                             </div>
                         </div>
                     </div>
@@ -134,7 +136,7 @@ function renderCandidatesGrid(candidates) {
                         </div>
                         <div class="flex gap-3">
                             <button class="btn btn-primary text-sm" onclick="viewCandidateProfile('${candidate.id}')">View Profile</button>
-                            <button class="btn btn-secondary text-sm" onclick="saveCandidate('${candidate.id}')">Save</button>
+                            <button class="btn btn-secondary text-sm" onclick="saveCandidate('${candidate.id}')">${t('modals.save')}</button>
                             ${
                                 isPrivate
                                     ? `<button class="btn btn-secondary text-sm" onclick="requestAccess('${candidate.id}')">Request Access</button>`
@@ -171,7 +173,7 @@ function renderContactModal() {
                         <textarea id="contactMessage" class="form-input h-32" required placeholder="Write your message..."></textarea>
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button type="button" id="cancelContactBtn" class="btn btn-secondary">Cancel</button>
+                        <button type="button" id="cancelContactBtn" class="btn btn-secondary">${t('modals.cancel')}</button>
                         <button type="submit" class="btn btn-primary">Send message</button>
                     </div>
                 </form>

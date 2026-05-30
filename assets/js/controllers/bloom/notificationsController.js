@@ -11,11 +11,13 @@
  *  - mockDataService.markAllAsRead(userId)
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function notificationsController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
+    const t = (key) => languageService.translate(key);
 
     if (!user) {
         window.router.navigate('/login');
@@ -33,14 +35,14 @@ export default async function notificationsController() {
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-bell text-purple-600 mr-3"></i>
-                            Notifications
+                            ${t('notifications.title')}
                         </h1>
-                        <p class="text-gray-600">Stay up to date on your activity</p>
+                        <p class="text-gray-600">${t('notifications.noNotifications')}</p>
                     </div>
                     <div class="card text-center py-16">
                         <i class="fas fa-tools text-6xl text-gray-300 mb-4"></i>
-                        <h3 class="text-2xl font-bold text-gray-600 mb-2">TODO: Notifications list</h3>
-                        <p class="text-gray-500">Implement notification feed, mark-as-read, and filtering.</p>
+                        <h3 class="text-2xl font-bold text-gray-600 mb-2">${t('notifications.noNotifications')}</h3>
+                        <p class="text-gray-500">${t('notifications.noNotifications')}</p>
                     </div>
                 </div>
             </div>

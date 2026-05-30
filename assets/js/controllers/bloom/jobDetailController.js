@@ -3,11 +3,14 @@
  * Shows job details and application form
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
+import { formatDate } from '../../components/applications/applicationsHelpers.js';
 
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const t = (key) => languageService.translate(key);
 
 const ALLOWED_FILE_TYPES = [
     'application/pdf',
@@ -296,7 +299,7 @@ export default async function jobDetailController(params = {}) {
                                         <i class="fas fa-calendar-alt w-6 text-purple-600"></i>
                                         <div>
                                             <p class="font-semibold">Posted</p>
-                                            <p>${new Date(job.createdAt).toLocaleDateString()}</p>
+                                            <p>${formatDate(job.createdAt)}</p>
                                         </div>
                                     </div>
                                     
@@ -304,7 +307,7 @@ export default async function jobDetailController(params = {}) {
                                         <i class="fas fa-clock w-6 text-purple-600"></i>
                                         <div>
                                             <p class="font-semibold">Deadline</p>
-                                            <p>${new Date(job.applicationDeadline).toLocaleDateString()} (${daysUntilDeadline} days)</p>
+                                            <p>${formatDate(job.applicationDeadline)} (${daysUntilDeadline} days)</p>
                                         </div>
                                     </div>
                                     

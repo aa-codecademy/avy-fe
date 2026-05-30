@@ -3,6 +3,7 @@
  * Manage and update company information
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import mockDataService from '../../services/mockDataService.js';
 import apiService from '../../services/apiService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
@@ -10,6 +11,7 @@ import { renderAppHeader } from '../../views/appHeader.js';
 export default async function companyProfileController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
+    const t = (key) => languageService.translate(key);
 
     if (!user || user.role !== 'employer') {
         window.router.navigate('/dashboard');
@@ -75,7 +77,7 @@ export default async function companyProfileController() {
                                 </div>
 
                                 <button type="submit" class="btn btn-primary w-full">
-                                    <i class="fas fa-save mr-2"></i>Save Changes
+                                    <i class="fas fa-save mr-2"></i>${t('modals.save')}
                                 </button>
                             </form>
                         </div>
@@ -122,10 +124,10 @@ export default async function companyProfileController() {
                                                 </div>
                                                 <div class="flex gap-2">
                                                     <button type="button" class="btn btn-secondary btn-sm" data-job-id="${job.id}">
-                                                        <i class="fas fa-edit mr-1"></i>Edit
+                                                        <i class="fas fa-edit mr-1"></i>${t('modals.edit')}
                                                     </button>
                                                     <button type="button" class="btn btn-danger btn-sm" data-job-id="${job.id}">
-                                                        <i class="fas fa-trash mr-1"></i>Delete
+                                                        <i class="fas fa-trash mr-1"></i>${t('modals.deleteConfirm')}
                                                     </button>
                                                 </div>
                                             </div>
@@ -138,7 +140,7 @@ export default async function companyProfileController() {
                                     : `
                                 <div class="card text-center py-12">
                                     <i class="fas fa-briefcase text-gray-300 text-6xl mb-4"></i>
-                                    <p class="text-gray-500 text-lg mb-2">No job postings yet</p>
+                                    <p class="text-gray-500 text-lg mb-2">${t('dashboard.noJobPostings')}</p>
                                     <p class="text-gray-400 mb-6">Create your first job posting to start hiring talent!</p>
                                     <button type="button" class="btn btn-primary" id="newJobBtnEmpty">
                                         <i class="fas fa-plus-circle mr-2"></i>Create First Job Post

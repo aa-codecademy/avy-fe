@@ -18,8 +18,10 @@
  */
 
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 import mockDataService from '../../services/mockDataService.js';
+import { formatDate } from '../../components/applications/applicationsHelpers.js';
 
 let currentJobId = null;
 let currentApplications = [];
@@ -27,6 +29,7 @@ let currentApplications = [];
 export default async function applicantsPipelineController(params = {}) {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
+    const t = (key) => languageService.translate(key);
 
     if (!user || user.role !== 'employer') {
         window.router.navigate('/dashboard');
@@ -68,7 +71,7 @@ export default async function applicantsPipelineController(params = {}) {
     `;
 
     // Render the pipeline
-    renderPipelineView(currentApplications);
+    renderPipelineView(currentApplications, t);
 
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
@@ -77,14 +80,29 @@ export default async function applicantsPipelineController(params = {}) {
 /**
  * Render the hiring pipeline with four stages
  */
-function renderPipelineView(applications) {
+function renderPipelineView(applications, t) {
     const container = document.getElementById('pipeline-container');
 
     const pipelineStages = [
-        { status: 'pending', label: 'Applied', icon: 'fa-file-alt', color: 'blue' },
-        { status: 'under_review', label: 'Shortlisted', icon: 'fa-star', color: 'yellow' },
-        { status: 'interview', label: 'Interview', icon: 'fa-handshake', color: 'purple' },
-        { status: 'hired', label: 'Hired', icon: 'fa-check-circle', color: 'green' },
+        { status: 'pending', label: t('applications.pending'), icon: 'fa-file-alt', color: 'blue' },
+        {
+            status: 'under_review',
+            label: t('applications.underReview'),
+            icon: 'fa-star',
+            color: 'yellow',
+        },
+        {
+            status: 'interview',
+            label: t('applications.interview'),
+            icon: 'fa-handshake',
+            color: 'purple',
+        },
+        {
+            status: 'hired',
+            label: t('applications.accepted'),
+            icon: 'fa-check-circle',
+            color: 'green',
+        },
     ];
 
     const colorMap = {
@@ -149,7 +167,7 @@ function renderPipelineView(applications) {
                                             <div class="flex-1">
                                                 <p class="font-semibold text-gray-800 text-sm">${app.applicant?.name || 'Unknown'}</p>
                                                 <p class="text-xs text-gray-500 truncate">${app.applicant?.email || ''}</p>
-                                                <p class="text-xs text-gray-400 mt-1">Applied: ${new Date(app.appliedAt).toLocaleDateString()}</p>
+                                                <p class="text-xs text-gray-400 mt-1">Applied: ${formatDate(app.appliedAt)}</p>
                                             </div>
                                             <div class="ml-2">
                                                 <button class="text-gray-400 hover:text-gray-600 transition-colors btn-view-details"
@@ -178,7 +196,7 @@ function renderPipelineView(applications) {
                                 `
                                           )
                                           .join('')
-                                    : `<p class="text-gray-500 text-center py-8 text-sm">No candidates in this stage</p>`
+                                    : `<p class="text-gray-500 text-center py-8 text-sm">${t('dashboard.noCandidatesMatch')}</p>`
                             }
                         </div>
                     </div>
@@ -250,11 +268,11 @@ function showApplicationDetails(applicationId) {
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">Applied</p>
-                            <p class="font-semibold">${new Date(app.appliedAt).toLocaleDateString()}</p>
+                            <p class=\"font-semibold\">${formatDate(app.appliedAt)}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">Last Updated</p>
-                            <p class="font-semibold">${new Date(app.updatedAt).toLocaleDateString()}</p>
+                            <p class=\"font-semibold\">${formatDate(app.updatedAt)}</p>
                         </div>
                     </div>
                     ${
@@ -274,7 +292,7 @@ function showApplicationDetails(applicationId) {
                             <div class="flex justify-between items-center mb-2">
                                 <p class="text-sm font-semibold text-gray-700">Internal Notes</p>
                                 <button class="text-purple-600 hover:text-purple-800 text-sm" id="edit-notes-btn">
-                                    <i class="fas fa-edit mr-1"></i>Edit
+                                    <i class="fas fa-edit mr-1"></i>${t('modals.edit')}
                                 </button>
                             </div>
                             <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded" id="notes-display">${app.notes}</p>
@@ -285,10 +303,10 @@ function showApplicationDetails(applicationId) {
                             <div class="flex justify-between items-center mb-2">
                                 <p class="text-sm font-semibold text-gray-700">Internal Notes</p>
                                 <button class="text-purple-600 hover:text-purple-800 text-sm" id="add-notes-btn">
-                                    <i class="fas fa-plus mr-1"></i>Add Notes
+                                    <i class="fas fa-plus mr-1"></i>${t('modals.addNotes')}
                                 </button>
                             </div>
-                            <p class="text-gray-400 text-sm italic" id="notes-display">No notes added yet.</p>
+                            <p class="text-gray-400 text-sm italic" id="notes-display">${t('modals.noNotesAdded')}</p>
                         </div>
                     `
                     }
@@ -323,10 +341,10 @@ function showNotesEditor(applicationId, currentNotes) {
             <p class="text-sm font-semibold text-gray-700">Internal Notes</p>
             <div class="space-x-2">
                 <button class="text-green-600 hover:text-green-800 text-sm" id="save-notes-btn">
-                    <i class="fas fa-save mr-1"></i>Save
+                    <i class="fas fa-save mr-1"></i>${t('modals.save')}
                 </button>
                 <button class="text-gray-600 hover:text-gray-800 text-sm" id="cancel-notes-btn">
-                    <i class="fas fa-times mr-1"></i>Cancel
+                    <i class="fas fa-times mr-1"></i>${t('modals.cancel')}
                 </button>
             </div>
         </div>
@@ -377,7 +395,7 @@ function cancelNotesEdit(applicationId, originalNotes) {
         <div class="flex justify-between items-center mb-2">
             <p class="text-sm font-semibold text-gray-700">Internal Notes</p>
             <button class="text-purple-600 hover:text-purple-800 text-sm" id="edit-notes-btn">
-                <i class="fas fa-edit mr-1"></i>Edit
+                <i class="fas fa-edit mr-1"></i>${t('modals.edit')}
             </button>
         </div>
         <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded" id="notes-display">${originalNotes || 'No notes added yet.'}</p>

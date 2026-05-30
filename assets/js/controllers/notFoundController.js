@@ -1,9 +1,12 @@
 /**
  * 404 Not Found Controller
  */
+import languageService from '../services/languageService.js';
+
 export default async function notFoundController() {
     const app = document.getElementById('app');
-    
+    const t = (key) => languageService.translate(key);
+
     app.innerHTML = `
         <div class="min-h-screen flex items-center justify-center px-4 bg-brand-gradient">
             <div class="text-center text-white fade-in">

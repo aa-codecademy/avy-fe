@@ -2,16 +2,18 @@
  * Landing Page Controller
  */
 import authService from '../services/authService.js';
+import languageService from '../services/languageService.js';
 
 export default async function landingPageController() {
     const app = document.getElementById('app');
-    
+    const t = (key) => languageService.translate(key);
+
     // Check if user is already logged in
     if (authService.isAuthenticated()) {
         window.router.navigate('/dashboard');
         return;
     }
-    
+
     app.innerHTML = `
         <!-- Navigation -->
         <nav class="bg-white shadow-md">

@@ -1,10 +1,20 @@
-import { formatDate, escapeHtml, monthNames, getYearOptions, getMonthOptions, renderDateRangeSelectors, renderSingleDateSelectors } from './profileHelpers.js';
+import {
+    formatDate,
+    escapeHtml,
+    monthNames,
+    getYearOptions,
+    getMonthOptions,
+    renderDateRangeSelectors,
+    renderSingleDateSelectors,
+} from './profileHelpers.js';
 
-export function renderWorkExperienceList(workExp) {
+export function renderWorkExperienceList(workExp, t) {
     if (!workExp || workExp.length === 0) {
-        return '<p class="text-gray-500 text-center py-4">No work experience added yet. Click "Add Work Experience" to get started.</p>';
+        return `<p class="text-gray-500 text-center py-4">${t ? t('profile.emptyWorkExperience') : 'No work experience added yet. Click "Add Work Experience" to get started.'}</p>`;
     }
-    return workExp.map(exp => `
+    return workExp
+        .map(
+            (exp) => `
         <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow" data-id="${exp.id}">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
@@ -25,14 +35,18 @@ export function renderWorkExperienceList(workExp) {
                 </div>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
-export function renderEducationList(education) {
+export function renderEducationList(education, t) {
     if (!education || education.length === 0) {
-        return '<p class="text-gray-500 text-center py-4">No education added yet. Click "Add Education" to get started.</p>';
+        return `<p class="text-gray-500 text-center py-4">${t ? t('profile.emptyEducation') : 'No education added yet. Click "Add Education" to get started.'}</p>`;
     }
-    return education.map(edu => `
+    return education
+        .map(
+            (edu) => `
         <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow" data-id="${edu.id}">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
@@ -52,14 +66,18 @@ export function renderEducationList(education) {
                 </div>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
-export function renderAcademyList(academies) {
+export function renderAcademyList(academies, t) {
     if (!academies || academies.length === 0) {
-        return '<p class="text-gray-500 text-center py-4">No academy attendance added yet. Click "Add Academy Program" to get started.</p>';
+        return `<p class="text-gray-500 text-center py-4">${t ? t('profile.emptyAcademy') : 'No academy attendance added yet. Click "Add Academy Program" to get started.'}</p>`;
     }
-    return academies.map(academy => `
+    return academies
+        .map(
+            (academy) => `
         <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow" data-id="${academy.id}">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
@@ -78,14 +96,18 @@ export function renderAcademyList(academies) {
                 </div>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
-export function renderAdditionalEducationList(additionalEdu) {
+export function renderAdditionalEducationList(additionalEdu, t) {
     if (!additionalEdu || additionalEdu.length === 0) {
-        return '<p class="text-gray-500 text-center py-4">No additional education or training added yet. Click "Add Training" to get started.</p>';
+        return `<p class="text-gray-500 text-center py-4">${t ? t('profile.emptyAdditionalEducation') : 'No additional education or training added yet. Click "Add Training" to get started.'}</p>`;
     }
-    return additionalEdu.map(edu => `
+    return additionalEdu
+        .map(
+            (edu) => `
         <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow" data-id="${edu.id}">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
@@ -106,14 +128,18 @@ export function renderAdditionalEducationList(additionalEdu) {
                 </div>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
-export function renderSkillsList(skills) {
+export function renderSkillsList(skills, t) {
     if (!skills || skills.length === 0) {
-        return '<p class="text-gray-500 text-center py-4">No skills added yet. Click "Add Skill" to get started.</p>';
+        return `<p class="text-gray-500 text-center py-4">${t ? t('profile.emptySkills') : 'No skills added yet. Click "Add Skill" to get started.'}</p>`;
     }
-    return skills.map((skill, index) => `
+    return skills
+        .map(
+            (skill, index) => `
         <div class="mb-3 p-3 bg-gray-50 rounded-lg flex justify-between items-center border border-gray-200 hover:shadow-sm transition-shadow" data-index="${index}">
             <div><span class="font-semibold text-gray-800 text-base">${escapeHtml(skill)}</span></div>
             <div class="flex gap-2">
@@ -125,14 +151,18 @@ export function renderSkillsList(skills) {
                 </button>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
-export function renderLanguagesList(languages) {
+export function renderLanguagesList(languages, t) {
     if (!languages || languages.length === 0) {
-        return '<p class="text-gray-500 text-center py-4">No languages added yet. Click "Add Language" to get started.</p>';
+        return `<p class="text-gray-500 text-center py-4">${t ? t('profile.emptyLanguages') : 'No languages added yet. Click "Add Language" to get started.'}</p>`;
     }
-    return languages.map((lang, index) => `
+    return languages
+        .map(
+            (lang, index) => `
         <div class="mb-3 p-3 bg-gray-50 rounded-lg flex justify-between items-center border border-gray-200 hover:shadow-sm transition-shadow" data-index="${index}">
             <div class="flex items-center gap-3">
                 <span class="font-semibold text-gray-800 text-base">${escapeHtml(lang.language)}</span>
@@ -147,5 +177,7 @@ export function renderLanguagesList(languages) {
                 </button>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }

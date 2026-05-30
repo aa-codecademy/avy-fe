@@ -16,6 +16,7 @@
  *  - mockDataService.deleteEvent(id)
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function adminEventsController() {

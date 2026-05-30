@@ -11,12 +11,14 @@
  *  - mockDataService.markAllAsRead(userId)
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 import mockDataService from '../../services/mockDataService.js';
 
 const POLL_INTERVAL_MS = 30000; // 30 seconds
 let pollIntervalId = null;
 let seenNotificationIds = new Set();
+const t = (key) => languageService.translate(key);
 
 function formatTimestamp(timestamp) {
     return new Date(timestamp).toLocaleString();

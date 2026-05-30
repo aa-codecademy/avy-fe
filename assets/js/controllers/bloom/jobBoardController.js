@@ -3,12 +3,14 @@
  * Displays job listings with filters and search
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function jobBoardController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
+    const t = (key) => languageService.translate(key);
 
     if (!user) {
         window.router.navigate('/login');
@@ -17,15 +19,13 @@ export default async function jobBoardController() {
 
     const [jobs, companies] = await Promise.all([
         mockDataService.getAllJobs({ status: 'active' }),
-        mockDataService.getAllCompanies()
+        mockDataService.getAllCompanies(),
     ]);
 
     const companyMap = {};
-    companies.forEach(c => companyMap[c.id] = c);
+    companies.forEach((c) => (companyMap[c.id] = c));
 
-    const industries = [...new Set(
-        companies.map((c) => c.industry).filter(Boolean)
-    )].sort();
+    const industries = [...new Set(companies.map((c) => c.industry).filter(Boolean))].sort();
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
@@ -37,11 +37,11 @@ export default async function jobBoardController() {
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
                             <i class="fas fa-briefcase text-purple-600 mr-3"></i>
-                            Job Board
+                            ${t('jobs.title')}
                         </h1>
 
                         <p class="text-gray-600">
-                            Find your perfect opportunity
+                            ${t('jobs.search')}
                         </p>
                     </div>
 
@@ -53,96 +53,104 @@ export default async function jobBoardController() {
 
                                 <h2 class="text-xl font-bold text-gray-800 mb-4">
                                     <i class="fas fa-filter mr-2"></i>
-                                    Filters
+                                    ${t('jobs.filter')}
                                 </h2>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Search</label>
+                                    <label class="form-label">${t('jobs.search')}</label>
 
                                     <input
                                         type="text"
                                         id="searchInput"
                                         class="form-input"
-                                        placeholder="Title, company, location, skills..."
+                                        placeholder="${t('jobs.search')}"
                                     />
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Industry</label>
+                                    <label class="form-label">${t('companies.industry')}</label>
 
                                     <select id="industryFilter" class="form-input">
-                                        <option value="">All industries</option>
+                                        <option value="">${t('jobs.filter')}</option>
 
-                                        ${industries.map((ind) => `
+                                        ${industries
+                                            .map(
+                                                (ind) => `
                                             <option value="${ind}">
                                                 ${ind}
                                             </option>
-                                        `).join('')}
+                                        `
+                                            )
+                                            .join('')}
                                     </select>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Skills</label>
+                                    <label class="form-label">${t('forms.skills')}</label>
 
                                     <input
                                         type="text"
                                         id="skillsFilter"
                                         class="form-input"
-                                        placeholder="e.g. React, SQL"
+                                        placeholder="${t('forms.example')}"
                                     />
 
                                     <p class="text-xs text-gray-500 mt-1">
-                                        Comma-separated
+                                        ${t('forms.commaSeparated')}
                                     </p>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Employment Type</label>
+                                    <label class="form-label">${t('jobs.employmentType')}</label>
 
                                     <select id="employmentTypeFilter" class="form-input">
-                                        <option value="">All</option>
-                                        <option value="full-time">Full-time</option>
-                                        <option value="part-time">Part-time</option>
-                                        <option value="freelance">Freelance</option>
-                                        <option value="contract">Contract</option>
-                                        <option value="internship">Internship</option>
+                                        <option value="">${t('jobs.all')}</option>
+                                        <option value="full-time">${t('jobs.fullTime')}</option>
+                                        <option value="part-time">${t('jobs.partTime')}</option>
+                                        <option value="freelance">${t('jobs.freelance')}</option>
+                                        <option value="contract">${t('applications.contract')}</option>
+                                        <option value="internship">${t('applications.internship')}</option>
                                     </select>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Work Mode</label>
+                                    <label class="form-label">${t('jobs.workMode')}</label>
 
                                     <select id="workModeFilter" class="form-input">
-                                        <option value="">All</option>
-                                        <option value="onsite">On-site</option>
-                                        <option value="remote">Remote</option>
-                                        <option value="hybrid">Hybrid</option>
+                                        <option value="">${t('jobs.all')}</option>
+                                        <option value="onsite">${t('jobs.onSite')}</option>
+                                        <option value="remote">${t('jobs.remote')}</option>
+                                        <option value="hybrid">${t('jobs.hybrid')}</option>
                                     </select>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Experience Level</label>
+                                    <label class="form-label">${t('jobs.experienceLevel')}</label>
 
                                     <select id="experienceLevelFilter" class="form-input">
-                                        <option value="">All</option>
-                                        <option value="intern">Intern</option>
-                                        <option value="junior">Junior</option>
-                                        <option value="mid">Mid</option>
-                                        <option value="senior">Senior</option>
+                                        <option value="">${t('jobs.all')}</option>
+                                        <option value="intern">${t('jobs.intern')}</option>
+                                        <option value="junior">${t('jobs.junior')}</option>
+                                        <option value="mid">${t('jobs.mid')}</option>
+                                        <option value="senior">${t('jobs.senior')}</option>
                                     </select>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Company</label>
+                                    <label class="form-label">${t('applications.company')}</label>
 
                                     <select id="companyFilter" class="form-input">
-                                        <option value="">All Companies</option>
+                                        <option value="">${t('jobs.allCompanies')}</option>
 
-                                        ${companies.map(c => `
+                                        ${companies
+                                            .map(
+                                                (c) => `
                                             <option value="${c.id}">
                                                 ${c.name}
                                             </option>
-                                        `).join('')}
+                                        `
+                                            )
+                                            .join('')}
                                     </select>
                                 </div>
 
@@ -150,14 +158,14 @@ export default async function jobBoardController() {
                                     id="applyFiltersBtn"
                                     class="btn btn-primary w-full"
                                 >
-                                    Apply Filters
+                                    ${t('applications.applyFilters')}
                                 </button>
 
                                 <button
                                     id="clearFiltersBtn"
                                     class="btn btn-secondary w-full mt-2"
                                 >
-                                    Clear All
+                                    ${t('applications.clearAll')}
                                 </button>
 
                             </div>
@@ -168,19 +176,19 @@ export default async function jobBoardController() {
 
                             <div class="flex justify-between items-center mb-4">
                                 <p class="text-gray-600">
-                                    <span id="jobCount">${jobs.length}</span> jobs found
+                                    <span id="jobCount">${jobs.length}</span> ${t('applications.jobsFound')}
                                 </p>
 
                                 <select id="sortBy" class="form-input w-auto">
-                                    <option value="newest">Newest First</option>
-                                    <option value="oldest">Oldest First</option>
-                                    <option value="mostApplicants">Most Applicants</option>
-                                    <option value="salary">Highest Salary</option>
+                                    <option value="newest">${t('applications.newestFirst')}</option>
+                                    <option value="oldest">${t('applications.oldestFirst')}</option>
+                                    <option value="mostApplicants">${t('applications.mostApplicants')}</option>
+                                    <option value="salary">${t('applications.highestSalary')}</option>
                                 </select>
                             </div>
 
                             <div id="jobGrid" class="space-y-4">
-                                ${renderJobGrid(jobs, companyMap)}
+                                ${renderJobGrid(jobs, companyMap, t)}
                             </div>
 
                             <div
@@ -190,11 +198,11 @@ export default async function jobBoardController() {
                                 <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
 
                                 <h3 class="text-2xl font-bold text-gray-600 mb-2">
-                                    No jobs found
+                                    ${t('applications.noJobsFound')}
                                 </h3>
 
                                 <p class="text-gray-500">
-                                    Try adjusting your filters
+                                    ${t('applications.tryAdjusting')}
                                 </p>
                             </div>
 
@@ -214,26 +222,22 @@ export default async function jobBoardController() {
     }
 }
 
-function renderJobGrid(jobs, companyMap) {
-
+function renderJobGrid(jobs, companyMap, t) {
     if (jobs.length === 0) {
         return '';
     }
 
-    return jobs.map(job => {
+    return jobs
+        .map((job) => {
+            const company = companyMap[job.companyId] || {};
 
-        const company = companyMap[job.companyId] || {};
+            const isNew = new Date() - new Date(job.createdAt) < 3 * 24 * 60 * 60 * 1000;
 
-        const isNew =
-            (new Date() - new Date(job.createdAt))
-            < (3 * 24 * 60 * 60 * 1000);
+            const daysUntilDeadline = Math.ceil(
+                (new Date(job.applicationDeadline) - new Date()) / (24 * 60 * 60 * 1000)
+            );
 
-        const daysUntilDeadline = Math.ceil(
-            (new Date(job.applicationDeadline) - new Date())
-            / (24 * 60 * 60 * 1000)
-        );
-
-        return `
+            return `
             <div
                 class="card hover:shadow-xl transition cursor-pointer job-card"
                 data-job-id="${job.id}"
@@ -255,17 +259,25 @@ function renderJobGrid(jobs, companyMap) {
                                 <h3 class="text-xl font-bold text-gray-800 mb-1">
                                     ${job.title}
 
-                                    ${isNew ? `
+                                    ${
+                                        isNew
+                                            ? `
                                         <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
                                             NEW
                                         </span>
-                                    ` : ''}
+                                    `
+                                            : ''
+                                    }
 
-                                    ${job.isPriority ? `
+                                    ${
+                                        job.isPriority
+                                            ? `
                                         <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
                                             ⭐ FEATURED
                                         </span>
-                                    ` : ''}
+                                    `
+                                            : ''
+                                    }
                                 </h3>
 
                                 <p class="text-gray-600">
@@ -275,7 +287,7 @@ function renderJobGrid(jobs, companyMap) {
 
                             <div class="text-right">
                                 <p class="text-sm text-gray-500">
-                                    ${daysUntilDeadline} days left
+                                    ${daysUntilDeadline} ${t('applications.daysLeft')}
                                 </p>
                             </div>
                         </div>
@@ -305,42 +317,55 @@ function renderJobGrid(jobs, companyMap) {
 
                         <div class="flex flex-wrap gap-2 mb-3">
 
-                            ${job.requiredSkills.slice(0, 5).map(skill => `
+                            ${job.requiredSkills
+                                .slice(0, 5)
+                                .map(
+                                    (skill) => `
                                 <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
                                     ${skill}
                                 </span>
-                            `).join('')}
+                            `
+                                )
+                                .join('')}
 
-                            ${job.requiredSkills.length > 5 ? `
+                            ${
+                                job.requiredSkills.length > 5
+                                    ? `
                                 <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                                    +${job.requiredSkills.length - 5} more
+                                    +${job.requiredSkills.length - 5} ${t('applications.moreSkills')}
                                 </span>
-                            ` : ''}
+                            `
+                                    : ''
+                            }
                         </div>
 
                         <div class="flex justify-between items-center">
 
                             <div class="text-sm text-gray-600">
-                                ${job.salaryRange.min && job.salaryRange.max ? `
+                                ${
+                                    job.salaryRange.min && job.salaryRange.max
+                                        ? `
                                     <i class="fas fa-money-bill-wave mr-1"></i>
                                     ${job.salaryRange.min}
                                     -
                                     ${job.salaryRange.max}
                                     ${job.salaryRange.currency}
-                                ` : `
+                                `
+                                        : `
                                     <i class="fas fa-money-bill-wave mr-1"></i>
-                                    Negotiable
-                                `}
+                                    ${t('applications.negotiable')}
+                                `
+                                }
                             </div>
 
                             <div class="flex items-center gap-3">
 
                                 <div class="text-sm text-gray-500">
                                     <i class="fas fa-eye mr-1"></i>
-                                    ${job.views} views
+                                    ${job.views} ${t('applications.views')}
 
                                     <i class="fas fa-users ml-3 mr-1"></i>
-                                    ${job.applications} applicants
+                                    ${job.applications} ${t('applications.applicants')}
                                 </div>
 
                                 <button
@@ -348,7 +373,7 @@ function renderJobGrid(jobs, companyMap) {
                                     data-job-id="${job.id}"
                                 >
                                     <i class="fas fa-paper-plane mr-1"></i>
-                                    Easy Apply
+                                    ${t('applications.easyApply')}
                                 </button>
 
                             </div>
@@ -358,11 +383,11 @@ function renderJobGrid(jobs, companyMap) {
                 </div>
             </div>
         `;
-    }).join('');
+        })
+        .join('');
 }
 
 function setupEventListeners(allJobs, companyMap) {
-
     const searchInput = document.getElementById('searchInput');
     const industryFilter = document.getElementById('industryFilter');
     const skillsFilter = document.getElementById('skillsFilter');
@@ -382,13 +407,10 @@ function setupEventListeners(allJobs, companyMap) {
     }
 
     const setupJobCardNavigation = () => {
-
         const jobCards = document.querySelectorAll('.job-card');
 
-        jobCards.forEach(card => {
-
+        jobCards.forEach((card) => {
             card.addEventListener('click', () => {
-
                 const jobId = card.dataset.jobId;
 
                 window.router.navigate(`/jobs/${jobId}`);
@@ -397,27 +419,19 @@ function setupEventListeners(allJobs, companyMap) {
     };
 
     const setupEasyApplyButtons = () => {
-
-        const easyApplyButtons =
-            document.querySelectorAll('.easy-apply-btn');
+        const easyApplyButtons = document.querySelectorAll('.easy-apply-btn');
 
         easyApplyButtons.forEach((button) => {
-
             button.addEventListener('click', async (e) => {
-
                 e.stopPropagation();
 
                 const jobId = button.dataset.jobId;
 
                 try {
-
                     const user = authService.getCurrentUser();
 
                     if (!user?.cvUrl) {
-
-                        alert(
-                            'Please upload your CV before using Easy Apply.'
-                        );
+                        alert('Please upload your CV before using Easy Apply.');
 
                         window.router.navigate('/profile');
 
@@ -425,16 +439,13 @@ function setupEventListeners(allJobs, companyMap) {
                     }
 
                     // Prevent duplicate applications
-                    const existingApplications =
-                        await mockDataService.getApplicationsByUser(user.id);
+                    const existingApplications = await mockDataService.getApplicationsByUser(
+                        user.id
+                    );
 
-                    const alreadyApplied =
-                        existingApplications.some(
-                            app => app.jobId === jobId
-                        );
+                    const alreadyApplied = existingApplications.some((app) => app.jobId === jobId);
 
                     if (alreadyApplied) {
-
                         alert('You already applied for this job.');
 
                         return;
@@ -446,7 +457,7 @@ function setupEventListeners(allJobs, companyMap) {
                         applicantId: user.id,
                         cvUrl: user.cvUrl,
                         appliedAt: new Date().toISOString(),
-                        status: 'submitted'
+                        status: 'submitted',
                     });
 
                     // Update button UI
@@ -462,9 +473,7 @@ function setupEventListeners(allJobs, companyMap) {
                     button.classList.add('btn-secondary');
 
                     alert('Application submitted successfully!');
-
                 } catch (error) {
-
                     console.error('Easy Apply failed:', error);
 
                     alert('Failed to apply. Please try again.');
@@ -474,14 +483,13 @@ function setupEventListeners(allJobs, companyMap) {
     };
 
     const applyFilters = async () => {
-
         const skillsRaw = skillsFilter.value.trim();
 
         const skillsList = skillsRaw
             ? skillsRaw
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean)
+                  .split(',')
+                  .map((s) => s.trim())
+                  .filter(Boolean)
             : [];
 
         const filters = {
@@ -492,32 +500,25 @@ function setupEventListeners(allJobs, companyMap) {
             employmentType: employmentTypeFilter.value,
             workMode: workModeFilter.value,
             experienceLevel: experienceLevelFilter.value,
-            companyId: companyFilter.value
+            companyId: companyFilter.value,
         };
 
-        const filteredJobs =
-            await mockDataService.getAllJobs(filters);
+        const filteredJobs = await mockDataService.getAllJobs(filters);
 
         sortJobs(filteredJobs, sortBy.value);
 
         const jobGrid = document.getElementById('jobGrid');
 
-        const emptyState =
-            document.getElementById('emptyState');
+        const emptyState = document.getElementById('emptyState');
 
-        const jobCount =
-            document.getElementById('jobCount');
+        const jobCount = document.getElementById('jobCount');
 
         if (filteredJobs.length === 0) {
-
             jobGrid.innerHTML = '';
 
             emptyState.classList.remove('hidden');
-
         } else {
-
-            jobGrid.innerHTML =
-                renderJobGrid(filteredJobs, companyMap);
+            jobGrid.innerHTML = renderJobGrid(filteredJobs, companyMap);
 
             emptyState.classList.add('hidden');
 
@@ -532,7 +533,6 @@ function setupEventListeners(allJobs, companyMap) {
     applyFiltersBtn.addEventListener('click', applyFilters);
 
     clearFiltersBtn.addEventListener('click', () => {
-
         searchInput.value = '';
         industryFilter.value = '';
         skillsFilter.value = '';
@@ -548,7 +548,6 @@ function setupEventListeners(allJobs, companyMap) {
     sortBy.addEventListener('change', applyFilters);
 
     searchInput.addEventListener('keypress', (e) => {
-
         if (e.key === 'Enter') {
             applyFilters();
         }
@@ -565,45 +564,24 @@ function setupEventListeners(allJobs, companyMap) {
 }
 
 function sortJobs(jobs, sortBy) {
-
-    switch(sortBy) {
-
+    switch (sortBy) {
         case 'newest':
-
-            jobs.sort(
-                (a, b) =>
-                    new Date(b.createdAt)
-                    - new Date(a.createdAt)
-            );
+            jobs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
             break;
 
         case 'oldest':
-
-            jobs.sort(
-                (a, b) =>
-                    new Date(a.createdAt)
-                    - new Date(b.createdAt)
-            );
+            jobs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
             break;
 
         case 'mostApplicants':
-
-            jobs.sort(
-                (a, b) =>
-                    b.applications - a.applications
-            );
+            jobs.sort((a, b) => b.applications - a.applications);
 
             break;
 
         case 'salary':
-
-            jobs.sort(
-                (a, b) =>
-                    (b.salaryRange?.max || 0)
-                    - (a.salaryRange?.max || 0)
-            );
+            jobs.sort((a, b) => (b.salaryRange?.max || 0) - (a.salaryRange?.max || 0));
 
             break;
     }

@@ -15,6 +15,7 @@ import jobDetailController from './controllers/bloom/jobDetailController.js';
 import messagesController from './controllers/bloom/messagesController.js';
 import notificationsController from './controllers/bloom/notificationsController.js';
 import profileController from './controllers/bloom/profileController.js';
+import languageController from './controllers/bloom/languageController.js';
 import dashboardController from './controllers/dashboardController.js';
 import candidatesController from './controllers/evergreen/candidatesController.js';
 import jobApplicantsController from './controllers/evergreen/jobApplicantsController.js';
@@ -37,11 +38,13 @@ import resetPasswordController from './controllers/resetPasswordController.js';
 
 // Import services (make available globally)
 import authService from './services/authService.js';
+import languageService from './services/languageService.js';
 import { renderAppHeader } from './views/appHeader.js';
 
 // Make router globally available
 window.router = router;
 window.authService = authService;
+window.languageService = languageService;
 
 /**
  * Initialize application
@@ -58,6 +61,14 @@ function initApp() {
 
     // Initialize router (will handle initial navigation)
     console.log('✅ Router initialized');
+
+    // Trigger initial navigation now that routes are registered
+    // Use current pathname so SPA renders the correct view on load
+    try {
+        router.navigate(window.location.pathname, false);
+    } catch (e) {
+        console.error('Failed to perform initial navigation:', e);
+    }
 }
 
 /**
@@ -71,6 +82,7 @@ function registerRoutes() {
     router.addRoute('/reset-password', resetPasswordController, false);
     // END Ognen Manevski
 
+    router.addRoute('/language', languageController, true);
     // Protected routes (require authentication)
     router.addRoute('/dashboard', dashboardController, true);
 

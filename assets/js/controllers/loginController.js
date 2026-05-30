@@ -2,16 +2,18 @@
  * Login Page Controller
  */
 import authService from '../services/authService.js';
+import languageService from '../services/languageService.js';
 
 export default async function loginController() {
     const app = document.getElementById('app');
-    
+    const t = (key) => languageService.translate(key);
+
     // Check if user is already logged in
     if (authService.isAuthenticated()) {
         window.router.navigate('/dashboard');
         return;
     }
-    
+
     app.innerHTML = `
         <div class="min-h-screen flex items-center justify-center px-4 bg-brand-gradient">
             <div class="card max-w-md w-full fade-in">
@@ -105,7 +107,7 @@ export default async function loginController() {
             </div>
         </div>
     `;
-    
+
     // Add event listeners
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('errorMessage');
@@ -115,38 +117,38 @@ export default async function loginController() {
     // feature/forgot-password-at-login [Ognen]
     const showForgotPasswordBtn = document.getElementById('showForgotPasswordBtn');
     // END Ognen Manevski
-    
+
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        
+
         // Hide previous errors
         errorMessage.classList.add('hidden');
-        
+
         // Show loading state
         loginButtonText.textContent = 'Signing In...';
         loginSpinner.classList.remove('hidden');
         loginForm.querySelector('button[type="submit"]').disabled = true;
-        
+
         try {
             await authService.login(email, password);
-            
+
             // Success - navigate to dashboard
             window.router.navigate('/dashboard');
         } catch (error) {
             // Show error
             errorMessage.textContent = error.message || 'Login failed. Please try again.';
             errorMessage.classList.remove('hidden');
-            
+
             // Reset button state
             loginButtonText.textContent = 'Sign In';
             loginSpinner.classList.add('hidden');
             loginForm.querySelector('button[type="submit"]').disabled = false;
         }
     });
-    
+
     showRegisterBtn.addEventListener('click', () => {
         showRegisterModal();
     });
@@ -359,7 +361,7 @@ function showRegisterModal() {
             </form>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
 
     const regRoleEl = modal.querySelector('#regRole');
@@ -373,31 +375,31 @@ function showRegisterModal() {
     };
     regRoleEl.addEventListener('change', toggleEmployerFields);
     toggleEmployerFields();
-    
+
     // Close modal handler
     const closeModalBtn = modal.querySelector('#closeModalBtn');
     closeModalBtn.addEventListener('click', () => {
         document.body.removeChild(modal);
     });
-    
+
     // Click outside to close
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             document.body.removeChild(modal);
         }
     });
-    
+
     // Register form handler
     const registerForm = modal.querySelector('#registerForm');
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const role = document.getElementById('regRole').value;
         const userData = {
             name: document.getElementById('regName').value,
             email: document.getElementById('regEmail').value,
             role,
-            password: document.getElementById('regPassword').value
+            password: document.getElementById('regPassword').value,
         };
         if (role === 'employer') {
             userData.companyName = document.getElementById('regCompanyName').value.trim();

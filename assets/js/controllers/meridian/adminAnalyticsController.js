@@ -3,20 +3,22 @@
  * Platform analytics dashboard for administrators
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 export default async function adminAnalyticsController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
-    
+    const t = (key) => languageService.translate(key);
+
     if (!user || user.role !== 'admin') {
         window.router.navigate('/dashboard');
         return;
     }
-    
+
     const analytics = await mockDataService.getAnalytics();
-    
+
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
@@ -33,7 +35,7 @@ export default async function adminAnalyticsController() {
                         <div class="card bg-gradient-to-br from-blue-500 to-blue-600 text-white"><p class="text-blue-100 mb-1">Total Users</p><h3 class="text-4xl font-bold">${analytics.totalUsers}</h3></div>
                         <div class="card bg-gradient-to-br from-purple-500 to-purple-600 text-white"><p class="text-purple-100 mb-1">Active Jobs</p><h3 class="text-4xl font-bold">${analytics.activeJobs}</h3></div>
                         <div class="card bg-gradient-to-br from-green-500 to-green-600 text-white"><p class="text-green-100 mb-1">Applications</p><h3 class="text-4xl font-bold">${analytics.totalApplications}</h3></div>
-                        <div class="card bg-gradient-to-br from-orange-500 to-orange-600 text-white"><p class="text-orange-100 mb-1">Hired</p><h3 class="text-4xl font-bold">${analytics.hiredCount}</h3></div>
+                        <div class="card bg-gradient-to-br from-orange-500 to-orange-600 text-white"><p class="text-orange-100 mb-1">${t('applications.accepted')}</p><h3 class="text-4xl font-bold">${analytics.hiredCount}</h3></div>
                     </div>
                     <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-6">
@@ -54,7 +56,7 @@ export default async function adminAnalyticsController() {
             </div>
         </div>
     `;
-    
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 }

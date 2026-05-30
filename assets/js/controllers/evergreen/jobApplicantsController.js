@@ -17,11 +17,13 @@
  * @param {object} params - Route params, includes :id (job id)
  */
 import authService from '../../services/authService.js';
+import languageService from '../../services/languageService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 import mockDataService from '../../services/mockDataService.js';
 
 let currentJobId = null;
 let currentApplications = [];
+const t = (key) => languageService.translate(key);
 
 export default async function jobApplicantsController(params = {}) {
     const app = document.getElementById('app');
