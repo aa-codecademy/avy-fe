@@ -30,14 +30,7 @@ class MockDataService {
             const data = JSON.parse(stored);
             Object.assign(this, data);
 
-            if (!this.messages) this.messages = this.generateMockMessages();
-            if (!this.notifications) this.notifications = this.generateMockNotifications();
-            if (!this.scheduledReports) this.scheduledReports = this.generateMockScheduledReports();
-            if (!this.scheduledReportDeliveries)
-                this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
-            if (!this.pendingActions) this.pendingActions = this.generateMockPendingActions();
-            if (!this.alerts) this.alerts = this.generateMockAlerts();
-            if (!this.resourceObjects) this.resourceObjects = this.generateMockResourceObjects();
+            this.hydrateOptionalMockData();
         } else {
             this.initializeMockData();
             this.saveToStorage();
@@ -66,6 +59,8 @@ class MockDataService {
      * Save current mock data state to localStorage (for persistence across reloads)
      */
     saveToStorage() {
+        this.hydrateOptionalMockData();
+
         localStorage.setItem(
             'mockData',
             JSON.stringify({
@@ -76,24 +71,44 @@ class MockDataService {
                 cvProfiles: this.cvProfiles,
                 successStories: this.successStories,
                 events: this.events,
+                resourceObjects: this.resourceObjects,
+                resources: this.resources,
                 messages: this.messages,
                 notifications: this.notifications,
                 analytics: this.analytics,
                 scheduledReports: this.scheduledReports,
                 scheduledReportDeliveries: this.scheduledReportDeliveries || [],
+                pendingActions: this.pendingActions,
+                alerts: this.alerts,
+                permissionCatalog: this.permissionCatalog,
+                adminRoles: this.adminRoles,
+                notificationTemplates: this.notificationTemplates,
+                emailTemplates: this.emailTemplates,
+                platformSettings: this.platformSettings,
+                auditLog: this.auditLog,
+                complianceExports: this.complianceExports || [],
             })
         );
+    }
+
+    hydrateOptionalMockData() {
         this.pendingActions = this.generateMockPendingActions();
         this.alerts = this.generateMockAlerts();
-        this.permissionCatalog = this.generatePermissionCatalog();
-        this.adminRoles = this.generateAdminRoles();
-        this.notificationTemplates = this.generateNotificationTemplates();
-        this.emailTemplates = this.generateEmailTemplates();
-        this.platformSettings = this.generatePlatformSettings();
-        this.auditLog = this.generateAuditLog();
-        this.complianceExports = [];
-        this.notifications = [];
-        this.messages = [];
+
+        if (!this.messages) this.messages = this.generateMockMessages();
+        if (!this.notifications) this.notifications = this.generateMockNotifications();
+        if (!this.scheduledReports) this.scheduledReports = this.generateMockScheduledReports();
+        if (!this.scheduledReportDeliveries)
+            this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
+        if (!this.resourceObjects) this.resourceObjects = this.generateMockResourceObjects();
+        if (!this.permissionCatalog) this.permissionCatalog = this.generatePermissionCatalog();
+        if (!this.adminRoles) this.adminRoles = this.generateAdminRoles();
+        if (!this.notificationTemplates)
+            this.notificationTemplates = this.generateNotificationTemplates();
+        if (!this.emailTemplates) this.emailTemplates = this.generateEmailTemplates();
+        if (!this.platformSettings) this.platformSettings = this.generatePlatformSettings();
+        if (!this.auditLog) this.auditLog = this.generateAuditLog();
+        if (!this.complianceExports) this.complianceExports = [];
     }
 
     /**
