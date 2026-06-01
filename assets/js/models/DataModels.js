@@ -106,6 +106,27 @@ export class Language {
 }
 
 /**
+ * Profile Access Log Model
+ * Represents a single employer access event for a student's profile.
+ * type: view | export | request | grant | deny | revoke
+ * grant / deny / revoke are admin actions — employerId and ipAddress will be empty.
+ */
+export class ProfileAccessLog {
+    constructor(data = {}) {
+        this.id           = data.id           || '';
+        this.studentId    = data.studentId    || '';
+        this.employerId   = data.employerId   || '';
+        this.employerName = data.employerName || '';
+        this.companyId    = data.companyId    || '';
+        this.companyName  = data.companyName  || '';
+        this.type         = data.type         || 'view';
+        this.details      = data.details      || '';
+        this.ipAddress    = data.ipAddress    || '';
+        this.timestamp    = data.timestamp    || new Date().toISOString();
+    }
+}
+
+/**
  * Job Model
  */
 export class Job {
