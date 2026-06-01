@@ -16,6 +16,7 @@ export default async function companiesController() {
     }
     
     const companies = await mockDataService.getAllCompanies();
+    const activeCompanies = companies.filter((c) => !c.suspended);
     
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
@@ -41,7 +42,7 @@ export default async function companiesController() {
                     </div>
                     
                     <div id="companiesGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        ${renderCompaniesGrid(companies)}
+                        ${renderCompaniesGrid(activeCompanies)}
                     </div>
                     
                     <div id="emptyState" class="hidden text-center py-20">
@@ -57,7 +58,7 @@ export default async function companiesController() {
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        const filtered = companies.filter(c => 
+        const filtered = activeCompanies.filter(c => 
             c.name.toLowerCase().includes(searchTerm) ||
             c.industry.toLowerCase().includes(searchTerm) ||
             c.description.toLowerCase().includes(searchTerm)

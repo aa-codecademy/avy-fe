@@ -17,6 +17,9 @@ import notificationsController from './controllers/bloom/notificationsController
 import profileController from './controllers/bloom/profileController.js';
 import dashboardController from './controllers/dashboardController.js';
 import candidatesController from './controllers/evergreen/candidatesController.js';
+import adminUsersController from './controllers/meridian/adminUsersController.js';
+import adminCompaniesController from './controllers/meridian/adminCompaniesController.js';
+import adminJobsController from './controllers/meridian/adminJobsController.js';
 import jobApplicantsController from './controllers/evergreen/jobApplicantsController.js';
 import employerMessagesController from './controllers/evergreen/messagesController.js';
 import myJobsController from './controllers/evergreen/myJobsController.js';
@@ -105,6 +108,18 @@ function registerRoutes() {
     // Employer routes (Evergreen module)
     router.addRoute('/employer/post-job', postJobController, true, ['employer']);
     router.addRoute('/employer/candidates', candidatesController, true, ['employer']);
+    router.addRoute(
+        '/employer/jobs',
+        createPlaceholderController('My Jobs', 'Manage your job postings'),
+        true,
+        ['employer']
+    );
+
+    // Admin routes (Meridian module)
+    router.addRoute('/admin/users', adminUsersController, true, ['admin']);
+    router.addRoute('/admin/jobs', adminJobsController, true, ['admin']);
+    router.addRoute('/admin/companies', adminCompaniesController, true, ['admin']);
+    router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/employer/jobs', myJobsController, true, ['employer']);
     router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);

@@ -147,7 +147,7 @@ export class Job {
         this.niceToHaveSkills = data.niceToHaveSkills || [];
         this.salaryRange = data.salaryRange || { min: 0, max: 0, currency: 'EUR' };
         this.applicationDeadline = data.applicationDeadline || '';
-        this.status = data.status || 'active'; // active, paused, closed
+        this.status = data.status || 'pending'; // pending, active, paused, closed
         this.views = data.views || 0;
         this.applications = data.applications || 0;
         this.isPriority = data.isPriority || false; // Premium feature
@@ -186,6 +186,8 @@ export class Company {
         this.subscriptionExpiry = data.subscriptionExpiry || '';
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
+        this.featured = data.featured || false; // For premium companies to be highlighted
+        this.suspended = data.suspended || false; // For suspended accounts
     }
 }
 
@@ -337,5 +339,25 @@ export class Analytics {
         this.topSkills = data.topSkills || []; // Array of {skill, count}
         this.topCompanies = data.topCompanies || []; // Array of {company, jobCount}
         this.monthlyGrowth = data.monthlyGrowth || { users: 0, jobs: 0, applications: 0 };
+    }
+}
+
+/**
+ * Profile Access Request Model
+ */
+export class ProfileAccessRequest {
+    constructor(data = {}) {
+        this.id = data.id || '';
+        this.employerId = data.employerId || '';
+        this.studentId = data.studentId || '';
+        this.jobId = data.jobId || ''; // Optional - request may be for general access
+        this.requestReason = data.requestReason || '';
+        this.status = data.status || 'pending'; // pending, approved, rejected, expired
+        this.requestedAt = data.requestedAt || new Date().toISOString();
+        this.reviewedAt = data.reviewedAt || '';
+        this.reviewedBy = data.reviewedBy || ''; // Admin user ID
+        this.reviewNotes = data.reviewNotes || '';
+        this.expiresAt = data.expiresAt || ''; // When approved access expires
+        this.accessGranted = data.accessGranted || false;
     }
 }
