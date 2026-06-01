@@ -105,12 +105,6 @@ function registerRoutes() {
     // Employer routes (Evergreen module)
     router.addRoute('/employer/post-job', postJobController, true, ['employer']);
     router.addRoute('/employer/candidates', candidatesController, true, ['employer']);
-    router.addRoute(
-        '/employer/jobs',
-        createPlaceholderController('My Jobs', 'Manage your job postings'),
-        true,
-        ['employer']
-    );
     router.addRoute('/employer/jobs', myJobsController, true, ['employer']);
     router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);

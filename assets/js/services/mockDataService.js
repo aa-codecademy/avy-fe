@@ -138,6 +138,25 @@ class MockDataService {
     }
 
     /**
+     * Save current mock data state to localStorage (for persistence across reloads)
+     */
+    saveToStorage() {
+        localStorage.setItem(
+            'mockData',
+            JSON.stringify({
+                users: this.users,
+                companies: this.companies,
+                jobs: this.jobs,
+                applications: this.applications,
+                cvProfiles: this.cvProfiles,
+                successStories: this.successStories,
+                events: this.events,
+                analytics: this.analytics,
+            })
+        );
+    }
+
+    /**
      * USERS
      */
     generateMockUsers() {
