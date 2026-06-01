@@ -28,7 +28,6 @@ import postJobController from './controllers/evergreen/postJobController.js';
 import landingController from './controllers/landingController.js';
 import loginController from './controllers/loginController.js';
 import companyProfileController from './controllers/evergreen/companyProfileController.js';
-import adminUsersController from './controllers/meridian/adminUsersController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
 import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminResourcesController from './controllers/meridian/adminResourcesController.js';
@@ -108,43 +107,17 @@ function registerRoutes() {
     // Employer routes (Evergreen module)
     router.addRoute('/employer/post-job', postJobController, true, ['employer']);
     router.addRoute('/employer/candidates', candidatesController, true, ['employer']);
-    router.addRoute(
-        '/employer/jobs',
-        createPlaceholderController('My Jobs', 'Manage your job postings'),
-        true,
-        ['employer']
-    );
-
-    // Admin routes (Meridian module)
-    router.addRoute('/admin/users', adminUsersController, true, ['admin']);
-    router.addRoute('/admin/jobs', adminJobsController, true, ['admin']);
-    router.addRoute('/admin/companies', adminCompaniesController, true, ['admin']);
-    router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/employer/jobs', myJobsController, true, ['employer']);
     router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
     router.addRoute('/employer/notifications', employerNotificationsController, true, ['employer']);
     router.addRoute('/employer/pipeline', applicantsPipelineController, true, ['employer']); // test route for pipeline view
-
     router.addRoute('/employer/company-profile', companyProfileController, true, ['employer']);
 
     // Admin routes (Meridian module)
     router.addRoute('/admin/users', adminUsersController, true, ['admin']);
-    router.addRoute(
-        '/admin/jobs',
-        createPlaceholderController('Job Management', 'Manage all job postings'),
-        true,
-        ['admin']
-    );
-    router.addRoute(
-        '/admin/companies',
-        createPlaceholderController(
-            'Company Management',
-            'Oversee employer accounts and verifications'
-        ),
-        true,
-        ['admin']
-    );
+    router.addRoute('/admin/jobs', adminJobsController, true, ['admin']);
+    router.addRoute('/admin/companies', adminCompaniesController, true, ['admin']);
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/admin/events', adminEventsController, true, ['admin']);
     router.addRoute('/admin/resources', adminResourcesController, true, ['admin']);
