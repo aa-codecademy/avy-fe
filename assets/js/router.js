@@ -6,15 +6,16 @@ class Router {
         this.routes = {};
         this.currentRoute = null;
         this.appContainer = document.getElementById('app');
+        this.basePath = this.detectBasePath();
 
         // Handle browser back/forward buttons
         window.addEventListener('popstate', () => {
-            this.navigate(window.location.pathname, false);
+            this.navigate(this.normalizePath(window.location.pathname), false);
         });
 
         // Handle initial load
         window.addEventListener('DOMContentLoaded', () => {
-            this.navigate(window.location.pathname, false);
+            this.navigate(this.normalizePath(window.location.pathname), false);
         });
 
         document.addEventListener('click', (e) => {
@@ -24,6 +25,58 @@ class Router {
                 this.navigate(link.getAttribute('href'));
             }
         });
+    }
+
+    detectBasePath() {
+        if (window.location.protocol === 'file:') {
+            return '';
+        }
+
+        if (window.location.hostname.endsWith('github.io')) {
+            const segments = window.location.pathname.split('/').filter(Boolean);
+            if (segments.length > 0 && !segments[0].includes('.')) {
+                return `/${segments[0]}`;
+            }
+        }
+
+        return '';
+    }
+
+    normalizePath(path) {
+        if (!path) return '/';
+
+        let normalized = path;
+
+        if (window.location.protocol === 'file:') {
+            if (normalized.endsWith('/index.html') || normalized.endsWith('index.html')) {
+                return '/';
+            }
+        }
+
+        if (this.basePath && normalized.startsWith(this.basePath)) {
+            normalized = normalized.slice(this.basePath.length) || '/';
+        }
+
+        if (normalized === '/index.html') {
+            return '/';
+        }
+
+        if (!normalized.startsWith('/')) {
+            normalized = `/${normalized}`;
+        }
+
+        return normalized;
+    }
+
+    withBasePath(path) {
+        if (!this.basePath) return path;
+        if (path === '/') return `${this.basePath}/`;
+        return `${this.basePath}${path}`;
+    }
+
+    resolveAssetPath(path) {
+        const normalized = path.startsWith('/') ? path : `/${path}`;
+        return this.withBasePath(normalized);
     }
 
     /**
@@ -47,6 +100,8 @@ class Router {
      * @param {boolean} addToHistory - Whether to add to browser history
      */
     async navigate(path, addToHistory = true) {
+        path = this.normalizePath(path);
+
         // Try exact match first
         let route = this.routes[path];
         let params = {};
@@ -93,8 +148,8 @@ class Router {
         }
 
         // Update browser history
-        if (addToHistory && path !== window.location.pathname) {
-            window.history.pushState({}, '', path);
+        if (addToHistory && path !== this.normalizePath(window.location.pathname)) {
+            window.history.pushState({}, '', this.withBasePath(path));
         }
 
         // Update current route

@@ -39,10 +39,13 @@ function getNotificationIcon(type) {
 function showBrowserNotification(title, body) {
     if (!('Notification' in window)) return;
     if (Notification.permission !== 'granted') return;
+    const iconPath =
+        window.router?.resolveAssetPath('/assets/img/notification-icon.png') ??
+        './assets/img/notification-icon.png';
 
     new Notification(title, {
         body,
-        icon: '/assets/img/notification-icon.png',
+        icon: iconPath,
     });
 }
 
