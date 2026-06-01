@@ -23,6 +23,7 @@ import myJobsController from './controllers/evergreen/myJobsController.js';
 import employerNotificationsController from './controllers/evergreen/notificationsController.js';
 import postJobController from './controllers/evergreen/postJobController.js';
 import landingController from './controllers/landingController.js';
+import designSystemController from './controllers/designSystemController.js';
 import loginController from './controllers/loginController.js';
 import companyProfileController from './controllers/evergreen/companyProfileController.js';
 import adminUsersController from './controllers/meridian/adminUsersController.js';
@@ -76,6 +77,7 @@ function initApp() {
 function registerRoutes() {
     // Public routes
     router.addRoute('/', landingController, false);
+    router.addRoute('/design-system', designSystemController, false);
     router.addRoute('/login', loginController, false);
     // feature/forgot-password-at-login [Ognen]
     router.addRoute('/reset-password', resetPasswordController, false);
