@@ -14,6 +14,7 @@ export default async function adminStudentsController() {
     const students = await mockDataService.getStudentsWithProfiles();
 
     const allTracks = [...new Set(students.map(s => s.academyTrack).filter(Boolean))].sort();
+    const pendingCount = students.filter(s => s.profileStatus === 'pending').length;
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
@@ -27,6 +28,19 @@ export default async function adminStudentsController() {
                         </h1>
                         <p class="text-gray-600">Search and filter all registered students</p>
                     </div>
+
+                    ${pendingCount > 0 ? `
+                    <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <i class="fas fa-clock text-amber-500 text-lg"></i>
+                        <p class="text-sm text-amber-800 font-medium">
+                            <span class="font-bold">${pendingCount} profile${pendingCount !== 1 ? 's' : ''}</span> awaiting review
+                        </p>
+                        <button
+                            onclick="document.getElementById('filterStatus').value='pending'; document.getElementById('filterStatus').dispatchEvent(new Event('change'))"
+                            class="ml-auto text-xs font-semibold text-amber-700 hover:text-amber-900 underline">
+                            View pending
+                        </button>
+                    </div>` : ''}
 
                     <div class="grid lg:grid-cols-4 gap-6">
                         <!-- Filters sidebar -->
@@ -59,6 +73,15 @@ export default async function adminStudentsController() {
                                             <option value="">All</option>
                                             <option value="public">Public</option>
                                             <option value="private">Private</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Submission Status</label>
+                                        <select id="filterStatus" class="form-input">
+                                            <option value="">All</option>
+                                            <option value="pending">Pending Review</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="rejected">Rejected</option>
                                         </select>
                                     </div>
                                     <div>
@@ -122,6 +145,16 @@ function renderStudentCard(student) {
                <i class="fas fa-eye mr-1"></i> Public
            </span>`;
 
+    const statusBadgeConfig = {
+        pending:  { icon: 'fa-clock',        cls: 'bg-amber-100 text-amber-700', label: 'Pending' },
+        approved: { icon: 'fa-check-circle',  cls: 'bg-emerald-100 text-emerald-700', label: 'Approved' },
+        rejected: { icon: 'fa-times-circle',  cls: 'bg-red-100 text-red-700',    label: 'Rejected' },
+    };
+    const statusCfg = statusBadgeConfig[student.profileStatus] || statusBadgeConfig.pending;
+    const statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusCfg.cls}">
+                             <i class="fas ${statusCfg.icon} mr-1"></i>${statusCfg.label}
+                         </span>`;
+
     const trackColors = {
         'Frontend Development': 'bg-blue-100 text-blue-800',
         'Backend Development': 'bg-green-100 text-green-800',
@@ -163,6 +196,7 @@ function renderStudentCard(student) {
                         <div class="flex items-center gap-2 flex-wrap">
                             ${trackBadge}
                             ${visibilityBadge}
+                            ${statusBadge}
                         </div>
                     </div>
                     <p class="text-sm text-gray-600 mb-2">
@@ -211,6 +245,7 @@ function setupEventListeners(allStudents) {
         const search = document.getElementById('searchStudents').value.toLowerCase().trim();
         const track = document.getElementById('filterTrack').value;
         const visibility = document.getElementById('filterVisibility').value;
+        const status = document.getElementById('filterStatus').value;
         const sort = document.getElementById('sortStudents').value;
 
         filtered = allStudents.filter(s => {
@@ -223,8 +258,9 @@ function setupEventListeners(allStudents) {
 
             const matchTrack = !track || s.academyTrack === track;
             const matchVisibility = !visibility || s.profileVisibility === visibility;
+            const matchStatus = !status || s.profileStatus === status;
 
-            return matchSearch && matchTrack && matchVisibility;
+            return matchSearch && matchTrack && matchVisibility && matchStatus;
         });
 
         if (sort === 'name') {
@@ -246,12 +282,14 @@ function setupEventListeners(allStudents) {
 
     document.getElementById('filterTrack').addEventListener('change', applyFilters);
     document.getElementById('filterVisibility').addEventListener('change', applyFilters);
+    document.getElementById('filterStatus').addEventListener('change', applyFilters);
     document.getElementById('sortStudents').addEventListener('change', applyFilters);
 
     document.getElementById('clearFiltersBtn').addEventListener('click', () => {
         document.getElementById('searchStudents').value = '';
         document.getElementById('filterTrack').value = '';
         document.getElementById('filterVisibility').value = '';
+        document.getElementById('filterStatus').value = '';
         document.getElementById('sortStudents').value = 'name';
         filtered = [...allStudents];
         updateDisplay();
