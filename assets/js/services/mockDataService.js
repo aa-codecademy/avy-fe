@@ -5,20 +5,21 @@
  */
 
 import {
-    AcademyAttendance,
-    Application,
-    Message,
-    Notification,
     User,
     CVProfile,
     WorkExperience,
     Education,
+    AcademyAttendance,
     Language,
     Job,
     Company,
+    Application,
     SuccessStory,
     Event,
+    Resource,
     Analytics,
+    Message,
+    Notification,
 } from '../models/DataModels.js';
 
 class MockDataService {
@@ -29,9 +30,7 @@ class MockDataService {
             const data = JSON.parse(stored);
             Object.assign(this, data);
 
-            if (!this.messages) this.messages = this.generateMockMessages();
-            if (!this.notifications) this.notifications = this.generateMockNotifications();
-            if (!this.notificationPreferences) this.notificationPreferences = this.generateMockNotificationPreferences();
+            this.hydrateOptionalMockData();
         } else {
             this.initializeMockData();
             this.saveToStorage();
@@ -71,13 +70,19 @@ class MockDataService {
         this.messages = this.generateMockMessages();
         this.notifications = this.generateMockNotifications();
         this.notificationPreferences = this.generateMockNotificationPreferences();
+        this.resourceObjects = this.generateMockResourceObjects();
+        this.resources = this.generateMockResources();
         this.analytics = this.generateMockAnalytics();
+        this.scheduledReports = this.generateMockScheduledReports();
+        this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
     }
 
     /**
      * Save current mock data state to localStorage (for persistence across reloads)
      */
     saveToStorage() {
+        this.hydrateOptionalMockData();
+
         localStorage.setItem(
             'mockData',
             JSON.stringify({
@@ -88,12 +93,48 @@ class MockDataService {
                 cvProfiles: this.cvProfiles,
                 successStories: this.successStories,
                 events: this.events,
+                resourceObjects: this.resourceObjects,
+                resources: this.resources,
                 messages: this.messages,
                 notifications: this.notifications,
                 notificationPreferences: this.notificationPreferences,
                 analytics: this.analytics,
+                scheduledReports: this.scheduledReports,
+                scheduledReportDeliveries: this.scheduledReportDeliveries || [],
+                pendingActions: this.pendingActions,
+                alerts: this.alerts,
+                permissionCatalog: this.permissionCatalog,
+                adminRoles: this.adminRoles,
+                notificationTemplates: this.notificationTemplates,
+                emailTemplates: this.emailTemplates,
+                platformSettings: this.platformSettings,
+                auditLog: this.auditLog,
+                complianceExports: this.complianceExports || [],
             })
         );
+    }
+
+    hydrateOptionalMockData() {
+        this.pendingActions = this.generateMockPendingActions();
+        this.alerts = this.generateMockAlerts();
+
+        if (!this.messages) this.messages = this.generateMockMessages();
+        if (!this.notifications) this.notifications = this.generateMockNotifications();
+        if (!this.notificationPreferences)
+            this.notificationPreferences = this.generateMockNotificationPreferences();
+        if (!this.scheduledReports) this.scheduledReports = this.generateMockScheduledReports();
+        if (!this.scheduledReportDeliveries)
+            this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
+        if (!this.resourceObjects) this.resourceObjects = this.generateMockResourceObjects();
+        if (!this.resources) this.resources = this.generateMockResources();
+        if (!this.permissionCatalog) this.permissionCatalog = this.generatePermissionCatalog();
+        if (!this.adminRoles) this.adminRoles = this.generateAdminRoles();
+        if (!this.notificationTemplates)
+            this.notificationTemplates = this.generateNotificationTemplates();
+        if (!this.emailTemplates) this.emailTemplates = this.generateEmailTemplates();
+        if (!this.platformSettings) this.platformSettings = this.generatePlatformSettings();
+        if (!this.auditLog) this.auditLog = this.generateAuditLog();
+        if (!this.complianceExports) this.complianceExports = [];
     }
 
     /**
@@ -139,7 +180,32 @@ class MockDataService {
                 email: 'admin@avy.com',
                 name: 'Admin User',
                 role: 'admin',
+                adminRoleId: 'super_admin',
+                status: 'active',
                 avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=ed8936&color=fff',
+                currentPosition: 'Super Admin',
+                lastLoginAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+            }),
+            new User({
+                id: '5',
+                email: 'maria.ops@avy.com',
+                name: 'Maria Petrova',
+                role: 'admin',
+                adminRoleId: 'operations_admin',
+                status: 'active',
+                avatar: 'https://ui-avatars.com/api/?name=Maria+Petrova&background=0257b4&color=fff',
+                currentPosition: 'Operations Admin',
+                lastLoginAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+            }),
+            new User({
+                id: '6',
+                email: 'david.compliance@avy.com',
+                name: 'David Nikolov',
+                role: 'admin',
+                adminRoleId: 'compliance_admin',
+                status: 'invited',
+                avatar: 'https://ui-avatars.com/api/?name=David+Nikolov&background=1f2937&color=fff',
+                currentPosition: 'Compliance Admin',
             }),
         ];
     }
@@ -157,6 +223,79 @@ class MockDataService {
     async getUsersByRole(role) {
         await this.simulateDelay();
         return this.users.filter((u) => u.role === role);
+    }
+
+    async getAdminAccounts() {
+        await this.simulateDelay();
+        return this.users
+            .filter((user) => user.role === 'admin')
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    async createAdminAccount(adminData) {
+        await this.simulateDelay();
+        const timestamp = new Date().toISOString();
+        const newAdmin = new User({
+            id: this.generateId('admin'),
+            email: adminData.email,
+            name: adminData.name,
+            role: 'admin',
+            adminRoleId: adminData.adminRoleId || 'operations_admin',
+            status: adminData.status || 'invited',
+            phone: adminData.phone || '',
+            currentPosition: adminData.currentPosition || 'Platform Administrator',
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(adminData.name)}&background=ed8936&color=fff`,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+        });
+
+        this.users.push(newAdmin);
+        this.analytics.totalUsers += 1;
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Created admin account',
+            area: 'Access',
+            targetName: newAdmin.name,
+            severity: 'info',
+            summary: `${newAdmin.email} invited as ${newAdmin.adminRoleId}`,
+        });
+
+        return newAdmin;
+    }
+
+    async updateAdminAccount(id, updates) {
+        await this.simulateDelay();
+        const admin = this.users.find((user) => user.id === id && user.role === 'admin');
+        if (!admin) {
+            return null;
+        }
+
+        const previousStatus = admin.status;
+        Object.assign(admin, updates, { updatedAt: new Date().toISOString() });
+
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action:
+                previousStatus !== admin.status ? 'Updated admin status' : 'Updated admin account',
+            area: 'Access',
+            targetName: admin.name,
+            severity: admin.status === 'deactivated' ? 'warning' : 'info',
+            summary: `Role: ${admin.adminRoleId} | Status: ${admin.status}`,
+        });
+
+        return admin;
+    }
+
+    async deactivateAdminAccount(id) {
+        await this.simulateDelay();
+        return this.updateAdminAccount(id, { status: 'deactivated', lastLoginAt: '' });
+    }
+
+    async reactivateAdminAccount(id) {
+        await this.simulateDelay();
+        return this.updateAdminAccount(id, { status: 'active' });
     }
 
     /**
@@ -179,6 +318,10 @@ class MockDataService {
                 subscriptionPlan: 'premium',
                 jobPostingLimit: 80,
                 jobPostingsUsed: 12,
+                applicationResponseRate: 92,
+                averageTimeToUpdateStatus: 2.5,
+                profileAccessRequests: 156,
+                lastActivityDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             }),
             new Company({
                 id: 'c2',
@@ -192,6 +335,10 @@ class MockDataService {
                 subscriptionPlan: 'advanced',
                 jobPostingLimit: 30,
                 jobPostingsUsed: 8,
+                applicationResponseRate: 68,
+                averageTimeToUpdateStatus: 8.3,
+                profileAccessRequests: 89,
+                lastActivityDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
             }),
             new Company({
                 id: 'c3',
@@ -206,6 +353,10 @@ class MockDataService {
                 subscriptionPlan: 'basic',
                 jobPostingLimit: 5,
                 jobPostingsUsed: 3,
+                applicationResponseRate: 45,
+                averageTimeToUpdateStatus: 14.2,
+                profileAccessRequests: 34,
+                lastActivityDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
             }),
             new Company({
                 id: 'c4',
@@ -219,6 +370,10 @@ class MockDataService {
                 subscriptionPlan: 'advanced',
                 jobPostingLimit: 30,
                 jobPostingsUsed: 15,
+                applicationResponseRate: 88,
+                averageTimeToUpdateStatus: 3.1,
+                profileAccessRequests: 142,
+                lastActivityDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             }),
         ];
     }
@@ -284,6 +439,11 @@ class MockDataService {
                 views: 142,
                 applications: 8,
                 isPriority: true,
+                // Recommendation algorithm analytics
+                recommendationViews: 45,
+                recommendationClicks: 12,
+                recommendationApplications: 3,
+                averageMatchScore: 85,
                 createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             }),
             new Job({
@@ -308,6 +468,11 @@ class MockDataService {
                 status: 'active',
                 views: 98,
                 applications: 12,
+                // Recommendation algorithm analytics
+                recommendationViews: 32,
+                recommendationClicks: 8,
+                recommendationApplications: 4,
+                averageMatchScore: 78,
             }),
             new Job({
                 id: 'j3',
@@ -331,6 +496,11 @@ class MockDataService {
                 status: 'active',
                 views: 215,
                 applications: 25,
+                // Recommendation algorithm analytics
+                recommendationViews: 89,
+                recommendationClicks: 18,
+                recommendationApplications: 7,
+                averageMatchScore: 92,
             }),
             new Job({
                 id: 'j4',
@@ -355,6 +525,11 @@ class MockDataService {
                 views: 178,
                 applications: 15,
                 isPriority: true,
+                // Recommendation algorithm analytics
+                recommendationViews: 67,
+                recommendationClicks: 14,
+                recommendationApplications: 5,
+                averageMatchScore: 76,
             }),
             new Job({
                 id: 'j5',
@@ -377,6 +552,11 @@ class MockDataService {
                 status: 'active',
                 views: 95,
                 applications: 10,
+                // Recommendation algorithm analytics
+                recommendationViews: 28,
+                recommendationClicks: 6,
+                recommendationApplications: 2,
+                averageMatchScore: 82,
             }),
             new Job({
                 id: 'j6',
@@ -399,6 +579,11 @@ class MockDataService {
                 status: 'active',
                 views: 67,
                 applications: 7,
+                // Recommendation algorithm analytics
+                recommendationViews: 19,
+                recommendationClicks: 4,
+                recommendationApplications: 1,
+                averageMatchScore: 71,
             }),
         ];
     }
@@ -515,6 +700,10 @@ class MockDataService {
      * APPLICATIONS
      */
     generateMockApplications() {
+        const appliedDate1 = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
+        const appliedDate2 = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+        const appliedDate3 = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+
         return [
             new Application({
                 id: 'a1',
@@ -522,7 +711,15 @@ class MockDataService {
                 userId: '1',
                 status: 'under_review',
                 coverLetter: 'I am very interested in this position...',
-                appliedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                appliedAt: appliedDate1.toISOString(),
+                updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    { status: 'pending', updatedAt: appliedDate1.toISOString() },
+                    {
+                        status: 'under_review',
+                        updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
             }),
             new Application({
                 id: 'a2',
@@ -530,7 +727,19 @@ class MockDataService {
                 userId: '2',
                 status: 'interview',
                 coverLetter: 'With my experience in backend development...',
-                appliedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                appliedAt: appliedDate2.toISOString(),
+                updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    { status: 'pending', updatedAt: appliedDate2.toISOString() },
+                    {
+                        status: 'under_review',
+                        updatedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'interview',
+                        updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
             }),
             new Application({
                 id: 'a3',
@@ -538,7 +747,74 @@ class MockDataService {
                 userId: '1',
                 status: 'pending',
                 coverLetter: 'Excited about the internship opportunity...',
-                appliedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                appliedAt: appliedDate3.toISOString(),
+                updatedAt: appliedDate3.toISOString(),
+                statusUpdateHistory: [{ status: 'pending', updatedAt: appliedDate3.toISOString() }],
+            }),
+            new Application({
+                id: 'a4',
+                jobId: 'j1',
+                userId: '2',
+                status: 'rejected',
+                coverLetter: 'I am excited to apply for this role...',
+                appliedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    {
+                        status: 'pending',
+                        updatedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'under_review',
+                        updatedAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'rejected',
+                        updatedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
+            }),
+            new Application({
+                id: 'a5',
+                jobId: 'j2',
+                userId: '1',
+                status: 'pending',
+                coverLetter: 'Interested in joining your fintech team...',
+                appliedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    {
+                        status: 'pending',
+                        updatedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
+            }),
+            new Application({
+                id: 'a6',
+                jobId: 'j4',
+                userId: '2',
+                status: 'hired',
+                coverLetter: 'DevOps engineer with cloud expertise...',
+                appliedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                statusUpdateHistory: [
+                    {
+                        status: 'pending',
+                        updatedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'under_review',
+                        updatedAt: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'interview',
+                        updatedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    {
+                        status: 'hired',
+                        updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                ],
             }),
         ];
     }
@@ -672,6 +948,126 @@ class MockDataService {
                     new Language({ language: 'English', level: 'C1' }),
                     new Language({ language: 'Macedonian', level: 'C2' }),
                 ],
+                // Job recommendation preferences
+                workModePreference: 'hybrid',
+                locationPreference: 'Skopje',
+                salaryExpectation: { min: 700, max: 1200, currency: 'EUR' },
+                yearsOfExperience: 0.5, // 6 months from internship
+            }),
+            new CVProfile({
+                userId: '2',
+                workExperience: [
+                    new WorkExperience({
+                        id: 'we2',
+                        company: 'TechCorp Solutions',
+                        position: 'Full Stack Developer',
+                        startDate: '2022-01-01',
+                        endDate: '',
+                        description:
+                            'Developing full-stack web applications using React, Node.js, and PostgreSQL.',
+                    }),
+                    new WorkExperience({
+                        id: 'we3',
+                        company: 'StartupABC',
+                        position: 'Junior Developer',
+                        startDate: '2020-06-01',
+                        endDate: '2021-12-31',
+                        description: 'Worked on frontend development with JavaScript and Vue.js.',
+                    }),
+                ],
+                education: [
+                    new Education({
+                        id: 'ed2',
+                        institution: 'University of Skopje',
+                        degree: 'Bachelor',
+                        fieldOfStudy: 'Software Engineering',
+                        startDate: '2016-09-01',
+                        endDate: '2020-06-30',
+                        grade: '8.7/10',
+                    }),
+                ],
+                academyAttendance: [
+                    new AcademyAttendance({
+                        id: 'aa2',
+                        academyName: 'Avenga Academy',
+                        track: 'Full Stack Development',
+                        startDate: '2021-09-01',
+                        endDate: '2021-12-31',
+                        status: 'completed',
+                    }),
+                ],
+                skills: [
+                    'JavaScript',
+                    'React',
+                    'Node.js',
+                    'PostgreSQL',
+                    'Vue.js',
+                    'Git',
+                    'REST APIs',
+                    'Docker',
+                ],
+                languages: [
+                    new Language({ language: 'English', level: 'B2' }),
+                    new Language({ language: 'Macedonian', level: 'C2' }),
+                ],
+                // Job recommendation preferences
+                workModePreference: 'remote',
+                locationPreference: 'Remote',
+                salaryExpectation: { min: 1500, max: 2500, currency: 'EUR' },
+                yearsOfExperience: 4.0, // ~4 years total experience
+            }),
+            new CVProfile({
+                userId: '3',
+                workExperience: [
+                    new WorkExperience({
+                        id: 'we4',
+                        company: 'DataWorks Analytics',
+                        position: 'Data Analyst Intern',
+                        startDate: '2024-03-01',
+                        endDate: '',
+                        description:
+                            'Analyzing datasets and creating visualizations using Python and Power BI.',
+                    }),
+                ],
+                education: [
+                    new Education({
+                        id: 'ed3',
+                        institution: 'University of Skopje',
+                        degree: 'Bachelor',
+                        fieldOfStudy: 'Statistics',
+                        startDate: '2020-09-01',
+                        endDate: '2024-06-30',
+                        grade: '9.2/10',
+                    }),
+                ],
+                academyAttendance: [
+                    new AcademyAttendance({
+                        id: 'aa3',
+                        academyName: 'Avenga Academy',
+                        track: 'Data Analytics',
+                        startDate: '2024-01-01',
+                        endDate: '2024-04-30',
+                        status: 'completed',
+                    }),
+                ],
+                skills: [
+                    'Python',
+                    'SQL',
+                    'Excel',
+                    'Power BI',
+                    'Statistics',
+                    'Data Analysis',
+                    'Pandas',
+                ],
+                languages: [
+                    new Language({ language: 'English', level: 'B1' }),
+                    new Language({ language: 'Macedonian', level: 'C2' }),
+                ],
+                // Job recommendation preferences
+                workModePreference: 'onsite',
+                locationPreference: 'Skopje',
+                salaryExpectation: { min: 400, max: 700, currency: 'EUR' },
+                yearsOfExperience: 0.3, // 4 months internship
             }),
         ];
     }
@@ -729,39 +1125,201 @@ class MockDataService {
      * EVENTS
      */
     generateMockEvents() {
-        const futureDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+        const date1 = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+        const date2 = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+        const date3 = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
         return [
             new Event({
-                id: 'e1',
+                id: this.generateId('e_'),
                 title: 'Career Day 2026',
                 description: 'Meet top employers and explore career opportunities.',
                 type: 'career-day',
-                date: futureDate.toISOString().split('T')[0],
+                date: date1.toISOString().split('T')[0],
                 time: '10:00',
                 location: 'Avenga Academy - Skopje',
                 isOnline: false,
                 maxParticipants: 100,
                 registeredCount: 45,
+                actualAttendance: 38,
+                byProgramme: [
+                    { programme: 'Frontend Development', registered: 16, attended: 14, noShow: 2 },
+                    { programme: 'Backend Development', registered: 11, attended: 9, noShow: 2 },
+                    { programme: 'QA Engineering', registered: 9, attended: 8, noShow: 1 },
+                    { programme: 'Data Analytics', registered: 9, attended: 7, noShow: 2 },
+                ],
+                maxRegistrations: 5,
+                registeredUsers: [
+                    new User({
+                        id: 'u1',
+                        name: 'Test User 1',
+                        role: 'student',
+                        email: 'testuser1@gmail.com',
+                    }),
+                    new User({
+                        id: 'u2',
+                        name: 'Test User 2',
+                        role: 'alumni',
+                        email: 'testuser2@gmail.com',
+                    }),
+                    new User({
+                        id: 'u3',
+                        name: 'Test User 3',
+                        role: 'student',
+                        email: 'testuser3@gmail.com',
+                    }),
+                ],
             }),
             new Event({
-                id: 'e2',
+                id: this.generateId('e_'),
                 title: 'Web Development Workshop',
                 description: 'Hands-on workshop on modern web development practices.',
                 type: 'workshop',
-                date: futureDate.toISOString().split('T')[0],
+                date: date2.toISOString().split('T')[0],
                 time: '14:00',
                 location: 'Online',
                 isOnline: true,
                 maxParticipants: 50,
                 registeredCount: 32,
+                actualAttendance: 26,
+                byProgramme: [
+                    { programme: 'Frontend Development', registered: 12, attended: 10, noShow: 2 },
+                    { programme: 'Backend Development', registered: 8, attended: 7, noShow: 1 },
+                    { programme: 'QA Engineering', registered: 6, attended: 5, noShow: 1 },
+                    { programme: 'Data Analytics', registered: 6, attended: 4, noShow: 2 },
+                ],
+                maxRegistrations: 5,
+                registeredUsers: [
+                    new User({
+                        id: 'u4',
+                        name: 'Test User 4',
+                        role: 'alumni',
+                        email: 'testuser4@gmail.com',
+                    }),
+                    new User({
+                        id: 'u5',
+                        name: 'Test User 5',
+                        role: 'alumni',
+                        email: 'testuser5@gmail.com',
+                    }),
+                ],
+            }),
+            new Event({
+                id: this.generateId('e_'),
+                title: 'Netwroking Day',
+                description: 'Meet up with other students and establish networks.',
+                type: 'networking',
+                date: date3.toISOString().split('T')[0],
+                time: '02:00',
+                location: 'Avenga Academy - Skopje',
+                isOnline: false,
+                maxParticipants: 50,
+                registeredCount: 32,
+                actualAttendance: 26,
+                byProgramme: [
+                    { programme: 'Frontend Development', registered: 12, attended: 10, noShow: 2 },
+                    { programme: 'Backend Development', registered: 8, attended: 7, noShow: 1 },
+                    { programme: 'QA Engineering', registered: 6, attended: 5, noShow: 1 },
+                    { programme: 'Data Analytics', registered: 6, attended: 4, noShow: 2 },
+                ],
+                maxRegistrations: 5,
+                registeredUsers: [
+                    new User({
+                        id: 'u6',
+                        name: 'Test User 6',
+                        role: 'student',
+                        email: 'testuser6@gmail.com',
+                    }),
+                    new User({
+                        id: 'u7',
+                        name: 'Test User 7',
+                        role: 'alumni',
+                        email: 'testuser7@gmail.com',
+                    }),
+                    new User({
+                        id: 'u8',
+                        name: 'Test User8',
+                        role: 'student',
+                        email: 'testuser8@gmail.com',
+                    }),
+                    new User({
+                        id: 'u9',
+                        name: 'Test User 9',
+                        role: 'student',
+                        email: 'testuser9@gmail.com',
+                    }),
+                ],
             }),
         ];
     }
 
-    async getEvents() {
-        await this.simulateDelay();
-        return this.events;
+    /**
+     * RESOURCES
+     */
+    generateMockResourceObjects() {
+        return [
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'How to Write a Winning CV',
+                description:
+                    'A comprehensive guide covering structure, tone, and the most common mistakes students make. Includes a downloadable template.',
+                type: 'cv-guide',
+                contentBody: 'Your CV is often the first impression you make on an employer...',
+                externalUrl: 'https://www.themuse.com/advice/the-35-best-cv-tips-ever',
+                isGlobal: true,
+                programs: [],
+                status: 'active',
+                viewCount: 142,
+                organizerId: 'admin_01',
+                createdAt: new Date().toISOString(),
+            }),
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'Acing Your First Interview',
+                description:
+                    'Tips and techniques from industry professionals on how to prepare, present yourself, and follow up after an interview.',
+                type: 'interview-prep',
+                contentBody: 'Preparation is the key to interview success...',
+                externalUrl: '',
+                isGlobal: true,
+                programs: [],
+                status: 'active',
+                viewCount: 98,
+                organizerId: 'admin_01',
+                createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'Summer Internships 2026',
+                description:
+                    'A curated list of open internship positions across tech, finance, and media sectors available to students this summer.',
+                type: 'article',
+                contentBody:
+                    'The following companies are currently accepting internship applications...',
+                externalUrl: '',
+                isGlobal: false,
+                programs: ['software-engineering', 'data-science'],
+                status: 'active',
+                viewCount: 76,
+                organizerId: 'admin_01',
+                createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Resource({
+                id: this.generateId('r_'),
+                title: 'Portfolio Template – Creative Track',
+                description:
+                    'A ready-to-use portfolio template designed for students in design and creative programs.',
+                type: 'portfolio-template',
+                contentBody: 'Download the template and follow the setup instructions...',
+                externalUrl: 'https://www.figma.com',
+                isGlobal: false,
+                programs: ['graphic-design'],
+                status: 'active',
+                viewCount: 33,
+                organizerId: 'admin_01',
+                createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+        ];
     }
 
     async getEventById(id) {
@@ -850,6 +1408,52 @@ class MockDataService {
                 body: 'Hi Jane, we would like to invite you to an interview for the Senior position.',
                 read: false,
                 sentAt: new Date(now - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+        ];
+    }
+
+    generateMockResources() {
+        return [
+            new Resource({
+                id: 'r1',
+                title: 'Build a Job-Ready CV',
+                description:
+                    'A practical checklist for structuring your CV for entry-level software roles.',
+                type: 'cv-guide',
+                contentBody:
+                    'Start with a concise summary, highlight measurable project outcomes, and keep your technical stack specific. Tailor the top section for every application so employers can quickly match your profile to the role.',
+                externalUrl: 'https://example.com/resources/job-ready-cv',
+                isGlobal: true,
+                programs: ['frontend', 'backend', 'qa'],
+                status: 'active',
+                viewCount: 184,
+            }),
+            new Resource({
+                id: 'r2',
+                title: 'Interview Preparation Workbook',
+                description:
+                    'Common technical and behavioural prompts with a framework for better answers.',
+                type: 'interview-prep',
+                contentBody:
+                    'Prepare short stories that cover teamwork, debugging, ownership, and delivery under pressure. For technical interviews, practice explaining tradeoffs clearly instead of only focusing on the final answer.',
+                isGlobal: true,
+                programs: ['frontend', 'backend'],
+                status: 'active',
+                viewCount: 126,
+            }),
+            new Resource({
+                id: 'r3',
+                title: 'Portfolio Case Study Template',
+                description:
+                    'A reusable outline for turning academy and freelance work into stronger portfolio entries.',
+                type: 'portfolio-template',
+                contentBody:
+                    'Document the problem, constraints, implementation choices, and measurable impact. Strong case studies explain why decisions were made, not just what was built.',
+                externalUrl: 'https://example.com/resources/portfolio-template',
+                isGlobal: false,
+                programs: ['frontend'],
+                status: 'archived',
+                viewCount: 72,
             }),
         ];
     }
@@ -1295,10 +1899,1121 @@ class MockDataService {
     }
 
     /**
+     * Scheduled Reports
+     */
+    generateMockScheduledReports() {
+        return [
+            {
+                id: 'sr1',
+                name: 'Weekly Platform Overview',
+                description:
+                    'Platform KPIs, job funnel, and recommendation performance delivered every Monday.',
+                selectedMetrics: [
+                    'platformOverview',
+                    'jobApplicationFunnel',
+                    'recommendationAnalytics',
+                ],
+                selectedFilters: ['last30Days'],
+                selectedDimensions: ['jobs', 'students', 'recommendations'],
+                recipients: ['admin@avy.com'],
+                frequency: 'weekly',
+                nextRun: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+                lastRun: '',
+                active: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            },
+            {
+                id: 'sr2',
+                name: 'Weekly Employers Overview',
+                description: 'Company performance metrics and insights',
+                selectedMetrics: ['Company Performance'],
+                selectedFilters: ['last30Days'],
+                selectedDimensions: ['jobs', 'students', 'recommendations'],
+                recipients: ['admin@avy.com'],
+                frequency: 'weekly',
+                nextRun: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+                lastRun: '',
+                active: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            },
+            {
+                id: 'sr3',
+                name: 'Event Attendance',
+                description: 'Showing me infor about event attandance',
+                selectedMetrics: ['Event Attendance'],
+                selectedFilters: ['last30Days'],
+                selectedDimensions: ['jobs', 'students', 'recommendations'],
+                recipients: ['admin@avy.com'],
+                frequency: 'daily',
+                nextRun: '',
+                lastRun: '2026-05-01',
+                active: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            },
+        ];
+    }
+
+    /**
+     * PENDING ACTIONS
+     */
+    generateMockPendingActions() {
+        return [
+            {
+                id: 'pa1',
+                type: 'profile_approval',
+                description: 'Profile submission from Jane Smith requires review',
+                targetName: 'Jane Smith',
+                targetId: '2',
+                priority: 'high',
+                createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                icon: 'fa-user-check',
+            },
+            {
+                id: 'pa2',
+                type: 'employer_verification',
+                description: 'Company verification pending for TechCorp Solutions',
+                targetName: 'TechCorp Solutions',
+                targetId: 'c1',
+                priority: 'high',
+                createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                icon: 'fa-building',
+            },
+            {
+                id: 'pa3',
+                type: 'job_review',
+                description: 'Job posting "Senior Developer" at InnoSoft awaiting approval',
+                targetName: 'Senior Developer',
+                targetId: 'j2',
+                priority: 'medium',
+                createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+                icon: 'fa-briefcase',
+            },
+            {
+                id: 'pa4',
+                type: 'profile_approval',
+                description: 'Profile submission from John Doe requires review',
+                targetName: 'John Doe',
+                targetId: '1',
+                priority: 'medium',
+                createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+                icon: 'fa-user-check',
+            },
+        ];
+    }
+
+    generateMockScheduledReportDeliveries() {
+        return [
+            {
+                reportId: 'sr1',
+                name: 'Weekly Platform Overview',
+                deliveredAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+                recipients: ['admin@avy.com'],
+                summary:
+                    'Report Weekly Platform Overview delivered with 3 metric groups and 3 dimensions.',
+            },
+            {
+                reportId: 'sr1',
+                name: 'Weekly Platform Overview',
+                deliveredAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+                recipients: ['admin@avy.com'],
+                summary:
+                    'Report Weekly Platform Overview delivered with 3 metric groups and 3 dimensions.',
+            },
+            {
+                reportId: 'sr2',
+                name: 'Weekly Employers Overview',
+                deliveredAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+                recipients: ['admin@avy.com'],
+                summary:
+                    'Report Weekly Employers Overview delivered with 1 metric groups and 3 dimensions.',
+            },
+            {
+                reportId: 'sr2',
+                name: 'Weekly Employers Overview',
+                deliveredAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+                recipients: ['admin@avy.com'],
+                summary:
+                    'Report Weekly Employers Overview delivered with 1 metric groups and 3 dimensions.',
+            },
+            {
+                reportId: 'sr3',
+                name: 'Event Attendance',
+                deliveredAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+                recipients: ['admin@avy.com'],
+                summary: 'Report Event Attendance delivered with 1 metric groups and 3 dimensions.',
+            },
+        ];
+    }
+
+    async getScheduledReports() {
+        await this.simulateDelay();
+        return this.scheduledReports || [];
+    }
+
+    async saveScheduledReport(report) {
+        await this.simulateDelay();
+        const index = (this.scheduledReports || []).findIndex((item) => item.id === report.id);
+        if (index !== -1) {
+            this.scheduledReports[index] = {
+                ...this.scheduledReports[index],
+                ...report,
+                updatedAt: new Date().toISOString(),
+            };
+            this.saveToStorage();
+            return this.scheduledReports[index];
+        } else {
+            const newReport = {
+                ...report,
+                id: report.id || `sr${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+            this.scheduledReports = [...(this.scheduledReports || []), newReport];
+            this.saveToStorage();
+            return newReport;
+        }
+    }
+
+    async deleteScheduledReport(reportId) {
+        await this.simulateDelay();
+        this.scheduledReports = (this.scheduledReports || []).filter(
+            (report) => report.id !== reportId
+        );
+        this.saveToStorage();
+        return true;
+    }
+
+    async runScheduledReport(report) {
+        await this.simulateDelay();
+        const payload = {
+            reportId: report.id,
+            name: report.name,
+            deliveredAt: new Date().toISOString(),
+            recipients: report.recipients,
+            summary: `Report ${report.name} delivered with ${report.selectedMetrics.length} metric groups and ${report.selectedDimensions.length} dimensions.`,
+        };
+        if (!this.scheduledReportDeliveries) {
+            this.scheduledReportDeliveries = [];
+        }
+        this.scheduledReportDeliveries.push(payload);
+        const reportIndex = (this.scheduledReports || []).findIndex(
+            (item) => item.id === report.id
+        );
+        if (reportIndex !== -1) {
+            this.scheduledReports[reportIndex] = {
+                ...this.scheduledReports[reportIndex],
+                lastRun: payload.deliveredAt,
+                nextRun: this.calculateNextRun(report.frequency),
+                updatedAt: new Date().toISOString(),
+            };
+            this.saveToStorage();
+        }
+        return payload;
+    }
+
+    async getScheduledReportDeliveries() {
+        await this.simulateDelay();
+        return this.scheduledReportDeliveries || [];
+    }
+
+    calculateNextRun(frequency) {
+        const now = new Date();
+        switch (frequency) {
+            case 'daily':
+                return new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+            case 'weekly':
+                return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+            case 'monthly':
+                return new Date(
+                    now.getFullYear(),
+                    now.getMonth() + 1,
+                    now.getDate(),
+                    now.getHours(),
+                    now.getMinutes()
+                ).toISOString();
+            default:
+                return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        }
+    }
+
+    async getPendingActions() {
+        await this.simulateDelay();
+        return this.pendingActions;
+    }
+
+    /**
+     * ALERTS & NOTICES
+     */
+    generateMockAlerts() {
+        return [
+            {
+                id: 'al1',
+                type: 'error',
+                title: 'Email Send Failed',
+                message: '5 welcome emails failed to send to new registrations',
+                severity: 'error',
+                icon: 'fa-exclamation-circle',
+                timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+            },
+            {
+                id: 'al2',
+                type: 'warning',
+                title: 'Access Request Expiration',
+                message: '3 employer profile access requests expire in 2 days',
+                severity: 'warning',
+                icon: 'fa-clock',
+                timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+            },
+            {
+                id: 'al3',
+                type: 'warning',
+                title: 'Unusual Activity Detected',
+                message: 'Multiple failed login attempts detected from IP 192.168.1.x',
+                severity: 'warning',
+                icon: 'fa-shield-alt',
+                timestamp: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
+            },
+            {
+                id: 'al4',
+                type: 'info',
+                title: 'Database Backup Completed',
+                message: 'Platform database backup completed successfully',
+                severity: 'info',
+                icon: 'fa-check-circle',
+                timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+            },
+        ];
+    }
+
+    async getAlerts() {
+        await this.simulateDelay();
+        return this.alerts;
+    }
+
+    /**
+     * PLATFORM SETTINGS & PERMISSIONS
+     */
+    generatePermissionCatalog() {
+        return [
+            { id: 'admins.manage', label: 'Manage admin accounts', group: 'Access' },
+            { id: 'roles.configure', label: 'Configure roles and permissions', group: 'Access' },
+            { id: 'users.view', label: 'View platform users', group: 'Users' },
+            { id: 'jobs.review', label: 'Review jobs and employers', group: 'Content' },
+            { id: 'events.manage', label: 'Manage events and resources', group: 'Content' },
+            {
+                id: 'templates.notifications',
+                label: 'Edit in-app notification templates',
+                group: 'Templates',
+            },
+            { id: 'templates.email', label: 'Edit email templates', group: 'Templates' },
+            { id: 'privacy.configure', label: 'Configure privacy settings', group: 'Compliance' },
+            {
+                id: 'localisation.configure',
+                label: 'Manage localisation settings',
+                group: 'Compliance',
+            },
+            { id: 'audit.view', label: 'View platform audit log', group: 'Compliance' },
+            { id: 'exports.generate', label: 'Generate compliance exports', group: 'Compliance' },
+        ];
+    }
+
+    generateAdminRoles() {
+        return [
+            {
+                id: 'super_admin',
+                name: 'Super Admin',
+                description: 'Full platform access including permissions and compliance actions.',
+                permissions: this.permissionCatalog.map((permission) => permission.id),
+            },
+            {
+                id: 'operations_admin',
+                name: 'Operations Admin',
+                description: 'Runs day-to-day admin workflows across users, jobs, and events.',
+                permissions: [
+                    'admins.manage',
+                    'users.view',
+                    'jobs.review',
+                    'events.manage',
+                    'templates.notifications',
+                    'audit.view',
+                ],
+            },
+            {
+                id: 'compliance_admin',
+                name: 'Compliance Admin',
+                description: 'Owns audit visibility, privacy defaults, and export tooling.',
+                permissions: [
+                    'users.view',
+                    'privacy.configure',
+                    'localisation.configure',
+                    'audit.view',
+                    'exports.generate',
+                    'templates.email',
+                ],
+            },
+            {
+                id: 'communications_admin',
+                name: 'Communications Admin',
+                description: 'Maintains system copy and outbound messaging templates.',
+                permissions: ['events.manage', 'templates.notifications', 'templates.email'],
+            },
+        ];
+    }
+
+    async getPermissionCatalog() {
+        await this.simulateDelay();
+        return this.permissionCatalog;
+    }
+
+    async getAdminRoles() {
+        await this.simulateDelay();
+        return this.adminRoles.map((role) => ({
+            ...role,
+            memberCount: this.users.filter(
+                (user) =>
+                    user.role === 'admin' &&
+                    user.adminRoleId === role.id &&
+                    user.status !== 'deactivated'
+            ).length,
+        }));
+    }
+
+    async updateAdminRolePermissions(roleId, permissions) {
+        await this.simulateDelay();
+        const role = this.adminRoles.find((item) => item.id === roleId);
+        if (!role) {
+            return null;
+        }
+
+        role.permissions = [...permissions];
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Updated role permissions',
+            area: 'Access',
+            targetName: role.name,
+            severity: 'warning',
+            summary: `${permissions.length} permissions assigned`,
+        });
+
+        return role;
+    }
+
+    generateNotificationTemplates() {
+        return [
+            {
+                id: 'notif-profile-approved',
+                key: 'profile_approved',
+                name: 'Profile approved',
+                audience: 'Students',
+                trigger: 'Student profile approved by admin',
+                title: 'Your profile is live',
+                body: 'Your Avy profile has been approved and is now visible to employers on the platform.',
+                updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Maria Petrova',
+            },
+            {
+                id: 'notif-interview-invite',
+                key: 'interview_invitation',
+                name: 'Interview invitation',
+                audience: 'Students',
+                trigger: 'Employer moves candidate to interview stage',
+                title: 'You have a new interview invite',
+                body: 'A company invited you to interview. Open your applications to confirm the details.',
+                updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Admin User',
+            },
+            {
+                id: 'notif-event-reminder',
+                key: 'event_reminder',
+                name: 'Event reminder',
+                audience: 'Students',
+                trigger: '24 hours before an event starts',
+                title: 'Your event starts tomorrow',
+                body: 'Reminder: you are registered for an upcoming event. Check the event page for time and location.',
+                updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Maria Petrova',
+            },
+        ];
+    }
+
+    generateEmailTemplates() {
+        return [
+            {
+                id: 'email-welcome',
+                key: 'welcome_email',
+                name: 'Welcome email',
+                audience: 'All new accounts',
+                subject: 'Welcome to Avy by Avenga Academy',
+                previewText:
+                    'Start exploring jobs, events, and resources tailored to your journey.',
+                body: 'Hi {{firstName}},\n\nWelcome to Avy. Your account is ready and you can now explore the platform.\n\nBest,\nThe Avy team',
+                updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Admin User',
+            },
+            {
+                id: 'email-approval',
+                key: 'approval_notification',
+                name: 'Approval notification',
+                audience: 'Students and employers',
+                subject: 'Your Avy account has been approved',
+                previewText: 'Your account is now active and ready to use.',
+                body: 'Hi {{firstName}},\n\nGood news. Your account has been approved and you can now access the Avy platform.\n\nBest,\nThe Avy team',
+                updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Maria Petrova',
+            },
+            {
+                id: 'email-event-confirmation',
+                key: 'event_confirmation',
+                name: 'Event confirmation',
+                audience: 'Event registrants',
+                subject: 'You are registered for {{eventName}}',
+                previewText: 'Keep this email for your event details and reminders.',
+                body: 'Hi {{firstName}},\n\nYou are confirmed for {{eventName}} on {{eventDate}}. We will send a reminder before it starts.\n\nBest,\nThe Avy team',
+                updatedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+                updatedBy: 'Admin User',
+            },
+        ];
+    }
+
+    async getNotificationTemplates() {
+        await this.simulateDelay();
+        return this.notificationTemplates;
+    }
+
+    async updateNotificationTemplate(id, updates) {
+        await this.simulateDelay();
+        const template = this.notificationTemplates.find((item) => item.id === id);
+        if (!template) {
+            return null;
+        }
+
+        Object.assign(template, updates, {
+            updatedAt: new Date().toISOString(),
+            updatedBy: 'Admin User',
+        });
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Updated in-app template',
+            area: 'Templates',
+            targetName: template.name,
+            severity: 'info',
+            summary: template.trigger,
+        });
+        return template;
+    }
+
+    async getEmailTemplates() {
+        await this.simulateDelay();
+        return this.emailTemplates;
+    }
+
+    async updateEmailTemplate(id, updates) {
+        await this.simulateDelay();
+        const template = this.emailTemplates.find((item) => item.id === id);
+        if (!template) {
+            return null;
+        }
+
+        Object.assign(template, updates, {
+            updatedAt: new Date().toISOString(),
+            updatedBy: 'Admin User',
+        });
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Updated email template',
+            area: 'Templates',
+            targetName: template.name,
+            severity: 'info',
+            summary: template.subject,
+        });
+        return template;
+    }
+
+    generatePlatformSettings() {
+        return {
+            privacy: {
+                defaultProfileVisibility: 'private',
+                employerAccessRequestExpiryDays: 7,
+                consentLogRetentionDays: 365,
+                dsarResponseWindowDays: 30,
+            },
+            localisation: {
+                defaultLanguage: 'en',
+                supportedLanguages: [
+                    { code: 'en', name: 'English', enabled: true },
+                    { code: 'mk', name: 'Macedonian', enabled: true },
+                    { code: 'sq', name: 'Albanian', enabled: false },
+                    { code: 'de', name: 'German', enabled: false },
+                ],
+                timezone: 'Europe/Skopje',
+                dateFormat: 'DD/MM/YYYY',
+            },
+        };
+    }
+
+    async getPlatformSettings() {
+        await this.simulateDelay();
+        return this.platformSettings;
+    }
+
+    async updatePlatformSettings(updates) {
+        await this.simulateDelay();
+        this.platformSettings = {
+            ...this.platformSettings,
+            privacy: {
+                ...this.platformSettings.privacy,
+                ...(updates.privacy || {}),
+            },
+            localisation: {
+                ...this.platformSettings.localisation,
+                ...(updates.localisation || {}),
+                supportedLanguages:
+                    updates.localisation?.supportedLanguages ||
+                    this.platformSettings.localisation.supportedLanguages,
+            },
+        };
+
+        this.createAuditEntry({
+            actorName: 'Admin User',
+            actorRole: 'admin',
+            action: 'Updated platform settings',
+            area: 'Compliance',
+            targetName: 'Platform settings',
+            severity: 'warning',
+            summary: 'Privacy and localisation preferences updated',
+        });
+
+        return this.platformSettings;
+    }
+
+    generateAuditLog() {
+        const now = Date.now();
+        return [
+            {
+                id: 'audit-1',
+                timestamp: new Date(now - 25 * 60 * 1000).toISOString(),
+                actorName: 'Admin User',
+                actorRole: 'admin',
+                action: 'Approved employer account',
+                area: 'Access',
+                targetName: 'TechCorp Solutions',
+                severity: 'info',
+                summary: 'Employer application approved and access granted',
+            },
+            {
+                id: 'audit-2',
+                timestamp: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+                actorName: 'John Doe',
+                actorRole: 'student',
+                action: 'Updated profile visibility',
+                area: 'Privacy',
+                targetName: 'Student profile',
+                severity: 'warning',
+                summary: 'Visibility changed from public to private',
+            },
+            {
+                id: 'audit-3',
+                timestamp: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
+                actorName: 'Alice Johnson',
+                actorRole: 'employer',
+                action: 'Requested private profile access',
+                area: 'Compliance',
+                targetName: 'John Doe',
+                severity: 'warning',
+                summary: 'Employer requested access to a private student profile',
+            },
+            {
+                id: 'audit-4',
+                timestamp: new Date(now - 28 * 60 * 60 * 1000).toISOString(),
+                actorName: 'Maria Petrova',
+                actorRole: 'admin',
+                action: 'Updated notification template',
+                area: 'Templates',
+                targetName: 'Interview invitation',
+                severity: 'info',
+                summary: 'Adjusted copy to match new brand voice',
+            },
+        ];
+    }
+
+    createAuditEntry(entry) {
+        const record = {
+            id: this.generateId('audit'),
+            timestamp: new Date().toISOString(),
+            ...entry,
+        };
+        this.auditLog.unshift(record);
+        return record;
+    }
+
+    async getAuditLog(filters = {}) {
+        await this.simulateDelay();
+        const query = (filters.query || '').trim().toLowerCase();
+        return this.auditLog.filter((entry) => {
+            const matchesQuery =
+                !query ||
+                [entry.actorName, entry.action, entry.targetName, entry.summary]
+                    .filter(Boolean)
+                    .some((value) => value.toLowerCase().includes(query));
+            const matchesActorRole = !filters.actorRole || entry.actorRole === filters.actorRole;
+            const matchesArea = !filters.area || entry.area === filters.area;
+            const matchesSeverity = !filters.severity || entry.severity === filters.severity;
+
+            return matchesQuery && matchesActorRole && matchesArea && matchesSeverity;
+        });
+    }
+
+    async getComplianceExports() {
+        await this.simulateDelay();
+        return this.complianceExports;
+    }
+
+    async generateComplianceExport(request) {
+        await this.simulateDelay();
+        const domains = request.domains?.length
+            ? request.domains
+            : ['account', 'activity', 'communications'];
+        const payload =
+            request.accountType === 'employer'
+                ? this.buildEmployerExportPayload(request.accountId, domains)
+                : this.buildStudentExportPayload(request.accountId, domains);
+
+        if (!payload) {
+            throw new Error('Unable to generate export for the selected account.');
+        }
+
+        const content =
+            request.format === 'csv'
+                ? this.buildComplianceExportCsv(payload)
+                : JSON.stringify(payload, null, 2);
+        const exportRecord = {
+            id: this.generateId('export'),
+            accountType: request.accountType,
+            accountId: request.accountId,
+            requestedAt: new Date().toISOString(),
+            requestedBy: request.requestedBy || 'Admin User',
+            fileName: `avy-${request.accountType}-${request.accountId}.${request.format === 'csv' ? 'csv' : 'json'}`,
+            format: request.format === 'csv' ? 'csv' : 'json',
+            domains,
+            sizeLabel: `${Math.max(1, Math.ceil(content.length / 1024))} KB`,
+        };
+
+        this.complianceExports.unshift(exportRecord);
+        this.createAuditEntry({
+            actorName: exportRecord.requestedBy,
+            actorRole: 'admin',
+            action: 'Generated compliance export',
+            area: 'Compliance',
+            targetName: payload.account.name,
+            severity: 'warning',
+            summary: `${exportRecord.format.toUpperCase()} export with ${domains.join(', ')}`,
+        });
+
+        return {
+            ...exportRecord,
+            content,
+            mimeType:
+                exportRecord.format === 'csv'
+                    ? 'text/csv;charset=utf-8'
+                    : 'application/json;charset=utf-8',
+        };
+    }
+
+    buildStudentExportPayload(accountId, domains) {
+        const account = this.users.find(
+            (user) => user.id === accountId && (user.role === 'student' || user.role === 'alumni')
+        );
+        if (!account) {
+            return null;
+        }
+
+        const payload = {
+            account,
+            generatedAt: new Date().toISOString(),
+            domains,
+        };
+
+        if (domains.includes('account')) {
+            payload.profile =
+                this.cvProfiles.find((profile) => profile.userId === accountId) || null;
+        }
+        if (domains.includes('activity')) {
+            payload.applications = this.applications.filter(
+                (application) => application.userId === accountId
+            );
+            payload.auditTrail = this.auditLog.filter(
+                (entry) => entry.actorName === account.name || entry.targetName === account.name
+            );
+        }
+        if (domains.includes('communications')) {
+            payload.notifications = this.notifications.filter(
+                (notification) => notification.userId === accountId
+            );
+            payload.messages = this.messages.filter(
+                (message) => message.fromUserId === accountId || message.toUserId === accountId
+            );
+        }
+
+        return payload;
+    }
+
+    buildEmployerExportPayload(accountId, domains) {
+        const account = this.users.find(
+            (user) => user.id === accountId && user.role === 'employer'
+        );
+        if (!account) {
+            return null;
+        }
+
+        const company = this.companies.find((item) => item.id === account.companyId) || null;
+        const companyJobs = this.jobs.filter((job) => job.companyId === account.companyId);
+        const jobIds = new Set(companyJobs.map((job) => job.id));
+
+        const payload = {
+            account,
+            company,
+            generatedAt: new Date().toISOString(),
+            domains,
+        };
+
+        if (domains.includes('account')) {
+            payload.jobs = companyJobs;
+        }
+        if (domains.includes('activity')) {
+            payload.applications = this.applications.filter((application) =>
+                jobIds.has(application.jobId)
+            );
+            payload.auditTrail = this.auditLog.filter(
+                (entry) => entry.actorName === account.name || entry.targetName === company?.name
+            );
+        }
+        if (domains.includes('communications')) {
+            payload.notifications = this.notifications.filter(
+                (notification) => notification.userId === accountId
+            );
+            payload.messages = this.messages.filter(
+                (message) =>
+                    message.fromUserId === accountId ||
+                    message.toUserId === accountId ||
+                    message.companyId === account.companyId
+            );
+        }
+
+        return payload;
+    }
+
+    buildComplianceExportCsv(payload) {
+        const rows = [['Section', 'Record ID', 'Summary', 'Data']];
+        for (const [section, value] of Object.entries(payload)) {
+            if (section === 'generatedAt' || section === 'domains') {
+                continue;
+            }
+
+            if (Array.isArray(value)) {
+                if (value.length === 0) {
+                    rows.push([section, '', 'No records', '']);
+                    continue;
+                }
+
+                value.forEach((item) => {
+                    rows.push([
+                        section,
+                        item.id || '',
+                        item.name || item.title || item.subject || item.action || 'Record',
+                        JSON.stringify(item),
+                    ]);
+                });
+                continue;
+            }
+
+            rows.push([
+                section,
+                value?.id || '',
+                value?.name || value?.title || 'Record',
+                JSON.stringify(value),
+            ]);
+        }
+
+        return rows
+            .map((row) =>
+                row.map((value) => `"${String(value || '').replace(/"/g, '""')}"`).join(',')
+            )
+            .join('\n');
+    }
+
+    /**
      * UTILITY
      */
-    simulateDelay(ms = 300) {
+    generateId(prefix) {
+        return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    simulateDelay(ms = 0) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    /**
+     * JOB RECOMMENDATION ALGORITHM
+     */
+
+    //Calculate skill match score between student and job
+    calculateSkillMatchScore(studentSkills, requiredSkills, niceToHaveSkills) {
+        if (!studentSkills || studentSkills.length === 0) return 0;
+
+        const studentSkillsLower = studentSkills.map((s) => s.toLowerCase().trim());
+        const requiredLower = requiredSkills.map((s) => s.toLowerCase().trim());
+        const niceToHaveLower = niceToHaveSkills.map((s) => s.toLowerCase().trim());
+
+        // Calculate required skills match
+        const requiredMatches = requiredLower.filter((reqSkill) =>
+            studentSkillsLower.some(
+                (studentSkill) => studentSkill.includes(reqSkill) || reqSkill.includes(studentSkill)
+            )
+        ).length;
+
+        const requiredScore =
+            requiredSkills.length > 0 ? (requiredMatches / requiredSkills.length) * 60 : 60;
+
+        // Calculate nice-to-have skills match
+        const niceMatches = niceToHaveLower.filter((niceSkill) =>
+            studentSkillsLower.some(
+                (studentSkill) =>
+                    studentSkill.includes(niceSkill) || niceSkill.includes(studentSkill)
+            )
+        ).length;
+
+        const niceScore =
+            niceToHaveSkills.length > 0 ? (niceMatches / niceToHaveSkills.length) * 40 : 0;
+
+        return Math.round(requiredScore + niceScore);
+    }
+
+    /**
+     * Calculate work mode match score
+     */
+    calculateWorkModeMatchScore(studentWorkModePref, jobWorkMode) {
+        if (!studentWorkModePref || !jobWorkMode) return 50;
+
+        // Exact match
+        if (studentWorkModePref === jobWorkMode) return 100;
+
+        // Compatible matches
+        const compatibilityMap = {
+            hybrid: ['onsite', 'remote'],
+            remote: ['hybrid'],
+            onsite: ['hybrid'],
+        };
+
+        if (compatibilityMap[studentWorkModePref]?.includes(jobWorkMode)) return 75;
+
+        return 25; // No match
+    }
+
+    /**
+     * Calculate location match score
+     */
+    calculateLocationMatchScore(studentLocationPref, jobLocation) {
+        if (!studentLocationPref || !jobLocation) return 50;
+
+        // Remote jobs are flexible
+        if (jobLocation.toLowerCase() === 'remote') return 100;
+
+        // Student prefers remote work
+        if (studentLocationPref.toLowerCase() === 'remote') return 75;
+
+        // Location match
+        if (studentLocationPref.toLowerCase() === jobLocation.toLowerCase()) return 100;
+
+        return 25; // Different location
+    }
+
+    /**
+     * Calculate experience match score
+     */
+    calculateExperienceMatchScore(studentYearsExp, jobExperienceLevel) {
+        const experienceMap = {
+            intern: { min: 0, max: 0.5, ideal: 0 },
+            junior: { min: 0, max: 2, ideal: 1 },
+            mid: { min: 1, max: 5, ideal: 3 },
+            senior: { min: 3, max: 10, ideal: 5 },
+        };
+
+        const level = experienceMap[jobExperienceLevel];
+        if (!level) return 50;
+
+        const exp = studentYearsExp || 0;
+
+        // Too little experience
+        if (exp < level.min) return Math.max(10, (exp / level.min) * 50);
+
+        // Ideal range
+        if (exp >= level.min && exp <= level.max) {
+            const distanceFromIdeal = Math.abs(exp - level.ideal);
+            const maxDistance = level.ideal - level.min;
+            return Math.round(100 - (distanceFromIdeal / maxDistance) * 30);
+        }
+
+        // Too much experience (still good, but diminishing returns)
+        if (exp > level.max) {
+            const overExperience = exp - level.max;
+            return Math.max(70, 100 - overExperience * 5);
+        }
+
+        return 50;
+    }
+
+    /**
+     * Calculate salary match score
+     */
+    calculateSalaryMatchScore(studentSalaryExp, jobSalaryRange) {
+        if (!studentSalaryExp || !jobSalaryRange) return 50;
+
+        const studentMin = studentSalaryExp.min || 0;
+        const studentMax = studentSalaryExp.max || studentMin * 1.5;
+        const jobMin = jobSalaryRange.min || 0;
+        const jobMax = jobSalaryRange.max || jobMin * 1.5;
+
+        // Student expectations overlap with job range
+        const overlap = Math.max(0, Math.min(studentMax, jobMax) - Math.max(studentMin, jobMin));
+        const studentRange = studentMax - studentMin;
+        const jobRange = jobMax - jobMin;
+
+        if (overlap === 0) return 10; // No overlap
+
+        const overlapRatio = overlap / Math.max(studentRange, jobRange);
+        return Math.round(overlapRatio * 100);
+    }
+
+    /**
+     * Calculate overall match score for a job recommendation
+     */
+    calculateJobMatchScore(studentProfile, job) {
+        const weights = {
+            skills: 0.4,
+            workMode: 0.15,
+            location: 0.15,
+            experience: 0.15,
+            salary: 0.15,
+        };
+
+        const scores = {
+            skills: this.calculateSkillMatchScore(
+                studentProfile.skills,
+                job.requiredSkills,
+                job.niceToHaveSkills
+            ),
+            workMode: this.calculateWorkModeMatchScore(
+                studentProfile.workModePreference,
+                job.workMode
+            ),
+            location: this.calculateLocationMatchScore(
+                studentProfile.locationPreference,
+                job.location
+            ),
+            experience: this.calculateExperienceMatchScore(
+                studentProfile.yearsOfExperience,
+                job.experienceLevel
+            ),
+            salary: this.calculateSalaryMatchScore(
+                studentProfile.salaryExpectation,
+                job.salaryRange
+            ),
+        };
+
+        const totalScore = Object.entries(weights).reduce((total, [key, weight]) => {
+            return total + scores[key] * weight;
+        }, 0);
+
+        return {
+            totalScore: Math.round(totalScore),
+            breakdown: scores,
+            weights: weights,
+        };
+    }
+
+    /**
+     * Get job recommendations for a student
+     */
+    async getJobRecommendations(userId, limit = 10) {
+        await this.simulateDelay();
+
+        const studentProfile = this.cvProfiles.find((cv) => cv.userId === userId);
+        if (!studentProfile) {
+            throw new Error('Student profile not found');
+        }
+
+        // Get active jobs
+        const activeJobs = this.jobs.filter((job) => job.status === 'active');
+
+        // Calculate match scores for all jobs
+        const recommendations = activeJobs.map((job) => {
+            const matchResult = this.calculateJobMatchScore(studentProfile, job);
+            return {
+                job,
+                matchScore: matchResult.totalScore,
+                matchBreakdown: matchResult.breakdown,
+            };
+        });
+
+        // Sort by match score (descending) and prioritize premium jobs
+        recommendations.sort((a, b) => {
+            // First by match score
+            if (a.matchScore !== b.matchScore) {
+                return b.matchScore - a.matchScore;
+            }
+            // Then by priority status
+            if (a.job.isPriority !== b.job.isPriority) {
+                return b.job.isPriority ? 1 : -1;
+            }
+            // Finally by creation date (newer first)
+            return new Date(b.job.createdAt) - new Date(a.job.createdAt);
+        });
+
+        // Track recommendation view analytics
+        recommendations.slice(0, limit).forEach((rec) => {
+            this.trackRecommendationView(rec.job.id);
+        });
+
+        return recommendations.slice(0, limit);
+    }
+
+    /**
+     * Track when a job is viewed through recommendations
+     */
+    async trackRecommendationView(jobId) {
+        const jobIndex = this.jobs.findIndex((j) => j.id === jobId);
+        if (jobIndex !== -1) {
+            this.jobs[jobIndex].recommendationViews++;
+            this.saveToStorage();
+        }
+    }
+
+    /**
+     * Track when a job is clicked through recommendations
+     */
+    async trackRecommendationClick(jobId) {
+        const jobIndex = this.jobs.findIndex((j) => j.id === jobId);
+        if (jobIndex !== -1) {
+            this.jobs[jobIndex].recommendationClicks++;
+            this.saveToStorage();
+        }
+    }
+
+    /**
+     * Track when an application comes from recommendations
+     */
+    async trackRecommendationApplication(jobId) {
+        const jobIndex = this.jobs.findIndex((j) => j.id === jobId);
+        if (jobIndex !== -1) {
+            this.jobs[jobIndex].recommendationApplications++;
+            this.saveToStorage();
+        }
     }
 }
 

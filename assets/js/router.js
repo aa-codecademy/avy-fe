@@ -17,7 +17,6 @@ class Router {
         window.addEventListener('DOMContentLoaded', () => {
             this.navigate(this.normalizePath(window.location.pathname), false);
         });
-
         document.addEventListener('click', (e) => {
             const link = e.target.closest('[data-link]');
             if (link) {
@@ -78,7 +77,6 @@ class Router {
         const normalized = path.startsWith('/') ? path : `/${path}`;
         return this.withBasePath(normalized);
     }
-
     /**
      * Register a route
      * @param {string} path - Route path (e.g., '/', '/login', '/dashboard')
@@ -90,7 +88,7 @@ class Router {
         this.routes[path] = {
             controller,
             requiresAuth,
-            allowedRoles
+            allowedRoles,
         };
     }
 

@@ -28,7 +28,14 @@ import companyProfileController from './controllers/evergreen/companyProfileCont
 import adminUsersController from './controllers/meridian/adminUsersController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
 import adminEventsController from './controllers/meridian/adminEventsController.js';
+import adminResourcesController from './controllers/meridian/adminResourcesController.js';
+import adminAuditLogController from './controllers/meridian/adminAuditLogController.js';
+import adminComplianceController from './controllers/meridian/adminComplianceController.js';
 import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
+import adminPlatformSettingsController from './controllers/meridian/adminPlatformSettingsController.js';
+import adminRolePermissionsController from './controllers/meridian/adminRolePermissionsController.js';
+import adminSettingsController from './controllers/meridian/adminSettingsController.js';
+import adminTemplatesController from './controllers/meridian/adminTemplatesController.js';
 import notFoundController from './controllers/notFoundController.js';
 import applicantsPipelineController from './controllers/evergreen/applicantsPipelineController.js'; //test route for pipeline view
 // feature/forgot-password-at-login [Ognen]
@@ -52,7 +59,7 @@ window.refreshMessagesHeaderBadge = refreshMessagesHeaderBadge;
 /**
  * Initialize application
  */
-function initApp() {
+async function initApp() {
     console.log(
         '%c🚀 Avy Application Started',
         'color: #667eea; font-size: 16px; font-weight: bold;'
@@ -65,7 +72,9 @@ function initApp() {
     // Register routes
     registerRoutes();
 
-    // Initialize router (will handle initial navigation)
+    // Trigger the first navigation only after routes are registered.
+    await router.navigate(window.location.pathname, false);
+
     console.log('✅ Router initialized');
 }
 
@@ -96,6 +105,12 @@ function registerRoutes() {
     // Employer routes (Evergreen module)
     router.addRoute('/employer/post-job', postJobController, true, ['employer']);
     router.addRoute('/employer/candidates', candidatesController, true, ['employer']);
+    router.addRoute(
+        '/employer/jobs',
+        createPlaceholderController('My Jobs', 'Manage your job postings'),
+        true,
+        ['employer']
+    );
     router.addRoute('/employer/jobs', myJobsController, true, ['employer']);
     router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
@@ -123,7 +138,14 @@ function registerRoutes() {
     );
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/admin/events', adminEventsController, true, ['admin']);
+    router.addRoute('/admin/resources', adminResourcesController, true, ['admin']);
     router.addRoute('/admin/notifications', adminNotificationsController, true, ['admin']);
+    router.addRoute('/admin/settings', adminSettingsController, true, ['admin']);
+    router.addRoute('/admin/settings/roles', adminRolePermissionsController, true, ['admin']);
+    router.addRoute('/admin/settings/templates', adminTemplatesController, true, ['admin']);
+    router.addRoute('/admin/settings/platform', adminPlatformSettingsController, true, ['admin']);
+    router.addRoute('/admin/settings/audit', adminAuditLogController, true, ['admin']);
+    router.addRoute('/admin/settings/compliance', adminComplianceController, true, ['admin']);
 
     // 404 route (must be last)
     router.addRoute('/404', notFoundController, false);

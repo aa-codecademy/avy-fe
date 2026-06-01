@@ -210,6 +210,10 @@ body {
     overflow-y: auto;
 }
 
+.modal-content-wide {
+    max-width: 720px;
+}
+
 /* Avenga Academy Brand Utilities */
 .text-brand-primary {
     color: var(--color-primary);
