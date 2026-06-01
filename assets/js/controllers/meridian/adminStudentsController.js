@@ -85,6 +85,15 @@ export default async function adminStudentsController() {
                                         </select>
                                     </div>
                                     <div>
+                                        <label class="form-label">Account Status</label>
+                                        <select id="filterAccountStatus" class="form-input">
+                                            <option value="">All</option>
+                                            <option value="active">Active</option>
+                                            <option value="suspended">Suspended</option>
+                                            <option value="deactivated">Deactivated</option>
+                                        </select>
+                                    </div>
+                                    <div>
                                         <label class="form-label">Sort By</label>
                                         <select id="sortStudents" class="form-input">
                                             <option value="name">Name (A–Z)</option>
@@ -155,6 +164,19 @@ function renderStudentCard(student) {
                              <i class="fas ${statusCfg.icon} mr-1"></i>${statusCfg.label}
                          </span>`;
 
+    const accountStatusConfig = {
+        active:      { icon: 'fa-check-circle', cls: 'bg-green-100 text-green-700',   label: 'Active' },
+        suspended:   { icon: 'fa-pause-circle', cls: 'bg-orange-100 text-orange-700', label: 'Suspended' },
+        deactivated: { icon: 'fa-ban',          cls: 'bg-red-100 text-red-700',        label: 'Deactivated' },
+    };
+    const acctStatus = student.accountStatus || 'active';
+    const acctCfg = accountStatusConfig[acctStatus] || accountStatusConfig.active;
+    const accountStatusBadge = acctStatus !== 'active'
+        ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${acctCfg.cls}">
+               <i class="fas ${acctCfg.icon} mr-1"></i>${acctCfg.label}
+           </span>`
+        : '';
+
     const trackColors = {
         'Frontend Development': 'bg-blue-100 text-blue-800',
         'Backend Development': 'bg-green-100 text-green-800',
@@ -179,8 +201,10 @@ function renderStudentCard(student) {
         day: 'numeric', month: 'short', year: 'numeric'
     });
 
+    const cardOpacity = acctStatus === 'deactivated' ? 'opacity-60' : '';
+
     return `
-        <div class="card hover:shadow-xl transition duration-300 cursor-pointer"
+        <div class="card hover:shadow-xl transition duration-300 cursor-pointer ${cardOpacity}"
              onclick="window.router.navigate('/admin/students/${student.id}')">
             <div class="flex gap-5">
                 <div class="flex-shrink-0">
@@ -197,6 +221,7 @@ function renderStudentCard(student) {
                             ${trackBadge}
                             ${visibilityBadge}
                             ${statusBadge}
+                            ${accountStatusBadge}
                         </div>
                     </div>
                     <p class="text-sm text-gray-600 mb-2">
@@ -246,6 +271,7 @@ function setupEventListeners(allStudents) {
         const track = document.getElementById('filterTrack').value;
         const visibility = document.getElementById('filterVisibility').value;
         const status = document.getElementById('filterStatus').value;
+        const accountStatus = document.getElementById('filterAccountStatus').value;
         const sort = document.getElementById('sortStudents').value;
 
         filtered = allStudents.filter(s => {
@@ -259,8 +285,9 @@ function setupEventListeners(allStudents) {
             const matchTrack = !track || s.academyTrack === track;
             const matchVisibility = !visibility || s.profileVisibility === visibility;
             const matchStatus = !status || s.profileStatus === status;
+            const matchAccountStatus = !accountStatus || (s.accountStatus || 'active') === accountStatus;
 
-            return matchSearch && matchTrack && matchVisibility && matchStatus;
+            return matchSearch && matchTrack && matchVisibility && matchStatus && matchAccountStatus;
         });
 
         if (sort === 'name') {
@@ -283,6 +310,7 @@ function setupEventListeners(allStudents) {
     document.getElementById('filterTrack').addEventListener('change', applyFilters);
     document.getElementById('filterVisibility').addEventListener('change', applyFilters);
     document.getElementById('filterStatus').addEventListener('change', applyFilters);
+    document.getElementById('filterAccountStatus').addEventListener('change', applyFilters);
     document.getElementById('sortStudents').addEventListener('change', applyFilters);
 
     document.getElementById('clearFiltersBtn').addEventListener('click', () => {
@@ -290,6 +318,7 @@ function setupEventListeners(allStudents) {
         document.getElementById('filterTrack').value = '';
         document.getElementById('filterVisibility').value = '';
         document.getElementById('filterStatus').value = '';
+        document.getElementById('filterAccountStatus').value = '';
         document.getElementById('sortStudents').value = 'name';
         filtered = [...allStudents];
         updateDisplay();
