@@ -388,6 +388,43 @@ class MockDataService {
                 };
             });
     }
+
+    async getStudentsForExport() {
+        await this.simulateDelay();
+        return this.users
+            .filter(u => u.role === 'student')
+            .map(student => {
+                const cv         = this.cvProfiles.find(c => c.userId === student.id) || new CVProfile({ userId: student.id });
+                const attendance = cv.academyAttendance[0];
+                const education  = cv.education[0];
+                return {
+                    name:                student.name,
+                    email:               student.email,
+                    phone:               student.phone              || '',
+                    dateOfBirth:         student.dateOfBirth        || '',
+                    citizenship:         student.citizenship        || '',
+                    accountStatus:       student.accountStatus      || 'active',
+                    profileStatus:       student.profileStatus      || 'pending',
+                    profileVisibility:   student.profileVisibility  || 'private',
+                    currentPosition:     student.currentPosition    || '',
+                    linkedIn:            student.linkedIn           || '',
+                    portfolio:           student.portfolio          || '',
+                    createdAt:           student.createdAt          || '',
+                    academyName:         attendance?.academyName    || '',
+                    academyTrack:        attendance?.track          || '',
+                    academyStartDate:    attendance?.startDate      || '',
+                    academyEndDate:      attendance?.endDate        || '',
+                    academyStatus:       attendance?.status         || '',
+                    educationDegree:     education
+                        ? `${education.degree} in ${education.fieldOfStudy}`
+                        : (student.educationDegree || ''),
+                    educationInstitution: education?.institution    || '',
+                    educationGrade:       education?.grade          || '',
+                    skills:              (cv.skills    || []).join(', '),
+                    languages:           (cv.languages || []).map(l => `${l.language} (${l.level})`).join(', '),
+                };
+            });
+    }
     
     /**
      * COMPANIES

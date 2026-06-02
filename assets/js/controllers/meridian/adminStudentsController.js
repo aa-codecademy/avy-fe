@@ -29,10 +29,16 @@ export default async function adminStudentsController() {
                             </h1>
                             <p class="text-gray-600">Search and filter all registered students</p>
                         </div>
-                        <a href="/admin/students/import" data-link
-                            class="btn btn-primary flex items-center gap-2 flex-shrink-0">
-                            <i class="fas fa-file-import"></i>Import CSV
-                        </a>
+                        <div class="flex flex-wrap items-center gap-3 flex-shrink-0">
+                            <a href="/admin/students/export" data-link
+                                class="btn btn-secondary flex items-center gap-2">
+                                <i class="fas fa-file-export"></i>Export
+                            </a>
+                            <a href="/admin/students/import" data-link
+                                class="btn btn-primary flex items-center gap-2">
+                                <i class="fas fa-file-import"></i>Import CSV
+                            </a>
+                        </div>
                     </div>
 
                     ${pendingCount > 0 ? `
