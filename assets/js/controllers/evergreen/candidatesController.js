@@ -9,19 +9,19 @@ import { renderAppHeader } from '../../views/appHeader.js';
 export default async function candidatesController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
-    
+
     if (!user || user.role !== 'employer') {
         window.router.navigate('/dashboard');
         return;
     }
-    
+
     const students = await mockDataService.getUsersByRole('student');
     const alumni = await mockDataService.getUsersByRole('alumni');
     const allCandidates = [...students, ...alumni];
-    
+
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
-        
+
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
                 <div class="fade-in">
@@ -32,7 +32,7 @@ export default async function candidatesController() {
                         </h1>
                         <p class="text-gray-600">Browse students and alumni from Avenga Academy</p>
                     </div>
-                    
+
                     <div class="grid lg:grid-cols-4 gap-6">
                         <div class="lg:col-span-1">
                             <div class="card sticky top-4">
@@ -69,7 +69,7 @@ export default async function candidatesController() {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="lg:col-span-3">
                             <div class="card mb-6">
                                 <div class="flex justify-between items-center">
@@ -83,11 +83,13 @@ export default async function candidatesController() {
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <div id="candidatesGrid" class="space-y-4">
                                 ${renderCandidatesGrid(allCandidates)}
                             </div>
-                            
+
+                            ${renderContactModal()}
+
                             <div id="noCandidates" class="card text-center py-12 hidden">
                                 <i class="fas fa-user-slash text-gray-300 text-6xl mb-4"></i>
                                 <p class="text-gray-500 text-lg">No candidates match your filters</p>
@@ -98,18 +100,19 @@ export default async function candidatesController() {
             </div>
         </div>
     `;
-    
+
     setupEventListeners(allCandidates);
-    
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 }
 
 function renderCandidatesGrid(candidates) {
     if (candidates.length === 0) return '';
-    return candidates.map(candidate => {
-        const isPrivate = candidate.profileVisibility === 'private';
-        return `
+    return candidates
+        .map((candidate) => {
+            const isPrivate = candidate.profileVisibility === 'private';
+            return `
             <div class="card hover:shadow-xl transition duration-300">
                 <div class="flex gap-6">
                     <div class="flex-shrink-0">
@@ -132,15 +135,49 @@ function renderCandidatesGrid(candidates) {
                         <div class="flex gap-3">
                             <button class="btn btn-primary text-sm" onclick="viewCandidateProfile('${candidate.id}')">View Profile</button>
                             <button class="btn btn-secondary text-sm" onclick="saveCandidate('${candidate.id}')">Save</button>
-                            ${isPrivate
-                                ? `<button class="btn btn-secondary text-sm" onclick="requestAccess('${candidate.id}')">Request Access</button>`
-                                : `<button class="btn btn-secondary text-sm" onclick="contactCandidate('${candidate.id}')">Contact</button>`}
+                            ${
+                                isPrivate
+                                    ? `<button class="btn btn-secondary text-sm" onclick="requestAccess('${candidate.id}')">Request Access</button>`
+                                    : `<button class="btn btn-secondary text-sm" onclick="contactCandidate('${candidate.id}')">Contact</button>`
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         `;
-    }).join('');
+        })
+        .join('');
+}
+
+function renderContactModal() {
+    return `
+        <div id="contactModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-1">Contact Candidate</h2>
+                        <p class="text-gray-600 text-sm" id="contactModalCandidateName"></p>
+                    </div>
+                    <button type="button" id="closeContactModal" class="btn btn-secondary btn-sm">&times;</button>
+                </div>
+                <form id="contactForm" class="space-y-4">
+                    <input type="hidden" id="contactCandidateId" />
+                    <div>
+                        <label class="form-label" for="contactSubject">Subject</label>
+                        <input type="text" id="contactSubject" class="form-input" required placeholder="Subject" />
+                    </div>
+                    <div>
+                        <label class="form-label" for="contactMessage">Message</label>
+                        <textarea id="contactMessage" class="form-input h-32" required placeholder="Write your message..."></textarea>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" id="cancelContactBtn" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Send message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
 }
 
 function setupEventListeners(allCandidates) {
@@ -164,13 +201,16 @@ function setupEventListeners(allCandidates) {
         const type = document.getElementById('filterType').value;
         const visibility = document.getElementById('filterVisibility').value;
         filteredCandidates = allCandidates.filter((candidate) => {
-            const searchMatch = !search ||
+            const searchMatch =
+                !search ||
                 candidate.name.toLowerCase().includes(search) ||
                 candidate.currentPosition?.toLowerCase().includes(search) ||
                 candidate.educationDegree?.toLowerCase().includes(search);
-            return searchMatch &&
+            return (
+                searchMatch &&
                 (!type || candidate.role === type) &&
-                (!visibility || candidate.profileVisibility === visibility);
+                (!visibility || candidate.profileVisibility === visibility)
+            );
         });
         updateCandidatesDisplay();
     };
@@ -186,12 +226,83 @@ function setupEventListeners(allCandidates) {
     document.getElementById('sortCandidates').addEventListener('change', (e) => {
         const sortBy = e.target.value;
         if (sortBy === 'name') filteredCandidates.sort((a, b) => a.name.localeCompare(b.name));
-        if (sortBy === 'students') filteredCandidates.sort((a, b) => a.role === 'student' ? -1 : 1);
-        if (sortBy === 'alumni') filteredCandidates.sort((a, b) => a.role === 'alumni' ? -1 : 1);
+        if (sortBy === 'students')
+            filteredCandidates.sort((a, b) => (a.role === 'student' ? -1 : 1));
+        if (sortBy === 'alumni') filteredCandidates.sort((a, b) => (a.role === 'alumni' ? -1 : 1));
         updateCandidatesDisplay();
     });
-    window.viewCandidateProfile = (candidateId) => alert(`View profile for candidate ${candidateId} (to be implemented)`);
-    window.saveCandidate = (candidateId) => alert(`Candidate ${candidateId} saved to your shortlist`);
-    window.requestAccess = (candidateId) => alert(`Access request sent to candidate ${candidateId}`);
-    window.contactCandidate = (candidateId) => alert(`Contact form for candidate ${candidateId} (to be implemented)`);
+
+    const candidateMap = allCandidates.reduce((map, candidate) => {
+        map[candidate.id] = candidate;
+        return map;
+    }, {});
+
+    const contactModal = document.getElementById('contactModal');
+    const contactForm = document.getElementById('contactForm');
+    const closeContactModal = document.getElementById('closeContactModal');
+    const cancelContactBtn = document.getElementById('cancelContactBtn');
+
+    const closeModal = () => {
+        contactModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    };
+
+    const openModal = (candidate) => {
+        document.getElementById('contactCandidateId').value = candidate.id;
+        document.getElementById('contactModalCandidateName').textContent = candidate.name;
+        document.getElementById('contactSubject').value =
+            `Opportunity from ${candidate.currentPosition || 'your team'}`;
+        document.getElementById('contactMessage').value =
+            `Hi ${candidate.name.split(' ')[0] || candidate.name},\n\nI would like to discuss a possible opportunity with you. Please let me know when you are available for a short conversation.\n\nBest regards,`;
+        contactModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    };
+
+    contactForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const candidateId = document.getElementById('contactCandidateId').value;
+        const subject = document.getElementById('contactSubject').value.trim();
+        const message = document.getElementById('contactMessage').value.trim();
+        const candidate = candidateMap[candidateId];
+
+        if (!candidate) {
+            alert('Candidate not found.');
+            return;
+        }
+
+        if (!subject || !message) {
+            alert('Please add a subject and message.');
+            return;
+        }
+
+        // Replace this with a real API call when available
+        console.log('Contact candidate', {
+            candidateId,
+            candidateEmail: candidate.email,
+            subject,
+            message,
+        });
+
+        alert(`Message sent to ${candidate.name}!`);
+        closeModal();
+    });
+
+    closeContactModal.addEventListener('click', closeModal);
+    cancelContactBtn.addEventListener('click', closeModal);
+    contactModal.addEventListener('click', (event) => {
+        if (event.target === contactModal) closeModal();
+    });
+
+    window.viewCandidateProfile = (candidateId) =>
+        alert(`View profile for candidate ${candidateId} (to be implemented)`);
+    window.saveCandidate = (candidateId) =>
+        alert(`Candidate ${candidateId} saved to your shortlist`);
+    window.requestAccess = (candidateId) =>
+        alert(`Access request sent to candidate ${candidateId}`);
+    window.contactCandidate = (candidateId) => {
+        const candidate = candidateMap[candidateId];
+        if (candidate) {
+            openModal(candidate);
+        }
+    };
 }
