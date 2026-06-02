@@ -171,6 +171,7 @@ class Router {
             if (user?.id) {
                 if (typeof window.refreshHeaderBadge === 'function') window.refreshHeaderBadge(user.id);
                 if (typeof window.refreshMessagesHeaderBadge === 'function') window.refreshMessagesHeaderBadge(user.id);
+                if (typeof window.initializeLanguageSelector === 'function') window.initializeLanguageSelector();
             }
         } catch (error) {
             console.error('Error loading route:', error);
