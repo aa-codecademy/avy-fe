@@ -33,6 +33,7 @@ import adminStudentEditController from './controllers/meridian/adminStudentEditC
 import adminStudentImportController from './controllers/meridian/adminStudentImportController.js';
 import adminStudentExportController from './controllers/meridian/adminStudentExportController.js';
 import adminStudentProgrammeController from './controllers/meridian/adminStudentProgrammeController.js';
+import adminStudentPrivacyLogController from './controllers/meridian/adminStudentPrivacyLogController.js';
 import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminResourcesController from './controllers/meridian/adminResourcesController.js';
 import adminAuditLogController from './controllers/meridian/adminAuditLogController.js';
@@ -127,6 +128,7 @@ function registerRoutes() {
     router.addRoute('/admin/students/export', adminStudentExportController, true, ['admin']);
     router.addRoute('/admin/students/:id/edit', adminStudentEditController, true, ['admin']);
     router.addRoute('/admin/students/:id/programme', adminStudentProgrammeController, true, ['admin']);
+    router.addRoute('/admin/students/:id/privacy-log', adminStudentPrivacyLogController, true, ['admin']);
     router.addRoute('/admin/students/:id', adminStudentDetailController, true, ['admin']);
     router.addRoute('/admin/jobs', createPlaceholderController('Job Management', 'Manage all job postings'), true, ['admin']);
     router.addRoute(

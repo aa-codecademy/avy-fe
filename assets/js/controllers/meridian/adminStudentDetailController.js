@@ -565,6 +565,10 @@ function renderAdminActionsCard(student, cv) {
                     class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-indigo-600 border border-indigo-300 bg-white hover:bg-indigo-50 transition">
                     <i class="fas fa-graduation-cap"></i> ${programmeBtnLabel}
                 </a>
+                <a href="/admin/students/${student.id}/privacy-log" data-link
+                    class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-teal-600 border border-teal-300 bg-white hover:bg-teal-50 transition">
+                    <i class="fas fa-eye"></i> View Privacy Log
+                </a>
             </div>
         </div>
     `;
