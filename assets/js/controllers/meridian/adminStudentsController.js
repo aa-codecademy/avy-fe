@@ -147,7 +147,8 @@ function renderStudentCard(student) {
     });
 
     return `
-        <div class="card hover:shadow-xl transition duration-300">
+        <div class="card hover:shadow-xl transition duration-300 cursor-pointer"
+             onclick="window.router.navigate('/admin/students/${student.id}')">
             <div class="flex gap-5">
                 <div class="flex-shrink-0">
                     <img src="${student.avatar}" alt="${student.name}"
@@ -171,9 +172,14 @@ function renderStudentCard(student) {
                     <div class="flex flex-wrap gap-1 mb-3">
                         ${skillChips}${extraSkills}
                     </div>
-                    <p class="text-xs text-gray-400">
-                        <i class="fas fa-calendar-alt mr-1"></i> Joined ${joinedDate}
-                    </p>
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs text-gray-400">
+                            <i class="fas fa-calendar-alt mr-1"></i> Joined ${joinedDate}
+                        </p>
+                        <span class="text-xs text-purple-600 font-medium">
+                            View Profile <i class="fas fa-arrow-right ml-1"></i>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
