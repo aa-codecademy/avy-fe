@@ -40,6 +40,7 @@ export default async function adminStudentDetailController(params = {}) {
 
                         <!-- Left column -->
                         <div class="lg:col-span-1 space-y-6">
+                            ${renderAdminActionsCard(student)}
                             ${renderHeroCard(student, cv)}
                             ${renderCompletenessCard(completeness)}
                             ${renderContactCard(student)}
@@ -62,6 +63,95 @@ export default async function adminStudentDetailController(params = {}) {
 
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
+
+    setupAdminActions(studentId, student.profileStatus);
+}
+
+function setupAdminActions(studentId, currentStatus) {
+    const approveBtn = document.getElementById('approveBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
+
+    if (approveBtn) {
+        approveBtn.addEventListener('click', async () => {
+            approveBtn.disabled = true;
+            approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Approving...';
+            await mockDataService.updateProfileStatus(studentId, 'approved');
+            window.router.navigate('/admin/students/' + studentId);
+        });
+    }
+
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', () => showRejectModal(studentId));
+    }
+}
+
+function showRejectModal(studentId) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-gray-800">
+                    <i class="fas fa-times-circle text-red-500 mr-2"></i>Reject Profile
+                </h2>
+                <button id="closeRejectModal" class="text-gray-400 hover:text-gray-600 text-xl leading-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">
+                Provide a reason for rejecting this profile submission. This note is for internal admin records only.
+            </p>
+            <div class="mb-5">
+                <label class="form-label text-sm">
+                    Rejection Reason <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                    id="rejectionNote"
+                    class="form-input"
+                    rows="4"
+                    placeholder="e.g. Profile information is incomplete or links are unverifiable..."
+                ></textarea>
+                <p id="noteError" class="text-xs text-red-500 mt-1 hidden">
+                    <i class="fas fa-exclamation-circle mr-1"></i>Please provide a rejection reason.
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelRejectBtn" class="flex-1 btn btn-secondary" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
+                    Cancel
+                </button>
+                <button id="confirmRejectBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition">
+                    <i class="fas fa-times"></i> Confirm Rejection
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    document.getElementById('closeRejectModal').addEventListener('click', close);
+    document.getElementById('cancelRejectBtn').addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+    document.getElementById('confirmRejectBtn').addEventListener('click', async () => {
+        const note = document.getElementById('rejectionNote').value.trim();
+        const errorEl = document.getElementById('noteError');
+
+        if (!note) {
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        errorEl.classList.add('hidden');
+        const confirmBtn = document.getElementById('confirmRejectBtn');
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Rejecting...';
+
+        await mockDataService.updateProfileStatus(studentId, 'rejected', note);
+        close();
+        window.router.navigate('/admin/students/' + studentId);
+    });
 }
 
 function computeCompleteness(student, cv) {
@@ -80,6 +170,93 @@ function computeCompleteness(student, cv) {
     ];
     const done = checks.filter(c => c.done).length;
     return { checks, done, total: checks.length, percent: Math.round((done / checks.length) * 100) };
+}
+
+function renderAdminActionsCard(student) {
+    const configs = {
+        pending: {
+            wrapperCls: 'border border-amber-200 bg-amber-50',
+            badgeCls:   'bg-amber-100 text-amber-800',
+            icon:       'fa-clock',
+            label:      'Pending Review',
+        },
+        approved: {
+            wrapperCls: 'border border-emerald-200 bg-emerald-50',
+            badgeCls:   'bg-emerald-100 text-emerald-800',
+            icon:       'fa-check-circle',
+            label:      'Approved',
+        },
+        rejected: {
+            wrapperCls: 'border border-red-200 bg-red-50',
+            badgeCls:   'bg-red-100 text-red-800',
+            icon:       'fa-times-circle',
+            label:      'Rejected',
+        },
+    };
+
+    const cfg = configs[student.profileStatus] || configs.pending;
+
+    const updatedAt = student.profileStatusUpdatedAt
+        ? new Date(student.profileStatusUpdatedAt).toLocaleDateString('en-GB', {
+              day: 'numeric', month: 'short', year: 'numeric'
+          })
+        : null;
+
+    const noteBlock = student.profileStatus === 'rejected' && student.profileStatusNote
+        ? `<div class="mt-3 p-3 bg-white rounded-lg border border-red-100">
+               <p class="text-xs font-semibold text-red-700 mb-1">
+                   <i class="fas fa-sticky-note mr-1"></i>Rejection note:
+               </p>
+               <p class="text-xs text-red-600 leading-relaxed">${student.profileStatusNote}</p>
+           </div>`
+        : '';
+
+    let actions = '';
+    if (student.profileStatus === 'pending') {
+        actions = `
+            <div class="flex gap-2 mt-4">
+                <button id="approveBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+                <button id="rejectBtn"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+            </div>`;
+    } else if (student.profileStatus === 'approved') {
+        actions = `
+            <div class="mt-4">
+                <button id="rejectBtn"
+                    class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-300 bg-white hover:bg-red-50 transition">
+                    <i class="fas fa-times"></i> Reject Profile
+                </button>
+            </div>`;
+    } else {
+        actions = `
+            <div class="mt-4">
+                <button id="approveBtn"
+                    class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition">
+                    <i class="fas fa-check"></i> Approve Profile
+                </button>
+            </div>`;
+    }
+
+    return `
+        <div class="card ${cfg.wrapperCls}">
+            <h3 class="text-sm font-bold text-gray-700 mb-3">
+                <i class="fas fa-shield-alt text-purple-500 mr-2"></i>Admin Review
+            </h3>
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.badgeCls}">
+                    <i class="fas ${cfg.icon} mr-1.5"></i>${cfg.label}
+                </span>
+                ${updatedAt ? `<span class="text-xs text-gray-400">${updatedAt}</span>` : ''}
+            </div>
+            ${noteBlock}
+            ${actions}
+        </div>
+    `;
 }
 
 const trackColors = {
