@@ -1268,6 +1268,36 @@ class MockDataService {
         return results;
     }
 
+    async assignStudentProgramme(userId, programmeData) {
+        await this.simulateDelay();
+        const attendance = new AcademyAttendance({
+            id: programmeData.id,
+            academyName: programmeData.academyName,
+            track: programmeData.track,
+            startDate: programmeData.startDate,
+            endDate: programmeData.endDate,
+            status: programmeData.status,
+        });
+        const index = this.cvProfiles.findIndex(cv => cv.userId === userId);
+        if (index !== -1) {
+            const existing = [...this.cvProfiles[index].academyAttendance];
+            if (existing.length > 0) {
+                existing[0] = attendance;
+            } else {
+                existing.unshift(attendance);
+            }
+            this.cvProfiles[index] = new CVProfile({
+                ...this.cvProfiles[index],
+                academyAttendance: existing,
+                updatedAt: new Date().toISOString(),
+            });
+            return this.cvProfiles[index];
+        }
+        const newCV = new CVProfile({ userId, academyAttendance: [attendance] });
+        this.cvProfiles.push(newCV);
+        return newCV;
+    }
+
     async updateCVProfile(userId, cvData) {
         await this.simulateDelay();
         const index = this.cvProfiles.findIndex((cv) => cv.userId === userId);
