@@ -154,33 +154,78 @@ class MockDataService {
                 email: 'admin@avy.com',
                 name: 'Admin User',
                 role: 'admin',
-                adminRoleId: 'super_admin',
-                status: 'active',
-                avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=ed8936&color=fff',
-                currentPosition: 'Super Admin',
-                lastLoginAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+                avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=ed8936&color=fff'
             }),
             new User({
                 id: '5',
-                email: 'maria.ops@avy.com',
-                name: 'Maria Petrova',
-                role: 'admin',
-                adminRoleId: 'operations_admin',
-                status: 'active',
-                avatar: 'https://ui-avatars.com/api/?name=Maria+Petrova&background=0257b4&color=fff',
-                currentPosition: 'Operations Admin',
-                lastLoginAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+                email: 'emily.davis@example.com',
+                name: 'Emily Davis',
+                role: 'student',
+                avatar: 'https://ui-avatars.com/api/?name=Emily+Davis&background=38b2ac&color=fff',
+                phone: '+389 70 345 678',
+                dateOfBirth: '2001-03-22',
+                citizenship: 'Macedonia',
+                educationDegree: 'Bachelor in Computer Science',
+                currentPosition: 'Backend Developer Intern',
+                profileVisibility: 'public',
+                createdAt: new Date(Date.now() - 240 * 24 * 60 * 60 * 1000).toISOString()
             }),
             new User({
                 id: '6',
-                email: 'david.compliance@avy.com',
-                name: 'David Nikolov',
-                role: 'admin',
-                adminRoleId: 'compliance_admin',
-                status: 'invited',
-                avatar: 'https://ui-avatars.com/api/?name=David+Nikolov&background=1f2937&color=fff',
-                currentPosition: 'Compliance Admin',
+                email: 'james.carter@example.com',
+                name: 'James Carter',
+                role: 'student',
+                avatar: 'https://ui-avatars.com/api/?name=James+Carter&background=d69e2e&color=fff',
+                phone: '+389 70 456 789',
+                dateOfBirth: '2000-11-08',
+                citizenship: 'Macedonia',
+                educationDegree: 'Bachelor in Software Engineering',
+                currentPosition: 'QA Intern',
+                profileVisibility: 'public',
+                createdAt: new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString()
             }),
+            new User({
+                id: '7',
+                email: 'sophia.miller@example.com',
+                name: 'Sophia Miller',
+                role: 'student',
+                avatar: 'https://ui-avatars.com/api/?name=Sophia+Miller&background=ed64a6&color=fff',
+                phone: '+389 70 567 890',
+                dateOfBirth: '1999-07-14',
+                citizenship: 'Macedonia',
+                educationDegree: 'Master in Human-Computer Interaction',
+                currentPosition: 'Frontend Developer',
+                profileVisibility: 'private',
+                createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
+            }),
+            new User({
+                id: '8',
+                email: 'ryan.brooks@example.com',
+                name: 'Ryan Brooks',
+                role: 'student',
+                avatar: 'https://ui-avatars.com/api/?name=Ryan+Brooks&background=e53e3e&color=fff',
+                phone: '+389 70 678 901',
+                dateOfBirth: '2000-01-30',
+                citizenship: 'Macedonia',
+                educationDegree: 'Bachelor in Mathematics',
+                currentPosition: 'Data Analyst Intern',
+                profileVisibility: 'public',
+                createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
+            }),
+            new User({
+                id: '9',
+                email: 'olivia.chen@example.com',
+                name: 'Olivia Chen',
+                role: 'student',
+                avatar: 'https://ui-avatars.com/api/?name=Olivia+Chen&background=6b46c1&color=fff',
+                phone: '+389 70 789 012',
+                dateOfBirth: '2001-09-05',
+                citizenship: 'Macedonia',
+                educationDegree: 'Bachelor in Graphic Design',
+                currentPosition: 'UX Designer Intern',
+                profileVisibility: 'public',
+                createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+            })
         ];
     }
 
@@ -272,6 +317,26 @@ class MockDataService {
         return this.updateAdminAccount(id, { status: 'active' });
     }
 
+    async getStudentsWithProfiles() {
+        await this.simulateDelay();
+        return this.users
+            .filter(u => u.role === 'student')
+            .map(student => {
+                const cv = this.cvProfiles.find(c => c.userId === student.id) || new CVProfile({ userId: student.id });
+                const attendance = cv.academyAttendance[0];
+                const education = cv.education[0];
+                return {
+                    ...student,
+                    skills: cv.skills,
+                    academyTrack: attendance?.track || '',
+                    academyStatus: attendance?.status || '',
+                    educationLabel: education
+                        ? `${education.degree} in ${education.fieldOfStudy}`
+                        : student.educationDegree,
+                };
+            });
+    }
+    
     /**
      * COMPANIES
      */
@@ -908,129 +973,187 @@ class MockDataService {
                 ],
                 languages: [
                     new Language({ language: 'English', level: 'C1' }),
-                    new Language({ language: 'Macedonian', level: 'C2' }),
-                ],
-                // Job recommendation preferences
-                workModePreference: 'hybrid',
-                locationPreference: 'Skopje',
-                salaryExpectation: { min: 700, max: 1200, currency: 'EUR' },
-                yearsOfExperience: 0.5, // 6 months from internship
+                    new Language({ language: 'Macedonian', level: 'C2' })
+                ]
             }),
             new CVProfile({
-                userId: '2',
+                userId: '5',
                 workExperience: [
                     new WorkExperience({
                         id: 'we2',
-                        company: 'TechCorp Solutions',
-                        position: 'Full Stack Developer',
-                        startDate: '2022-01-01',
+                        company: 'DataSoft',
+                        position: 'Backend Developer Intern',
+                        startDate: '2024-09-01',
                         endDate: '',
-                        description:
-                            'Developing full-stack web applications using React, Node.js, and PostgreSQL.',
-                    }),
-                    new WorkExperience({
-                        id: 'we3',
-                        company: 'StartupABC',
-                        position: 'Junior Developer',
-                        startDate: '2020-06-01',
-                        endDate: '2021-12-31',
-                        description: 'Worked on frontend development with JavaScript and Vue.js.',
-                    }),
+                        description: 'Building RESTful APIs with Python and Django.'
+                    })
                 ],
                 education: [
                     new Education({
                         id: 'ed2',
-                        institution: 'University of Skopje',
+                        institution: 'Ss. Cyril and Methodius University',
                         degree: 'Bachelor',
-                        fieldOfStudy: 'Software Engineering',
-                        startDate: '2016-09-01',
-                        endDate: '2020-06-30',
-                        grade: '8.7/10',
-                    }),
+                        fieldOfStudy: 'Computer Science',
+                        startDate: '2020-09-01',
+                        endDate: '2024-06-30',
+                        grade: '9.1/10'
+                    })
                 ],
                 academyAttendance: [
                     new AcademyAttendance({
                         id: 'aa2',
                         academyName: 'Avenga Academy',
-                        track: 'Full Stack Development',
-                        startDate: '2021-09-01',
-                        endDate: '2021-12-31',
-                        status: 'completed',
-                    }),
+                        track: 'Backend Development',
+                        startDate: '2024-03-01',
+                        endDate: '2024-06-30',
+                        status: 'completed'
+                    })
                 ],
-                skills: [
-                    'JavaScript',
-                    'React',
-                    'Node.js',
-                    'PostgreSQL',
-                    'Vue.js',
-                    'Git',
-                    'REST APIs',
-                    'Docker',
-                ],
+                skills: ['Python', 'Django', 'PostgreSQL', 'REST API', 'Git', 'Docker'],
                 languages: [
                     new Language({ language: 'English', level: 'B2' }),
-                    new Language({ language: 'Macedonian', level: 'C2' }),
-                ],
-                // Job recommendation preferences
-                workModePreference: 'remote',
-                locationPreference: 'Remote',
-                salaryExpectation: { min: 1500, max: 2500, currency: 'EUR' },
-                yearsOfExperience: 4.0, // ~4 years total experience
+                    new Language({ language: 'Macedonian', level: 'C2' })
+                ]
             }),
             new CVProfile({
-                userId: '3',
-                workExperience: [
-                    new WorkExperience({
-                        id: 'we4',
-                        company: 'DataWorks Analytics',
-                        position: 'Data Analyst Intern',
-                        startDate: '2024-03-01',
-                        endDate: '',
-                        description:
-                            'Analyzing datasets and creating visualizations using Python and Power BI.',
-                    }),
-                ],
+                userId: '6',
+                workExperience: [],
                 education: [
                     new Education({
                         id: 'ed3',
-                        institution: 'University of Skopje',
+                        institution: 'FINKI Skopje',
                         degree: 'Bachelor',
-                        fieldOfStudy: 'Statistics',
-                        startDate: '2020-09-01',
-                        endDate: '2024-06-30',
-                        grade: '9.2/10',
-                    }),
+                        fieldOfStudy: 'Software Engineering',
+                        startDate: '2021-09-01',
+                        endDate: '',
+                        grade: ''
+                    })
                 ],
                 academyAttendance: [
                     new AcademyAttendance({
                         id: 'aa3',
                         academyName: 'Avenga Academy',
-                        track: 'Data Analytics',
-                        startDate: '2024-01-01',
-                        endDate: '2024-04-30',
-                        status: 'completed',
-                    }),
+                        track: 'QA Engineering',
+                        startDate: '2024-09-01',
+                        endDate: '2024-12-31',
+                        status: 'completed'
+                    })
                 ],
-                skills: [
-                    'Python',
-                    'SQL',
-                    'Excel',
-                    'Power BI',
-                    'Statistics',
-                    'Data Analysis',
-                    'Pandas',
-                ],
+                skills: ['Selenium', 'Cypress', 'Manual Testing', 'JIRA', 'Postman', 'SQL'],
                 languages: [
-                    new Language({ language: 'English', level: 'B1' }),
-                    new Language({ language: 'Macedonian', level: 'C2' }),
-                ],
-                // Job recommendation preferences
-                workModePreference: 'onsite',
-                locationPreference: 'Skopje',
-                salaryExpectation: { min: 400, max: 700, currency: 'EUR' },
-                yearsOfExperience: 0.3, // 4 months internship
+                    new Language({ language: 'English', level: 'C1' }),
+                    new Language({ language: 'Macedonian', level: 'C2' })
+                ]
             }),
+            new CVProfile({
+                userId: '7',
+                workExperience: [
+                    new WorkExperience({
+                        id: 'we3',
+                        company: 'PixelLab',
+                        position: 'Frontend Developer',
+                        startDate: '2023-10-01',
+                        endDate: '',
+                        description: 'Building UI components with Vue.js and TypeScript.'
+                    })
+                ],
+                education: [
+                    new Education({
+                        id: 'ed4',
+                        institution: 'University of Skopje',
+                        degree: 'Master',
+                        fieldOfStudy: 'Human-Computer Interaction',
+                        startDate: '2022-09-01',
+                        endDate: '2024-06-30',
+                        grade: '9.8/10'
+                    })
+                ],
+                academyAttendance: [
+                    new AcademyAttendance({
+                        id: 'aa4',
+                        academyName: 'Avenga Academy',
+                        track: 'Frontend Development',
+                        startDate: '2023-03-01',
+                        endDate: '2023-06-30',
+                        status: 'completed'
+                    })
+                ],
+                skills: ['Vue.js', 'TypeScript', 'JavaScript', 'Figma', 'CSS3', 'UX Research'],
+                languages: [
+                    new Language({ language: 'English', level: 'C2' }),
+                    new Language({ language: 'Macedonian', level: 'C2' }),
+                    new Language({ language: 'French', level: 'B1' })
+                ]
+            }),
+            new CVProfile({
+                userId: '8',
+                workExperience: [
+                    new WorkExperience({
+                        id: 'we4',
+                        company: 'Analytics Co.',
+                        position: 'Data Analyst Intern',
+                        startDate: '2025-01-01',
+                        endDate: '',
+                        description: 'Analyzing datasets and building Power BI dashboards.'
+                    })
+                ],
+                education: [
+                    new Education({
+                        id: 'ed5',
+                        institution: 'Ss. Cyril and Methodius University',
+                        degree: 'Bachelor',
+                        fieldOfStudy: 'Mathematics',
+                        startDate: '2019-09-01',
+                        endDate: '2023-06-30',
+                        grade: '8.7/10'
+                    })
+                ],
+                academyAttendance: [
+                    new AcademyAttendance({
+                        id: 'aa5',
+                        academyName: 'Avenga Academy',
+                        track: 'Data Analytics',
+                        startDate: '2024-09-01',
+                        endDate: '2024-12-31',
+                        status: 'completed'
+                    })
+                ],
+                skills: ['Python', 'Pandas', 'SQL', 'Power BI', 'Excel', 'Statistics'],
+                languages: [
+                    new Language({ language: 'English', level: 'B2' }),
+                    new Language({ language: 'Macedonian', level: 'C2' })
+                ]
+            }),
+            new CVProfile({
+                userId: '9',
+                workExperience: [],
+                education: [
+                    new Education({
+                        id: 'ed6',
+                        institution: 'University of Arts Skopje',
+                        degree: 'Bachelor',
+                        fieldOfStudy: 'Graphic Design',
+                        startDate: '2021-09-01',
+                        endDate: '',
+                        grade: ''
+                    })
+                ],
+                academyAttendance: [
+                    new AcademyAttendance({
+                        id: 'aa6',
+                        academyName: 'Avenga Academy',
+                        track: 'UX/UI Design',
+                        startDate: '2025-01-01',
+                        endDate: '2025-04-30',
+                        status: 'completed'
+                    })
+                ],
+                skills: ['Figma', 'Adobe XD', 'Illustrator', 'User Research', 'Prototyping', 'CSS3'],
+                languages: [
+                    new Language({ language: 'English', level: 'C1' }),
+                    new Language({ language: 'Macedonian', level: 'C2' })
+                ]
+            })
         ];
     }
 
