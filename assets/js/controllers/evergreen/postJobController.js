@@ -9,19 +9,21 @@ import { renderAppHeader } from '../../views/appHeader.js';
 export default async function postJobController() {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
-    
+
     if (!user || user.role !== 'employer') {
         window.router.navigate('/dashboard');
         return;
     }
-    
+
     const company = await mockDataService.getCompanyById(user.companyId);
     if (!company) {
         window.router.navigate('/dashboard');
         return;
     }
-    const activeJobs = (await mockDataService.getAllJobs({ companyId: company.id, status: 'active' })).length;
-    
+    const activeJobs = (
+        await mockDataService.getAllJobs({ companyId: company.id, status: 'active' })
+    ).length;
+
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         
@@ -38,8 +40,10 @@ export default async function postJobController() {
                         </p>
                     </div>
                     
-                    ${activeJobs >= company.jobPostingLimit ? `
-                        <div class="card bg-red-50 border-2 border-red-300 mb-6">
+                    ${
+                        activeJobs >= company.jobPostingLimit
+                            ? `
+                        <div class="card no-hover bg-red-50 border-2 border-red-300 mb-6">
                             <div class="flex items-center">
                                 <i class="fas fa-exclamation-triangle text-red-600 text-3xl mr-4"></i>
                                 <div>
@@ -54,10 +58,12 @@ export default async function postJobController() {
                                 </div>
                             </div>
                         </div>
-                    ` : ''}
+                    `
+                            : ''
+                    }
                     
                     <form id="jobPostForm" ${activeJobs >= company.jobPostingLimit ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>
-                        <div class="card mb-6">
+                        <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-info-circle mr-2"></i>
                                 Basic Information
@@ -104,7 +110,7 @@ export default async function postJobController() {
                             </div>
                         </div>
                         
-                        <div class="card mb-6">
+                        <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-file-alt mr-2"></i>
                                 Job Description
@@ -129,7 +135,7 @@ export default async function postJobController() {
                             </div>
                         </div>
                         
-                        <div class="card mb-6">
+                        <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-code mr-2"></i>
                                 Required Skills
@@ -152,7 +158,7 @@ export default async function postJobController() {
                             </div>
                         </div>
                         
-                        <div class="card mb-6">
+                        <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-dollar-sign mr-2"></i>
                                 Compensation & Timeline
@@ -165,7 +171,7 @@ export default async function postJobController() {
                             </div>
                         </div>
 
-                        <div class="card mb-6">
+                        <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-4">
                                 <i class="fas fa-file-signature mr-2"></i>
                                 Application method
@@ -182,7 +188,7 @@ export default async function postJobController() {
                             </div>
                         </div>
                         
-                        <div class="card bg-purple-50 border-2 border-purple-200">
+                        <div class="card no-hover bg-purple-50 border-2 border-purple-200">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-purple-900 font-semibold"><i class="fas fa-info-circle mr-2"></i>Fields marked with * are required</p>
@@ -198,9 +204,9 @@ export default async function postJobController() {
             </div>
         </div>
     `;
-    
+
     setupEventListeners(company);
-    
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 }
@@ -214,18 +220,23 @@ function setupEventListeners(company) {
     const niceToHaveSkillInput = document.getElementById('niceToHaveSkillInput');
     const addNiceToHaveSkillBtn = document.getElementById('addNiceToHaveSkillBtn');
     const niceToHaveSkillsList = document.getElementById('niceToHaveSkillsList');
-    
+
     function renderSkills(container, skills, type) {
-        container.innerHTML = skills.length === 0
-            ? '<p class="text-gray-500 text-sm">No skills added yet</p>'
-            : skills.map((skill) => `
+        container.innerHTML =
+            skills.length === 0
+                ? '<p class="text-gray-500 text-sm">No skills added yet</p>'
+                : skills
+                      .map(
+                          (skill) => `
                 <span class="px-3 py-2 ${type === 'required' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'} rounded-lg font-semibold">
                     ${skill}
                     <button type="button" onclick="removeSkill_${type}('${skill}')" class="ml-2 hover:opacity-75">
                         <i class="fas fa-times"></i>
                     </button>
                 </span>
-            `).join('');
+            `
+                      )
+                      .join('');
     }
 
     addRequiredSkillBtn.addEventListener('click', () => {
@@ -244,8 +255,18 @@ function setupEventListeners(company) {
             niceToHaveSkillInput.value = '';
         }
     });
-    requiredSkillInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); addRequiredSkillBtn.click(); } });
-    niceToHaveSkillInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); addNiceToHaveSkillBtn.click(); } });
+    requiredSkillInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addRequiredSkillBtn.click();
+        }
+    });
+    niceToHaveSkillInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addNiceToHaveSkillBtn.click();
+        }
+    });
     window.removeSkill_required = (skill) => {
         const index = requiredSkills.indexOf(skill);
         if (index > -1) {
@@ -260,7 +281,7 @@ function setupEventListeners(company) {
             renderSkills(niceToHaveSkillsList, niceToHaveSkills, 'niceToHave');
         }
     };
-    
+
     document.getElementById('jobPostForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (requiredSkills.length === 0) {
@@ -270,9 +291,18 @@ function setupEventListeners(company) {
         const formData = {
             title: document.getElementById('jobTitle').value,
             description: document.getElementById('description').value,
-            responsibilities: document.getElementById('responsibilities').value.split('\n').filter(r => r.trim()),
-            qualifications: document.getElementById('qualifications').value.split('\n').filter(q => q.trim()),
-            benefits: document.getElementById('benefits').value.split('\n').filter(b => b.trim()),
+            responsibilities: document
+                .getElementById('responsibilities')
+                .value.split('\n')
+                .filter((r) => r.trim()),
+            qualifications: document
+                .getElementById('qualifications')
+                .value.split('\n')
+                .filter((q) => q.trim()),
+            benefits: document
+                .getElementById('benefits')
+                .value.split('\n')
+                .filter((b) => b.trim()),
             employmentType: document.getElementById('employmentType').value,
             location: document.getElementById('location').value,
             workMode: document.getElementById('workMode').value,
@@ -286,7 +316,7 @@ function setupEventListeners(company) {
             companyId: company.id,
             status: 'active',
             postedDate: new Date().toISOString().split('T')[0],
-            applicationMode: document.querySelector('input[name="applicationMode"]:checked').value
+            applicationMode: document.querySelector('input[name="applicationMode"]:checked').value,
         };
         const submitBtn = e.target.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
