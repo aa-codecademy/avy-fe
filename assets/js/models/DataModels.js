@@ -27,6 +27,9 @@ export class User {
         this.profileStatus = data.profileStatus || 'pending'; // pending, approved, rejected
         this.profileStatusNote = data.profileStatusNote || '';
         this.profileStatusUpdatedAt = data.profileStatusUpdatedAt || '';
+        this.accountStatus = data.accountStatus || 'active'; // active, suspended, deactivated
+        this.accountStatusNote = data.accountStatusNote || '';
+        this.accountStatusUpdatedAt = data.accountStatusUpdatedAt || '';
         this.lastLoginAt = data.lastLoginAt || '';
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();

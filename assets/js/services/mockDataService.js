@@ -187,7 +187,10 @@ class MockDataService {
                 profileVisibility: 'public',
                 createdAt: new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString(),
                 profileStatus: 'approved',
-                profileStatusUpdatedAt: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString()
+                profileStatusUpdatedAt: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString(),
+                accountStatus: 'suspended',
+                accountStatusNote: 'Reported for sharing confidential employer contacts outside the platform. Under review.',
+                accountStatusUpdatedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
             }),
             new User({
                 id: '7',
@@ -204,7 +207,10 @@ class MockDataService {
                 createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
                 profileStatus: 'rejected',
                 profileStatusNote: 'LinkedIn and portfolio links appear broken or missing. Please resubmit with verified contact details.',
-                profileStatusUpdatedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
+                profileStatusUpdatedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+                accountStatus: 'deactivated',
+                accountStatusNote: 'Repeated violations of platform terms of service after prior suspension.',
+                accountStatusUpdatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
             }),
             new User({
                 id: '8',
@@ -344,6 +350,19 @@ class MockDataService {
             user.profileStatus = status;
             user.profileStatusNote = note;
             user.profileStatusUpdatedAt = new Date().toISOString();
+            user.updatedAt = new Date().toISOString();
+            return user;
+        }
+        return null;
+    }
+
+    async updateAccountStatus(userId, status, note = '') {
+        await this.simulateDelay();
+        const user = this.users.find(u => u.id === userId);
+        if (user) {
+            user.accountStatus = status;
+            user.accountStatusNote = note;
+            user.accountStatusUpdatedAt = status === 'active' ? '' : new Date().toISOString();
             user.updatedAt = new Date().toISOString();
             return user;
         }
