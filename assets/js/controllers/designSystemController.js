@@ -49,7 +49,7 @@ export default async function designSystemController() {
                             ${renderColorSwatch('--color-secondary', '#0257b4')}
                             ${renderColorSwatch('--color-accent', '#ffa500')}
                             ${renderColorSwatch('--color-success', '#48bb78')}
-                            ${renderColorSwatch('--color-danger', '#dd2c00')}
+                            ${renderColorSwatch('--color-danger', '#e53e3e')}
                             ${renderColorSwatch('--color-text', '#2d3748')}
                             ${renderColorSwatch('--color-bg', '#f7fafc')}
                         </div>
@@ -421,6 +421,15 @@ function renderColorSwatch(token, fallbackHex) {
     return renderCodeExample(token, preview, snippet);
 }
 
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function renderTableRow(name, role, status, updated, tone) {
     const toneClasses = {
         green: 'bg-green-100 text-green-700',
@@ -430,31 +439,33 @@ function renderTableRow(name, role, status, updated, tone) {
     };
     return `
         <tr class="border-t border-gray-100">
-            <td class="px-4 py-3 text-gray-800 font-medium">${name}</td>
-            <td class="px-4 py-3 text-gray-600">${role}</td>
+            <td class="px-4 py-3 text-gray-800 font-medium">${escapeHtml(name)}</td>
+            <td class="px-4 py-3 text-gray-600">${escapeHtml(role)}</td>
             <td class="px-4 py-3">
-                <span class="px-2 py-1 rounded-full text-xs font-semibold ${toneClasses[tone] || toneClasses.blue}">${status}</span>
+                <span class="px-2 py-1 rounded-full text-xs font-semibold ${toneClasses[tone] || toneClasses.blue}">${escapeHtml(status)}</span>
             </td>
-            <td class="px-4 py-3 text-gray-500">${updated}</td>
+            <td class="px-4 py-3 text-gray-500">${escapeHtml(updated)}</td>
         </tr>
     `;
 }
 
 function renderImageCard(src, title, caption) {
+    const safeTitle = escapeHtml(title);
+    const safeCaption = escapeHtml(caption);
     const preview = `
         <div class="card no-hover p-0 overflow-hidden">
-            <img src="${src}" alt="${title}" class="w-full h-40 object-cover" />
+            <img src="${escapeHtml(src)}" alt="${safeTitle}" class="w-full h-40 object-cover" />
             <div class="p-4">
-                <h3 class="text-base font-semibold text-gray-800 mb-1">${title}</h3>
-                <p class="text-sm text-gray-600">${caption}</p>
+                <h3 class="text-base font-semibold text-gray-800 mb-1">${safeTitle}</h3>
+                <p class="text-sm text-gray-600">${safeCaption}</p>
             </div>
         </div>
     `;
     const snippet = `<div class="card no-hover p-0 overflow-hidden">
-  <img src="${src}" alt="${title}" class="w-full h-40 object-cover" />
+  <img src="${escapeHtml(src)}" alt="${safeTitle}" class="w-full h-40 object-cover" />
   <div class="p-4">
-    <h3 class="text-base font-semibold text-gray-800 mb-1">${title}</h3>
-    <p class="text-sm text-gray-600">${caption}</p>
+    <h3 class="text-base font-semibold text-gray-800 mb-1">${safeTitle}</h3>
+    <p class="text-sm text-gray-600">${safeCaption}</p>
   </div>
 </div>`;
     return renderCodeExample(title, preview, snippet);
@@ -492,7 +503,11 @@ function initializeCodeExamples() {
             if (!panel || !copyBtn || !pre) return;
 
             if (pre.textContent.trim() === '') {
-                pre.textContent = decodeURIComponent(copyBtn.dataset.code || '');
+                try {
+                    pre.textContent = decodeURIComponent(copyBtn.dataset.code || '');
+                } catch {
+                    pre.textContent = copyBtn.dataset.code || '';
+                }
             }
 
             panel.classList.toggle('hidden');
@@ -502,8 +517,8 @@ function initializeCodeExamples() {
 
     document.querySelectorAll('.ds-copy-code').forEach((btn) => {
         btn.addEventListener('click', async () => {
-            const raw = decodeURIComponent(btn.dataset.code || '');
             try {
+                const raw = decodeURIComponent(btn.dataset.code || '');
                 await navigator.clipboard.writeText(raw);
                 const original = btn.textContent;
                 btn.textContent = 'Copied';
