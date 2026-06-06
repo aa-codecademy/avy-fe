@@ -13,6 +13,9 @@
  *  - mockDataService.getApplications({ jobId })
  *  - mockDataService.updateApplicationStatus(id, status, notes)
  *  - mockDataService.getJobById(id)
+ *  - mockDataService.getCVProfile(userId)
+ *  - mockDataService.getUserById(userId)
+ *  - mockDataService.updateApplicationNotes(id, notes)
  *
  * @param {object} params - Route params, includes :id (job id)
  */
@@ -21,7 +24,6 @@ import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
 const EXPERIENCE_LEVELS = [
     { value: '', label: 'All Levels' },
     { value: 'intern', label: 'Intern' },
@@ -110,7 +112,6 @@ const SKILL_ALIASES = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
 /** Enrich applicants with CV skills and experience level from CV profiles */
 async function enrichApplicants(applicants) {
     return Promise.all(
@@ -175,7 +176,8 @@ function renderActiveFilters(filters) {
     if (filters.search) tags.push({ key: 'search', label: `"${filters.search}"` });
     if (filters.skills) {
         filters.skills.split(',').forEach((skill) => {
-            tags.push({ key: `skill:${skill.trim()}`, label: skill.trim() });
+            const trimmed = skill.trim();
+            if (trimmed) tags.push({ key: `skill:${trimmed}`, label: trimmed });
         });
     }
     if (filters.experienceLevel) {
@@ -205,6 +207,73 @@ function renderActiveFilters(filters) {
             <button id="clearAllFilters" class="text-xs text-red-500 hover:text-red-700 font-semibold ml-1">Clear all</button>
         </div>
     `;
+}
+
+function statusToColumn(status) {
+    if (['pending', 'under_review', 'applied'].includes(status)) return 'applied';
+    if (status === 'shortlisted') return 'shortlisted';
+    if (status === 'interview') return 'interview';
+    if (status === 'hired') return 'hired';
+    if (status === 'rejected') return 'rejected';
+    return 'applied';
+}
+
+function getGroupedApplicants(applicants) {
+    return {
+        pending: applicants.filter((a) => a.status === 'pending'),
+        under_review: applicants.filter((a) => a.status === 'under_review'),
+        shortlisted: applicants.filter((a) => a.status === 'shortlisted'),
+        interview: applicants.filter((a) => a.status === 'interview'),
+        rejected: applicants.filter((a) => a.status === 'rejected'),
+        hired: applicants.filter((a) => a.status === 'hired'),
+    };
+}
+
+function addDragDropStyles() {
+    if (document.getElementById('dragdrop-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'dragdrop-styles';
+    style.textContent = `
+        [data-status-column] {
+            min-height: 280px;
+            max-height: 330px;
+            overflow-y: auto;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        [data-status-column]::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        [data-status-column]::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+
+        [data-status-column]::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+
+        .pipeline-card {
+            transition: all 0.2s ease;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .pipeline-card:active {
+            cursor: grabbing;
+            transform: scale(0.97);
+        }
+
+        .pipeline-card * {
+            pointer-events: auto;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // ─── Profile section renderer ─────────────────────────────────────────────────
@@ -338,7 +407,7 @@ const renderApplicantCard = (applicant, matchedTokens = []) => {
                     </div>
                 </div>
                 <span class="px-3 py-1 rounded-full text-sm font-medium ${statusBadgeColor[applicant.status] || 'bg-gray-100 text-gray-800'}">
-                    ${applicant.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                    ${(applicant.status || 'pending').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                 </span>
             </div>
 
@@ -377,6 +446,9 @@ const renderApplicantCard = (applicant, matchedTokens = []) => {
                 <button class="btn btn-primary text-xs px-2 py-1 rounded view-profile-btn" data-id="${applicant.id}" data-user-id="${applicant.userId}">
                     <i class="fas fa-user-circle mr-1"></i> View Profile
                 </button>
+                <button class="btn btn-secondary text-xs px-2 py-1 rounded open-notes-btn" data-id="${applicant.id}">
+                    <i class="fas fa-sticky-note mr-1"></i> Notes
+                </button>
                 <button class="btn btn-shortlist text-xs px-2 py-1 rounded status-btn" data-id="${applicant.id}" data-status="shortlisted">
                     <i class="fas fa-star mr-1"></i> Shortlist
                 </button>
@@ -394,8 +466,36 @@ const renderApplicantCard = (applicant, matchedTokens = []) => {
     `;
 };
 
-// ─── Controller ───────────────────────────────────────────────────────────────
+function renderPipelineCard(appItem) {
+    const name = appItem.applicant?.name || 'Unknown';
+    const avatar = appItem.applicant?.avatar || 'https://ui-avatars.com/api/?name=Unknown';
 
+    return `
+        <div class="pipeline-card bg-white p-3 rounded shadow-sm cursor-move w-full" draggable="true" data-id="${appItem.id}">
+            <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="${avatar}" class="w-10 h-10 rounded-full" alt="${name}">
+                    <div class="min-w-0">
+                        <div class="font-medium text-gray-800 text-sm truncate">${name}</div>
+                        <div class="text-xs text-gray-500 truncate">${appItem.applicant?.currentPosition || appItem.applicant?.email || ''}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button class="view-profile-btn text-xs text-gray-600 hover:text-purple-700" data-id="${appItem.id}" data-user-id="${appItem.userId}">Profile</button>
+                    <button class="open-notes-btn text-sm text-gray-500 hover:text-gray-700" data-id="${appItem.id}" title="Internal notes"><i class="fas fa-sticky-note"></i></button>
+                </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                <button class="btn btn-shortlist status-btn px-2 py-1 rounded" data-id="${appItem.id}" data-status="shortlisted">Shortlist</button>
+                <button class="btn btn-secondary status-btn px-2 py-1 rounded" data-id="${appItem.id}" data-status="interview">Interview</button>
+                <button class="btn btn-secondary status-btn px-2 py-1 rounded" data-id="${appItem.id}" data-status="rejected">Reject</button>
+                <button class="btn text-green-600 hover:bg-green-600 hover:text-white border-0 status-btn px-2 py-1 rounded" data-id="${appItem.id}" data-status="hired">Hire</button>
+            </div>
+        </div>
+    `;
+}
+
+// ─── Controller ───────────────────────────────────────────────────────────────
 export default async function jobApplicantsController(params = {}) {
     const app = document.getElementById('app');
     const user = authService.getCurrentUser();
@@ -407,22 +507,14 @@ export default async function jobApplicantsController(params = {}) {
 
     const jobId = params.id;
 
-    // Fetch job and applicants data
     const job = await mockDataService.getJobById(jobId);
     const rawApplicants = await mockDataService.getApplications({ jobId });
+    let allApplicants = await enrichApplicants(rawApplicants);
+    let filteredApplicants = [...allApplicants];
+    let selectedSkills = [];
+    let activeNotesApplicationId = null;
 
-    // Enrich applicants with CV data (skills, experience level)
-    const allApplicants = await enrichApplicants(rawApplicants);
-
-    // Group applicants by status for the summary bar
-    const groupedApplicants = {
-        pending: allApplicants.filter((a) => a.status === 'pending'),
-        under_review: allApplicants.filter((a) => a.status === 'under_review'),
-        shortlisted: allApplicants.filter((a) => a.status === 'shortlisted'),
-        interview: allApplicants.filter((a) => a.status === 'interview'),
-        rejected: allApplicants.filter((a) => a.status === 'rejected'),
-        hired: allApplicants.filter((a) => a.status === 'hired'),
-    };
+    const groupedApplicants = getGroupedApplicants(allApplicants);
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
@@ -442,38 +534,62 @@ export default async function jobApplicantsController(params = {}) {
                         <p class="text-gray-600">Total applicants: <strong>${allApplicants.length}</strong></p>
                     </div>
 
-                    <!-- Status summary bar -->
-                    <div class="grid grid-cols-6 gap-2 mb-6">
+                    <!-- Pipeline Board -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-6" id="pipelineBoard">
+                        <div class="card p-4 flex flex-col">
+                            <h3 class="font-semibold mb-3 flex-shrink-0">Applied</h3>
+                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="applied" id="col-applied"></div>
+                        </div>
+                        <div class="card p-4 flex flex-col">
+                            <h3 class="font-semibold mb-3 flex-shrink-0">Shortlisted</h3>
+                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="shortlisted" id="col-shortlisted"></div>
+                        </div>
+                        <div class="card p-4 flex flex-col">
+                            <h3 class="font-semibold mb-3 flex-shrink-0">Interview</h3>
+                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="interview" id="col-interview"></div>
+                        </div>
+                        <div class="card p-4 flex flex-col">
+                            <h3 class="font-semibold mb-3 flex-shrink-0">Hired</h3>
+                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="hired" id="col-hired"></div>
+                        </div>
+                        <div class="card p-4 flex flex-col">
+                            <h3 class="font-semibold mb-3 flex-shrink-0">Rejected</h3>
+                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="rejected" id="col-rejected"></div>
+                        </div>
+                    </div>
+
+                    <!-- Summary / quick stats -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mb-6">
                         <div class="card text-center p-2 no-hover">
-                            <div class="text-xl font-bold text-gray-800">${groupedApplicants.pending.length}</div>
-                            <div class="text-xs text-gray-700">Pending</div>
+                            <div class="text-xl font-bold text-gray-800" id="summaryAppliedCount">${groupedApplicants.pending.length + groupedApplicants.under_review.length}</div>
+                            <div class="text-xs text-gray-700">Applied</div>
                         </div>
                         <div class="card text-center p-2 no-hover">
-                            <div class="text-xl font-bold text-blue-600">${groupedApplicants.under_review.length}</div>
-                            <div class="text-xs text-gray-700">Under Review</div>
-                        </div>
-                        <div class="card text-center p-2 no-hover">
-                            <div class="text-xl font-bold text-indigo-600">${groupedApplicants.shortlisted.length}</div>
+                            <div class="text-xl font-bold text-indigo-600" id="summaryShortlistedCount">${groupedApplicants.shortlisted.length}</div>
                             <div class="text-xs text-gray-700">Shortlisted</div>
                         </div>
                         <div class="card text-center p-2 no-hover">
-                            <div class="text-xl font-bold text-yellow-600">${groupedApplicants.interview.length}</div>
+                            <div class="text-xl font-bold text-yellow-600" id="summaryInterviewCount">${groupedApplicants.interview.length}</div>
                             <div class="text-xs text-gray-700">Interview</div>
                         </div>
                         <div class="card text-center p-2 no-hover">
-                            <div class="text-xl font-bold text-red-600">${groupedApplicants.rejected.length}</div>
+                            <div class="text-xl font-bold text-green-600" id="summaryHiredCount">${groupedApplicants.hired.length}</div>
+                            <div class="text-xs text-gray-700">Hired</div>
+                        </div>
+                        <div class="card text-center p-2 no-hover">
+                            <div class="text-xl font-bold text-red-600" id="summaryRejectedCount">${groupedApplicants.rejected.length}</div>
                             <div class="text-xs text-gray-700">Rejected</div>
                         </div>
                         <div class="card text-center p-2 no-hover">
-                            <div class="text-xl font-bold text-green-600">${groupedApplicants.hired.length}</div>
-                            <div class="text-xs text-gray-700">Hired</div>
+                            <div class="text-sm text-gray-600">Job: <strong>${job?.title || ''}</strong></div>
+                            ${job?.company ? `<div class="text-sm text-gray-600">Company: <strong>${job.company}</strong></div>` : ''}
                         </div>
                     </div>
 
                     <!-- Main content: filter sidebar + applicants list -->
                     <div class="grid lg:grid-cols-4 gap-6">
 
-                        <!-- ── Filters sidebar ── -->
+                        <!-- Filters sidebar -->
                         <div class="lg:col-span-1">
                             <div class="card sticky top-4">
                                 <h3 class="text-lg font-bold text-gray-800 mb-5">
@@ -481,8 +597,6 @@ export default async function jobApplicantsController(params = {}) {
                                 </h3>
 
                                 <div class="space-y-5">
-
-                                    <!-- Keyword search -->
                                     <div>
                                         <label class="form-label">Keyword</label>
                                         <div class="relative">
@@ -493,18 +607,13 @@ export default async function jobApplicantsController(params = {}) {
                                         </div>
                                     </div>
 
-                                    <!-- Application status -->
                                     <div>
                                         <label class="form-label">Application Status</label>
                                         <select id="filterStatus" class="form-input">
-                                            ${APPLICATION_STATUSES.map(
-                                                (s) =>
-                                                    `<option value="${s.value}">${s.label}</option>`
-                                            ).join('')}
+                                            ${APPLICATION_STATUSES.map((s) => `<option value="${s.value}">${s.label}</option>`).join('')}
                                         </select>
                                     </div>
 
-                                    <!-- Skills chip input -->
                                     <div>
                                         <label class="form-label">Skills</label>
                                         <div id="skillChipsWrapper"
@@ -519,14 +628,10 @@ export default async function jobApplicantsController(params = {}) {
                                         </div>
                                     </div>
 
-                                    <!-- Experience level -->
                                     <div>
                                         <label class="form-label">Experience Level</label>
                                         <select id="filterExperienceLevel" class="form-input">
-                                            ${EXPERIENCE_LEVELS.map(
-                                                (e) =>
-                                                    `<option value="${e.value}">${e.label}</option>`
-                                            ).join('')}
+                                            ${EXPERIENCE_LEVELS.map((e) => `<option value="${e.value}">${e.label}</option>`).join('')}
                                         </select>
                                     </div>
 
@@ -539,10 +644,8 @@ export default async function jobApplicantsController(params = {}) {
                             </div>
                         </div>
 
-                        <!-- ── Results panel ── -->
+                        <!-- Results panel -->
                         <div class="lg:col-span-3">
-
-                            <!-- Toolbar -->
                             <div class="card mb-4">
                                 <div class="flex flex-wrap justify-between items-center gap-3">
                                     <h3 class="text-xl font-bold text-gray-800">
@@ -550,22 +653,17 @@ export default async function jobApplicantsController(params = {}) {
                                         <span class="font-normal text-gray-500 text-base"> applicants found</span>
                                     </h3>
                                     <select id="sortApplicants" class="form-input w-60">
-                                        ${SORT_OPTIONS.map(
-                                            (o) => `<option value="${o.value}">${o.label}</option>`
-                                        ).join('')}
+                                        ${SORT_OPTIONS.map((o) => `<option value="${o.value}">${o.label}</option>`).join('')}
                                     </select>
                                 </div>
                             </div>
 
-                            <!-- Active filter tags -->
                             <div id="activeFiltersBar"></div>
 
-                            <!-- Applicants list -->
                             <div id="applicantsContainer" class="space-y-0">
                                 ${allApplicants.map((a) => renderApplicantCard(a)).join('')}
                             </div>
 
-                            <!-- Empty state -->
                             <div id="noApplicants" class="card text-center py-16 hidden">
                                 <i class="fas fa-user-slash text-gray-200 text-6xl mb-4"></i>
                                 <p class="text-gray-500 text-lg font-medium mb-1">No applicants match your filters</p>
@@ -590,28 +688,204 @@ export default async function jobApplicantsController(params = {}) {
                 <div id="profileContent" class="p-6"></div>
             </div>
         </div>
+
+        <!-- Notes Modal (internal notes, company-only edit) -->
+        <div id="notesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-lg max-w-xl w-full mx-4">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 id="notesModalTitle" class="text-lg font-semibold">Internal Notes</h3>
+                    <button id="closeNotesModal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="p-6">
+                    <div id="notesMeta" class="text-xs text-gray-500 mb-2"></div>
+                    <textarea id="notesTextarea" class="w-full border rounded p-3 h-40" placeholder="Add internal notes about this candidate"></textarea>
+                    <div class="mt-4 flex justify-end gap-2">
+                        <button id="cancelNotesBtn" class="btn btn-secondary px-3 py-1">Cancel</button>
+                        <button id="saveNotesBtn" class="btn btn-primary px-3 py-1">Save Notes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
 
-    // Logout
+    addDragDropStyles();
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 
-    // Profile modal
     const profileModal = document.getElementById('profileModal');
     const profileContent = document.getElementById('profileContent');
-    document
-        .getElementById('closeProfileModal')
-        .addEventListener('click', () => profileModal.classList.add('hidden'));
-    profileModal.addEventListener('click', (e) => {
-        if (e.target === profileModal) profileModal.classList.add('hidden');
+    const notesModal = document.getElementById('notesModal');
+    const notesTextarea = document.getElementById('notesTextarea');
+    const notesMeta = document.getElementById('notesMeta');
+    const saveNotesBtn = document.getElementById('saveNotesBtn');
+    const closeNotesBtn = document.getElementById('closeNotesModal');
+    const cancelNotesBtn = document.getElementById('cancelNotesBtn');
+
+    const getApplicantById = (id) => allApplicants.find((a) => String(a.id) === String(id));
+
+    const canEditNotes = () => {
+        if (!user || user.role !== 'employer') return false;
+        if (!job?.companyId) return true;
+        return user.companyId === job.companyId;
+    };
+
+    const updateSummaryCounts = () => {
+        document.getElementById('summaryAppliedCount').textContent = allApplicants.filter((a) =>
+            ['pending', 'under_review', 'applied'].includes(a.status)
+        ).length;
+        document.getElementById('summaryShortlistedCount').textContent = allApplicants.filter(
+            (a) => a.status === 'shortlisted'
+        ).length;
+        document.getElementById('summaryInterviewCount').textContent = allApplicants.filter(
+            (a) => a.status === 'interview'
+        ).length;
+        document.getElementById('summaryHiredCount').textContent = allApplicants.filter(
+            (a) => a.status === 'hired'
+        ).length;
+        document.getElementById('summaryRejectedCount').textContent = allApplicants.filter(
+            (a) => a.status === 'rejected'
+        ).length;
+    };
+
+    const renderPipeline = () => {
+        const cols = {
+            applied: document.getElementById('col-applied'),
+            shortlisted: document.getElementById('col-shortlisted'),
+            interview: document.getElementById('col-interview'),
+            hired: document.getElementById('col-hired'),
+            rejected: document.getElementById('col-rejected'),
+        };
+
+        Object.values(cols).forEach((column) => {
+            if (column) column.innerHTML = '';
+        });
+
+        allApplicants.forEach((applicant) => {
+            const columnKey = statusToColumn(applicant.status);
+            const column = cols[columnKey];
+            if (!column) return;
+
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = renderPipelineCard(applicant).trim();
+            const card = wrapper.firstElementChild;
+            if (card) column.appendChild(card);
+        });
+
+        updateSummaryCounts();
+    };
+
+    const readFilters = () => ({
+        search: document.getElementById('searchApplicants').value.trim(),
+        status: document.getElementById('filterStatus').value,
+        skills: selectedSkills.join(','),
+        experienceLevel: document.getElementById('filterExperienceLevel').value,
     });
 
-    // ─── Filter & sort logic ──────────────────────────────────────────────────
+    const applySort = (skillTokens = []) => {
+        const sort = document.getElementById('sortApplicants').value;
+        filteredApplicants.sort((a, b) => {
+            switch (sort) {
+                case 'name_asc':
+                    return (a.applicant?.name || '').localeCompare(b.applicant?.name || '');
+                case 'name_desc':
+                    return (b.applicant?.name || '').localeCompare(a.applicant?.name || '');
+                case 'applied_asc':
+                    return new Date(a.appliedAt) - new Date(b.appliedAt);
+                case 'skill_match':
+                    return (
+                        skillMatchCount(b._skills, skillTokens) -
+                        skillMatchCount(a._skills, skillTokens)
+                    );
+                case 'applied_desc':
+                default:
+                    return new Date(b.appliedAt) - new Date(a.appliedAt);
+            }
+        });
+    };
 
-    let filteredApplicants = [...allApplicants];
-    let selectedSkills = [];
+    const clearAll = () => {
+        document.getElementById('searchApplicants').value = '';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterExperienceLevel').value = '';
+        selectedSkills = [];
+        renderChips();
+        const chipInput = document.getElementById('skillChipInput');
+        const autocompleteEl = document.getElementById('skillAutocomplete');
+        chipInput.value = '';
+        autocompleteEl.classList.add('hidden');
+        filteredApplicants = [...allApplicants];
+        applySort([]);
+        updateDisplay([], {});
+    };
 
-    // ── Skill chips ──────────────────────────────────────────────────────────
+    const updateDisplay = (skillTokens = [], filters = {}) => {
+        const container = document.getElementById('applicantsContainer');
+        const noRes = document.getElementById('noApplicants');
+        const count = document.getElementById('applicantCount');
+        const tagsBar = document.getElementById('activeFiltersBar');
+
+        count.textContent = filteredApplicants.length;
+        tagsBar.innerHTML = renderActiveFilters(filters);
+
+        if (filteredApplicants.length === 0) {
+            container.classList.add('hidden');
+            noRes.classList.remove('hidden');
+        } else {
+            container.classList.remove('hidden');
+            noRes.classList.add('hidden');
+            container.innerHTML = filteredApplicants
+                .map((a) => renderApplicantCard(a, skillTokens))
+                .join('');
+        }
+
+        tagsBar.querySelectorAll('.remove-filter-tag').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const key = btn.dataset.key;
+                if (key.startsWith('skill:')) {
+                    const skillToRemove = key.slice(6);
+                    selectedSkills = selectedSkills.filter((s) => s !== skillToRemove);
+                    renderChips();
+                } else {
+                    const fieldMap = {
+                        search: 'searchApplicants',
+                        status: 'filterStatus',
+                        experienceLevel: 'filterExperienceLevel',
+                    };
+                    const el = document.getElementById(fieldMap[key]);
+                    if (el) el.value = '';
+                }
+                applyFilters();
+            });
+        });
+
+        const clearAllBtn = document.getElementById('clearAllFilters');
+        if (clearAllBtn) clearAllBtn.addEventListener('click', clearAll);
+    };
+
+    const applyFilters = () => {
+        const f = readFilters();
+        const skillTokens = selectedSkills.map((s) => s.toLowerCase());
+
+        filteredApplicants = allApplicants.filter((a) => {
+            const name = a.applicant?.name || '';
+            const email = a.applicant?.email || '';
+            const searchMatch =
+                !f.search ||
+                name.toLowerCase().includes(f.search.toLowerCase()) ||
+                email.toLowerCase().includes(f.search.toLowerCase());
+
+            const statusMatch = !f.status || a.status === f.status;
+            const skillsOk = skillsMatch(a._skills, skillTokens);
+            const expMatch = !f.experienceLevel || a._experienceLevel === f.experienceLevel;
+
+            return searchMatch && statusMatch && skillsOk && expMatch;
+        });
+
+        applySort(skillTokens);
+        updateDisplay(skillTokens, f);
+    };
+
     const renderChips = () => {
         const wrapper = document.getElementById('skillChipsWrapper');
         const input = document.getElementById('skillChipInput');
@@ -643,6 +917,128 @@ export default async function jobApplicantsController(params = {}) {
         applyFilters();
     };
 
+    const updateApplicantStatus = async (applicationId, newStatus) => {
+        await mockDataService.updateApplicationStatus(applicationId, newStatus);
+
+        const applicant = getApplicantById(applicationId);
+        if (applicant) {
+            applicant.status = newStatus;
+            applicant.updatedAt = new Date().toISOString();
+        }
+
+        renderPipeline();
+        applyFilters();
+    };
+
+    const openApplicantProfile = async (applicationId, userId) => {
+        const applicant = getApplicantById(applicationId);
+        if (!applicant) return;
+
+        const cvProfile = await mockDataService.getCVProfile(userId);
+        const applicantName = applicant.applicant?.name || 'Unknown';
+        const applicantEmail = applicant.applicant?.email || '';
+        const applicantAvatar =
+            applicant.applicant?.avatar || 'https://ui-avatars.com/api/?name=Unknown';
+
+        let profileHtml = `
+            <div class="mb-6 pb-6 border-b border-gray-200">
+                <div class="flex items-start gap-4">
+                    <img src="${applicantAvatar}" alt="${applicantName}" class="w-20 h-20 rounded-full">
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-gray-800">${applicantName}</h3>
+                        <p class="text-gray-600">${applicantEmail}</p>
+                        ${applicant.applicant?.currentPosition ? `<p class="text-sm text-gray-600 mt-1"><i class="fas fa-briefcase mr-1"></i> ${applicant.applicant.currentPosition}</p>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        if (applicant.coverLetter) {
+            profileHtml += `
+                <div class="mb-6 pb-6 border-b border-gray-200">
+                    <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-envelope text-indigo-600 mr-2"></i> Cover Letter
+                    </h4>
+                    <p class="text-gray-700 italic">${applicant.coverLetter}</p>
+                </div>
+            `;
+        }
+
+        profileHtml += renderProfileSection(cvProfile);
+        profileContent.innerHTML = profileHtml;
+        profileModal.classList.remove('hidden');
+    };
+
+    const openNotesModal = (applicationId) => {
+        const appItem = getApplicantById(applicationId);
+        if (!appItem) return;
+
+        activeNotesApplicationId = applicationId;
+        notesTextarea.value = appItem.notes || '';
+        notesMeta.textContent = appItem.updatedAt
+            ? `Last updated: ${new Date(appItem.updatedAt).toLocaleString()}`
+            : 'No notes yet';
+
+        if (!canEditNotes()) {
+            notesTextarea.setAttribute('readonly', 'true');
+            saveNotesBtn.setAttribute('disabled', 'true');
+            saveNotesBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            notesTextarea.removeAttribute('readonly');
+            saveNotesBtn.removeAttribute('disabled');
+            saveNotesBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        notesModal.classList.remove('hidden');
+        notesModal.classList.add('flex');
+    };
+
+    const closeNotesModal = () => {
+        activeNotesApplicationId = null;
+        notesModal.classList.add('hidden');
+        notesModal.classList.remove('flex');
+    };
+
+    const highlightColumn = (column, active) => {
+        if (!column) return;
+        column.classList.toggle('bg-blue-50', active);
+        column.classList.toggle('border-2', active);
+        column.classList.toggle('border-blue-400', active);
+    };
+
+    // ─── Modal event handlers ────────────────────────────────────────────────
+    document
+        .getElementById('closeProfileModal')
+        .addEventListener('click', () => profileModal.classList.add('hidden'));
+
+    profileModal.addEventListener('click', (e) => {
+        if (e.target === profileModal) profileModal.classList.add('hidden');
+    });
+
+    saveNotesBtn.addEventListener('click', async () => {
+        if (!activeNotesApplicationId || !canEditNotes()) return;
+
+        const value = notesTextarea.value;
+        await mockDataService.updateApplicationNotes(activeNotesApplicationId, value);
+
+        const applicant = getApplicantById(activeNotesApplicationId);
+        if (applicant) {
+            applicant.notes = value;
+            applicant.updatedAt = new Date().toISOString();
+        }
+
+        renderPipeline();
+        applyFilters();
+        closeNotesModal();
+    });
+
+    closeNotesBtn.addEventListener('click', closeNotesModal);
+    cancelNotesBtn.addEventListener('click', closeNotesModal);
+    notesModal.addEventListener('click', (e) => {
+        if (e.target === notesModal) closeNotesModal();
+    });
+
+    // ─── Filter and skill-chip event handlers ────────────────────────────────
     const chipInput = document.getElementById('skillChipInput');
     const autocompleteEl = document.getElementById('skillAutocomplete');
     const chipsWrapper = document.getElementById('skillChipsWrapper');
@@ -708,196 +1104,96 @@ export default async function jobApplicantsController(params = {}) {
         setTimeout(() => autocompleteEl.classList.add('hidden'), 150);
     });
 
-    // ── Read filters ─────────────────────────────────────────────────────────
-    const readFilters = () => ({
-        search: document.getElementById('searchApplicants').value.trim(),
-        status: document.getElementById('filterStatus').value,
-        skills: selectedSkills.join(','),
-        experienceLevel: document.getElementById('filterExperienceLevel').value,
-    });
-
-    // ── Apply filter + sort + re-render ─────────────────────────────────────
-    const applyFilters = () => {
-        const f = readFilters();
-        const skillTokens = selectedSkills.map((s) => s.toLowerCase());
-
-        filteredApplicants = allApplicants.filter((a) => {
-            const name = a.applicant?.name || '';
-            const email = a.applicant?.email || '';
-            const searchMatch =
-                !f.search ||
-                name.toLowerCase().includes(f.search.toLowerCase()) ||
-                email.toLowerCase().includes(f.search.toLowerCase());
-
-            const statusMatch = !f.status || a.status === f.status;
-            const skillsOk = skillsMatch(a._skills, skillTokens);
-            const expMatch = !f.experienceLevel || a._experienceLevel === f.experienceLevel;
-
-            return searchMatch && statusMatch && skillsOk && expMatch;
-        });
-
-        applySort(skillTokens);
-        updateDisplay(skillTokens, f);
-    };
-
-    // ── Sort ──────────────────────────────────────────────────────────────────
-    const applySort = (skillTokens = []) => {
-        const sort = document.getElementById('sortApplicants').value;
-        filteredApplicants.sort((a, b) => {
-            switch (sort) {
-                case 'name_asc':
-                    return (a.applicant?.name || '').localeCompare(b.applicant?.name || '');
-                case 'name_desc':
-                    return (b.applicant?.name || '').localeCompare(a.applicant?.name || '');
-                case 'applied_asc':
-                    return new Date(a.appliedAt) - new Date(b.appliedAt);
-                case 'skill_match':
-                    return (
-                        skillMatchCount(b._skills, skillTokens) -
-                        skillMatchCount(a._skills, skillTokens)
-                    );
-                case 'applied_desc':
-                default:
-                    return new Date(b.appliedAt) - new Date(a.appliedAt);
-            }
-        });
-    };
-
-    // ── Update DOM ────────────────────────────────────────────────────────────
-    const updateDisplay = (skillTokens = [], filters = {}) => {
-        const container = document.getElementById('applicantsContainer');
-        const noRes = document.getElementById('noApplicants');
-        const count = document.getElementById('applicantCount');
-        const tagsBar = document.getElementById('activeFiltersBar');
-
-        count.textContent = filteredApplicants.length;
-        tagsBar.innerHTML = renderActiveFilters(filters);
-
-        if (filteredApplicants.length === 0) {
-            container.classList.add('hidden');
-            noRes.classList.remove('hidden');
-        } else {
-            container.classList.remove('hidden');
-            noRes.classList.add('hidden');
-            container.innerHTML = filteredApplicants
-                .map((a) => renderApplicantCard(a, skillTokens))
-                .join('');
-            attachCardEventListeners();
-        }
-
-        // Remove-filter tag buttons
-        tagsBar.querySelectorAll('.remove-filter-tag').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const key = btn.dataset.key;
-                if (key.startsWith('skill:')) {
-                    const skillToRemove = key.slice(6);
-                    selectedSkills = selectedSkills.filter((s) => s !== skillToRemove);
-                    renderChips();
-                } else {
-                    const fieldMap = {
-                        search: 'searchApplicants',
-                        status: 'filterStatus',
-                        experienceLevel: 'filterExperienceLevel',
-                    };
-                    const el = document.getElementById(fieldMap[key]);
-                    if (el) el.value = '';
-                }
-                applyFilters();
-            });
-        });
-
-        const clearAllBtn = document.getElementById('clearAllFilters');
-        if (clearAllBtn) clearAllBtn.addEventListener('click', clearAll);
-    };
-
-    // ── Clear all ─────────────────────────────────────────────────────────────
-    const clearAll = () => {
-        document.getElementById('searchApplicants').value = '';
-        document.getElementById('filterStatus').value = '';
-        document.getElementById('filterExperienceLevel').value = '';
-        selectedSkills = [];
-        renderChips();
-        chipInput.value = '';
-        autocompleteEl.classList.add('hidden');
-        filteredApplicants = [...allApplicants];
-        applySort([]);
-        updateDisplay([], {});
-    };
-
-    // ── Wire up filter controls ───────────────────────────────────────────────
     document.getElementById('searchApplicants').addEventListener('input', applyFilters);
     document.getElementById('filterStatus').addEventListener('change', applyFilters);
     document.getElementById('filterExperienceLevel').addEventListener('change', applyFilters);
     document.getElementById('clearFiltersBtn').addEventListener('click', clearAll);
     document.getElementById('sortApplicants').addEventListener('change', () => {
-        applySort(selectedSkills.map((s) => s.toLowerCase()));
-        updateDisplay(
-            selectedSkills.map((s) => s.toLowerCase()),
-            readFilters()
-        );
+        const skillTokens = selectedSkills.map((s) => s.toLowerCase());
+        applySort(skillTokens);
+        updateDisplay(skillTokens, readFilters());
     });
     document.getElementById('noApplicants').addEventListener('click', (e) => {
         if (e.target.closest('#emptyStateClear')) clearAll();
     });
 
-    // ── Card action event listeners ───────────────────────────────────────────
-    const attachCardEventListeners = () => {
-        // View Profile
-        document.querySelectorAll('.view-profile-btn').forEach((btn) => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const applicationId = btn.dataset.id;
-                const userId = btn.dataset.userId;
-                const applicant = allApplicants.find((a) => a.id === applicationId);
-                if (!applicant) return;
+    // ─── Delegated card/list/pipeline actions ────────────────────────────────
+    const handleActionClick = async (e) => {
+        const viewBtn = e.target.closest('.view-profile-btn');
+        const statusBtn = e.target.closest('.status-btn');
+        const notesBtn = e.target.closest('.open-notes-btn');
 
-                const cvProfile = await mockDataService.getCVProfile(userId);
-                const applicantName = applicant.applicant?.name || 'Unknown';
-                const applicantEmail = applicant.applicant?.email || '';
-                const applicantAvatar =
-                    applicant.applicant?.avatar || 'https://ui-avatars.com/api/?name=Unknown';
-
-                let profileHtml = `
-                    <div class="mb-6 pb-6 border-b border-gray-200">
-                        <div class="flex items-start gap-4">
-                            <img src="${applicantAvatar}" alt="${applicantName}" class="w-20 h-20 rounded-full">
-                            <div class="flex-1">
-                                <h3 class="text-2xl font-bold text-gray-800">${applicantName}</h3>
-                                <p class="text-gray-600">${applicantEmail}</p>
-                                ${applicant.applicant?.currentPosition ? `<p class="text-sm text-gray-600 mt-1"><i class="fas fa-briefcase mr-1"></i> ${applicant.applicant.currentPosition}</p>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                if (applicant.coverLetter) {
-                    profileHtml += `
-                        <div class="mb-6 pb-6 border-b border-gray-200">
-                            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
-                                <i class="fas fa-envelope text-indigo-600 mr-2"></i> Cover Letter
-                            </h4>
-                            <p class="text-gray-700 italic">${applicant.coverLetter}</p>
-                        </div>
-                    `;
-                }
-
-                profileHtml += renderProfileSection(cvProfile);
-
-                profileContent.innerHTML = profileHtml;
-                profileModal.classList.remove('hidden');
-            });
-        });
-
-        // Status update buttons
-        document.querySelectorAll('.status-btn').forEach((btn) => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await mockDataService.updateApplicationStatus(btn.dataset.id, btn.dataset.status);
-                await jobApplicantsController(params);
-            });
-        });
+        if (viewBtn) {
+            e.preventDefault();
+            await openApplicantProfile(viewBtn.dataset.id, viewBtn.dataset.userId);
+        } else if (notesBtn) {
+            e.preventDefault();
+            openNotesModal(notesBtn.dataset.id);
+        } else if (statusBtn) {
+            e.preventDefault();
+            await updateApplicantStatus(statusBtn.dataset.id, statusBtn.dataset.status);
+        }
     };
 
-    // Initial render of card listeners
-    attachCardEventListeners();
+    document.getElementById('applicantsContainer').addEventListener('click', handleActionClick);
+
+    const pipelineBoard = document.getElementById('pipelineBoard');
+    pipelineBoard.addEventListener('click', handleActionClick);
+
+    pipelineBoard.addEventListener('dragstart', (e) => {
+        const card = e.target.closest('.pipeline-card');
+        if (!card) return;
+        e.dataTransfer.setData('text/plain', card.dataset.id);
+        card.classList.add('opacity-40');
+    });
+
+    pipelineBoard.addEventListener('dragend', (e) => {
+        const card = e.target.closest('.pipeline-card');
+        if (card) card.classList.remove('opacity-40');
+        document
+            .querySelectorAll('[data-status-column]')
+            .forEach((column) => highlightColumn(column, false));
+    });
+
+    pipelineBoard.addEventListener('dragover', (e) => {
+        const column = e.target.closest('[data-status-column]');
+        if (!column) return;
+        e.preventDefault();
+        highlightColumn(column, true);
+    });
+
+    pipelineBoard.addEventListener('dragleave', (e) => {
+        const column = e.target.closest('[data-status-column]');
+        if (column && !column.contains(e.relatedTarget)) {
+            highlightColumn(column, false);
+        }
+    });
+
+    pipelineBoard.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        document
+            .querySelectorAll('[data-status-column]')
+            .forEach((column) => highlightColumn(column, false));
+
+        const column = e.target.closest('[data-status-column]');
+        if (!column) return;
+
+        const appId = e.dataTransfer.getData('text/plain');
+        if (!appId) return;
+
+        const targetKey = column.getAttribute('data-status-column');
+        const statusMap = {
+            applied: 'under_review',
+            shortlisted: 'shortlisted',
+            interview: 'interview',
+            hired: 'hired',
+            rejected: 'rejected',
+        };
+
+        await updateApplicantStatus(appId, statusMap[targetKey] || 'under_review');
+    });
+
+    // Initial render
+    renderPipeline();
+    applyFilters();
 }
