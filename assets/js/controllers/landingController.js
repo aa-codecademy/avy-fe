@@ -5,13 +5,13 @@ import authService from '../services/authService.js';
 
 export default async function landingPageController() {
     const app = document.getElementById('app');
-    
+
     // Check if user is already logged in
     if (authService.isAuthenticated()) {
         window.router.navigate('/dashboard');
         return;
     }
-    
+
     app.innerHTML = `
         <!-- Navigation -->
         <nav class="bg-white shadow-md">
@@ -22,13 +22,14 @@ export default async function landingPageController() {
                         <span class="text-sm text-gray-500">by Avenga Academy</span>
                     </a>
                     <div class="space-x-4">
+                        <a href="/design-system" data-link class="text-gray-600 hover-text-brand transition">Design System</a>
                         <a href="/login" data-link class="text-gray-600 hover-text-brand transition">Login</a>
                         <a href="/login" data-link class="btn btn-primary">Get Started</a>
                     </div>
                 </div>
             </div>
         </nav>
-        
+
         <!-- Hero Section -->
         <section class="bg-brand-gradient text-white py-20">
             <div class="container mx-auto px-4 text-center fade-in">
@@ -51,7 +52,7 @@ export default async function landingPageController() {
                 </div>
             </div>
         </section>
-        
+
         <!-- Features Section -->
         <section class="py-20 bg-gray-50">
             <div class="container mx-auto px-4">
@@ -69,7 +70,7 @@ export default async function landingPageController() {
                             <li><i class="fas fa-check text-green-500 mr-2"></i>Track applications</li>
                         </ul>
                     </div>
-                    
+
                     <!-- Evergreen Module -->
                     <div class="card text-center">
                         <div class="text-5xl mb-4">🏢</div>
@@ -82,7 +83,7 @@ export default async function landingPageController() {
                             <li><i class="fas fa-check text-green-500 mr-2"></i>Find top talent</li>
                         </ul>
                     </div>
-                    
+
                     <!-- Meridian Module -->
                     <div class="card text-center">
                         <div class="text-5xl mb-4">⚙️</div>
@@ -98,7 +99,7 @@ export default async function landingPageController() {
                 </div>
             </div>
         </section>
-        
+
         <!-- Stats Section -->
         <section class="py-20">
             <div class="container mx-auto px-4">
@@ -122,7 +123,7 @@ export default async function landingPageController() {
                 </div>
             </div>
         </section>
-        
+
         <!-- CTA Section -->
         <section class="bg-brand-gradient text-white py-16">
             <div class="container mx-auto px-4 text-center">
@@ -133,7 +134,7 @@ export default async function landingPageController() {
                 </a>
             </div>
         </section>
-        
+
         <!-- Footer -->
         <footer class="bg-gray-800 text-white py-8">
             <div class="container mx-auto px-4 text-center">

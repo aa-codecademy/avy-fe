@@ -137,10 +137,12 @@ export async function requestDesktopPermission() {
  */
 export function showDesktopNotification(title, body) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const iconPath =
+        window.router?.resolveAssetPath('/assets/img/favicon.svg') ?? './assets/img/favicon.svg';
     const n = new Notification(title, {
         body,
-        icon: '/assets/img/favicon.svg',
-        badge: '/assets/img/favicon.svg',
+        icon: iconPath,
+        badge: iconPath,
     });
     // Auto-close after 6 seconds
     setTimeout(() => n.close(), 6000);

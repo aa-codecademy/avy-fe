@@ -23,6 +23,7 @@ import myJobsController from './controllers/evergreen/myJobsController.js';
 import employerNotificationsController from './controllers/evergreen/notificationsController.js';
 import postJobController from './controllers/evergreen/postJobController.js';
 import landingController from './controllers/landingController.js';
+import designSystemController from './controllers/designSystemController.js';
 import loginController from './controllers/loginController.js';
 import companyProfileController from './controllers/evergreen/companyProfileController.js';
 import adminUsersController from './controllers/meridian/adminUsersController.js';
@@ -37,7 +38,7 @@ import resetPasswordController from './controllers/resetPasswordController.js';
 
 // Import services (make available globally)
 import authService from './services/authService.js';
-import { renderAppHeader } from './views/appHeader.js';
+import { renderAppHeader, initializeLanguageSelector } from './views/appHeader.js';
 import { refreshHeaderBadge, refreshMessagesHeaderBadge } from './views/appHeader.js';
 import mockDataService from './services/mockDataService.js';
 import { initEmailJS } from './services/notificationService.js';
@@ -48,6 +49,7 @@ window.authService = authService;
 window.mockDataService = mockDataService;
 window.refreshHeaderBadge = refreshHeaderBadge;
 window.refreshMessagesHeaderBadge = refreshMessagesHeaderBadge;
+window.initializeLanguageSelector = initializeLanguageSelector;
 
 /**
  * Initialize application
@@ -75,6 +77,7 @@ function initApp() {
 function registerRoutes() {
     // Public routes
     router.addRoute('/', landingController, false);
+    router.addRoute('/design-system', designSystemController, false);
     router.addRoute('/login', loginController, false);
     // feature/forgot-password-at-login [Ognen]
     router.addRoute('/reset-password', resetPasswordController, false);
