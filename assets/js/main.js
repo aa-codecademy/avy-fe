@@ -17,7 +17,6 @@ import notificationsController from './controllers/bloom/notificationsController
 import profileController from './controllers/bloom/profileController.js';
 import dashboardController from './controllers/dashboardController.js';
 import candidatesController from './controllers/evergreen/candidatesController.js';
-import adminUsersController from './controllers/meridian/adminUsersController.js';
 import adminCompaniesController from './controllers/meridian/adminCompaniesController.js';
 import adminJobsController from './controllers/meridian/adminJobsController.js';
 import jobApplicantsController from './controllers/evergreen/jobApplicantsController.js';
@@ -27,17 +26,29 @@ import employerNotificationsController from './controllers/evergreen/notificatio
 import postJobController from './controllers/evergreen/postJobController.js';
 import landingController from './controllers/landingController.js';
 import loginController from './controllers/loginController.js';
+import companyProfileController from './controllers/evergreen/companyProfileController.js';
+import adminUsersController from './controllers/meridian/adminUsersController.js';
 import adminAnalyticsController from './controllers/meridian/adminAnalyticsController.js';
+import adminStudentsController from './controllers/meridian/adminStudentsController.js';
+import adminStudentDetailController from './controllers/meridian/adminStudentDetailController.js';
+import adminStudentEditController from './controllers/meridian/adminStudentEditController.js';
+import adminStudentImportController from './controllers/meridian/adminStudentImportController.js';
+import adminStudentExportController from './controllers/meridian/adminStudentExportController.js';
+import adminStudentProgrammeController from './controllers/meridian/adminStudentProgrammeController.js';
+import adminStudentPrivacyLogController from './controllers/meridian/adminStudentPrivacyLogController.js';
+import adminEventsController from './controllers/meridian/adminEventsController.js';
+import adminResourcesController from './controllers/meridian/adminResourcesController.js';
 import adminAuditLogController from './controllers/meridian/adminAuditLogController.js';
 import adminComplianceController from './controllers/meridian/adminComplianceController.js';
-import adminEventsController from './controllers/meridian/adminEventsController.js';
 import adminNotificationsController from './controllers/meridian/adminNotificationsController.js';
 import adminPlatformSettingsController from './controllers/meridian/adminPlatformSettingsController.js';
 import adminRolePermissionsController from './controllers/meridian/adminRolePermissionsController.js';
 import adminSettingsController from './controllers/meridian/adminSettingsController.js';
 import adminTemplatesController from './controllers/meridian/adminTemplatesController.js';
-import adminUsersController from './controllers/meridian/adminUsersController.js';
 import notFoundController from './controllers/notFoundController.js';
+// feature/forgot-password-at-login [Ognen]
+import resetPasswordController from './controllers/resetPasswordController.js';
+// END Ognen Manevski
 
 // Import services (make available globally)
 import authService from './services/authService.js';
@@ -50,7 +61,7 @@ window.authService = authService;
 /**
  * Initialize application
  */
-function initApp() {
+async function initApp() {
     console.log(
         '%c🚀 Avy Application Started',
         'color: #667eea; font-size: 16px; font-weight: bold;'
@@ -60,7 +71,9 @@ function initApp() {
     // Register routes
     registerRoutes();
 
-    // Initialize router (will handle initial navigation)
+    // Trigger the first navigation only after routes are registered.
+    await router.navigate(window.location.pathname, false);
+
     console.log('✅ Router initialized');
 }
 
@@ -71,6 +84,9 @@ function registerRoutes() {
     // Public routes
     router.addRoute('/', landingController, false);
     router.addRoute('/login', loginController, false);
+    // feature/forgot-password-at-login [Ognen]
+    router.addRoute('/reset-password', resetPasswordController, false);
+    // END Ognen Manevski
 
     // Protected routes (require authentication)
     router.addRoute('/dashboard', dashboardController, true);
@@ -105,25 +121,25 @@ function registerRoutes() {
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
     router.addRoute('/employer/notifications', employerNotificationsController, true, ['employer']);
 
+    router.addRoute(
+        '/employer/jobs',
+        createPlaceholderController('My Jobs', 'Manage your job postings'),
+        true,
+        ['employer']
+    );
+    router.addRoute('/employer/company-profile', companyProfileController, true, ['employer']);
+
     // Admin routes (Meridian module)
-    router.addRoute('/admin/users', adminUsersController, true, ['admin']);
-    router.addRoute(
-        '/admin/jobs',
-        createPlaceholderController('Job Management', 'Manage all job postings'),
-        true,
-        ['admin']
-    );
-    router.addRoute(
-        '/admin/companies',
-        createPlaceholderController(
-            'Company Management',
-            'Oversee employer accounts and verifications'
-        ),
-        true,
-        ['admin']
-    );
+    router.addRoute('/admin/students', adminStudentsController, true, ['admin']);
+    router.addRoute('/admin/students/import', adminStudentImportController, true, ['admin']);
+    router.addRoute('/admin/students/export', adminStudentExportController, true, ['admin']);
+    router.addRoute('/admin/students/:id/edit', adminStudentEditController, true, ['admin']);
+    router.addRoute('/admin/students/:id/programme', adminStudentProgrammeController, true, ['admin']);
+    router.addRoute('/admin/students/:id/privacy-log', adminStudentPrivacyLogController, true, ['admin']);
+    router.addRoute('/admin/students/:id', adminStudentDetailController, true, ['admin']);
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/admin/events', adminEventsController, true, ['admin']);
+    router.addRoute('/admin/resources', adminResourcesController, true, ['admin']);
     router.addRoute('/admin/notifications', adminNotificationsController, true, ['admin']);
     router.addRoute('/admin/settings', adminSettingsController, true, ['admin']);
     router.addRoute('/admin/settings/roles', adminRolePermissionsController, true, ['admin']);

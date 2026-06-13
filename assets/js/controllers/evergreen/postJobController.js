@@ -61,9 +61,8 @@ export default async function postJobController() {
                     `
                             : ''
                     }
-
                     <form id="jobPostForm" ${activeJobs >= company.jobPostingLimit ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>
-                        <div class="card mb-6">
+                        <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-info-circle mr-2"></i>
                                 Basic Information
@@ -160,10 +159,6 @@ export default async function postJobController() {
 
                         <div class="card mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                                <i class="fas fa-dollar-sign mr-2"></i>
-                                Compensation & Timeline
-                            </h2>
-                            <div class="grid md:grid-cols-2 gap-6">
                                 <div><label class="form-label">Minimum Salary (EUR)</label><input type="number" id="salaryMin" class="form-input" min="0" /></div>
                                 <div><label class="form-label">Maximum Salary (EUR)</label><input type="number" id="salaryMax" class="form-input" min="0" /></div>
                                 <div><label class="form-label">Application Deadline *</label><input type="date" id="deadline" required class="form-input" min="${new Date().toISOString().split('T')[0]}" /></div>
@@ -171,7 +166,7 @@ export default async function postJobController() {
                             </div>
                         </div>
 
-                        <div class="card mb-6">
+                        <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-4">
                                 <i class="fas fa-file-signature mr-2"></i>
                                 Application method

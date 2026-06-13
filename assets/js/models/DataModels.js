@@ -24,6 +24,12 @@ export class User {
         this.educationDegree = data.educationDegree || '';
         this.currentPosition = data.currentPosition || '';
         this.profileVisibility = data.profileVisibility || 'public'; // public, private
+        this.profileStatus = data.profileStatus || 'pending'; // pending, approved, rejected
+        this.profileStatusNote = data.profileStatusNote || '';
+        this.profileStatusUpdatedAt = data.profileStatusUpdatedAt || '';
+        this.accountStatus = data.accountStatus || 'active'; // active, suspended, deactivated
+        this.accountStatusNote = data.accountStatusNote || '';
+        this.accountStatusUpdatedAt = data.accountStatusUpdatedAt || '';
         this.lastLoginAt = data.lastLoginAt || '';
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
@@ -42,6 +48,11 @@ export class CVProfile {
         this.additionalTraining = data.additionalTraining || [];
         this.skills = data.skills || []; // Array of strings
         this.languages = data.languages || []; // Array of Language
+        // Job recommendation preferences
+        this.workModePreference = data.workModePreference || 'hybrid'; // onsite, remote, hybrid
+        this.locationPreference = data.locationPreference || ''; // Preferred work location
+        this.salaryExpectation = data.salaryExpectation || { min: 0, max: 0, currency: 'EUR' }; // Expected salary range
+        this.yearsOfExperience = data.yearsOfExperience || 0; // Calculated total years of experience
         this.updatedAt = data.updatedAt || new Date().toISOString();
     }
 }
@@ -101,6 +112,27 @@ export class Language {
 }
 
 /**
+ * Profile Access Log Model
+ * Represents a single employer access event for a student's profile.
+ * type: view | export | request | grant | deny | revoke
+ * grant / deny / revoke are admin actions — employerId and ipAddress will be empty.
+ */
+export class ProfileAccessLog {
+    constructor(data = {}) {
+        this.id           = data.id           || '';
+        this.studentId    = data.studentId    || '';
+        this.employerId   = data.employerId   || '';
+        this.employerName = data.employerName || '';
+        this.companyId    = data.companyId    || '';
+        this.companyName  = data.companyName  || '';
+        this.type         = data.type         || 'view';
+        this.details      = data.details      || '';
+        this.ipAddress    = data.ipAddress    || '';
+        this.timestamp    = data.timestamp    || new Date().toISOString();
+    }
+}
+
+/**
  * Job Model
  */
 export class Job {
@@ -125,6 +157,11 @@ export class Job {
         this.views = data.views || 0;
         this.applications = data.applications || 0;
         this.isPriority = data.isPriority || false; // Premium feature
+        // Recommendation algorithm analytics
+        this.recommendationViews = data.recommendationViews || 0; // Views from recommendations
+        this.recommendationClicks = data.recommendationClicks || 0; // Clicks from recommendations
+        this.recommendationApplications = data.recommendationApplications || 0; // Applications from recommendations
+        this.averageMatchScore = data.averageMatchScore || 0; // Average match score for this job
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
     }
@@ -148,6 +185,10 @@ export class Company {
         this.subscriptionPlan = data.subscriptionPlan || 'basic'; // basic, advanced, premium
         this.jobPostingLimit = data.jobPostingLimit || 5;
         this.jobPostingsUsed = data.jobPostingsUsed || 0;
+        this.applicationResponseRate = data.applicationResponseRate || 0;
+        this.averageTimeToUpdateStatus = data.averageTimeToUpdateStatus || 0;
+        this.profileAccessRequests = data.profileAccessRequests || 0;
+        this.lastActivityDate = data.lastActivityDate || new Date().toISOString();
         this.subscriptionExpiry = data.subscriptionExpiry || '';
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
@@ -171,6 +212,12 @@ export class Application {
         this.notes = data.notes || ''; // Internal company notes
         this.appliedAt = data.appliedAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
+        this.statusUpdateHistory = data.statusUpdateHistory || [
+            {
+                status: this.status,
+                updatedAt: this.updatedAt,
+            },
+        ];
     }
 }
 
@@ -207,8 +254,42 @@ export class Event {
         this.isOnline = data.isOnline || false;
         this.maxParticipants = data.maxParticipants || 0;
         this.registeredCount = data.registeredCount || 0;
+        this.actualAttendance = data.actualAttendance || 0;
+        this.byProgramme = data.byProgramme || [];
+        this.registeredUsers = data.registeredUsers || [];
         this.organizerId = data.organizerId || '';
         this.status = data.status || 'upcoming'; // upcoming, ongoing, completed, cancelled
+        this.createdAt = data.createdAt || new Date().toISOString();
+    }
+}
+/**
+ * Event Notification Model
+ */
+export class EventNotification {
+    constructor(data = {}) {
+        this.id = data.id || '';
+        this.eventId = data.eventId || '';
+        this.message = data.message || '';
+        this.createdAt = data.createdAt || new Date().toISOString();
+    }
+}
+
+/**
+ * Resource Model
+ */
+export class Resource {
+    constructor(data = {}) {
+        this.id = data.id || '';
+        this.title = data.title || '';
+        this.description = data.description || '';
+        this.type = data.type || 'article'; // cv-guide, interview-prep, protfolio-template
+        this.contentBody = data.contentBody || '';
+        this.externalUrl = data.externalUrl || '';
+        this.isGlobal = data.isGlobal || true;
+        this.programs = data.programs || [];
+        this.status = data.status || 'active'; // archived
+        this.viewCount = data.viewCount || Math.floor(Math.random() * 90) + 10;
+        this.organizerId = data.organizerId || '';
         this.createdAt = data.createdAt || new Date().toISOString();
     }
 }
