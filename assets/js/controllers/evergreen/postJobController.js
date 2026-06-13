@@ -26,7 +26,7 @@ export default async function postJobController() {
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
-        
+
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
@@ -39,11 +39,11 @@ export default async function postJobController() {
                             ${company.name} | Active Jobs: ${activeJobs} / ${company.jobPostingLimit}
                         </p>
                     </div>
-                    
+
                     ${
                         activeJobs >= company.jobPostingLimit
                             ? `
-                        <div class="card no-hover bg-red-50 border-2 border-red-300 mb-6">
+                        <div class="card bg-red-50 border-2 border-red-300 mb-6">
                             <div class="flex items-center">
                                 <i class="fas fa-exclamation-triangle text-red-600 text-3xl mr-4"></i>
                                 <div>
@@ -61,14 +61,13 @@ export default async function postJobController() {
                     `
                             : ''
                     }
-                    
                     <form id="jobPostForm" ${activeJobs >= company.jobPostingLimit ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>
                         <div class="card no-hover mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-info-circle mr-2"></i>
                                 Basic Information
                             </h2>
-                            
+
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2">
                                     <label class="form-label">Job Title *</label>
@@ -109,8 +108,8 @@ export default async function postJobController() {
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="card no-hover mb-6">
+
+                        <div class="card mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-file-alt mr-2"></i>
                                 Job Description
@@ -134,8 +133,8 @@ export default async function postJobController() {
                                 <textarea id="benefits" rows="3" class="form-input" placeholder="List benefits and perks (one per line)..."></textarea>
                             </div>
                         </div>
-                        
-                        <div class="card no-hover mb-6">
+
+                        <div class="card mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-code mr-2"></i>
                                 Required Skills
@@ -157,13 +156,9 @@ export default async function postJobController() {
                                 <div id="niceToHaveSkillsList" class="flex flex-wrap gap-2 min-h-[2rem]"></div>
                             </div>
                         </div>
-                        
-                        <div class="card no-hover mb-6">
+
+                        <div class="card mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                                <i class="fas fa-dollar-sign mr-2"></i>
-                                Compensation & Timeline
-                            </h2>
-                            <div class="grid md:grid-cols-2 gap-6">
                                 <div><label class="form-label">Minimum Salary (EUR)</label><input type="number" id="salaryMin" class="form-input" min="0" /></div>
                                 <div><label class="form-label">Maximum Salary (EUR)</label><input type="number" id="salaryMax" class="form-input" min="0" /></div>
                                 <div><label class="form-label">Application Deadline *</label><input type="date" id="deadline" required class="form-input" min="${new Date().toISOString().split('T')[0]}" /></div>
@@ -187,8 +182,8 @@ export default async function postJobController() {
                                 </label>
                             </div>
                         </div>
-                        
-                        <div class="card no-hover bg-purple-50 border-2 border-purple-200">
+
+                        <div class="card bg-purple-50 border-2 border-purple-200">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-purple-900 font-semibold"><i class="fas fa-info-circle mr-2"></i>Fields marked with * are required</p>
@@ -314,7 +309,7 @@ function setupEventListeners(company) {
             deadline: document.getElementById('deadline').value,
             priority: document.getElementById('priority').value,
             companyId: company.id,
-            status: 'active',
+            status: 'pending',
             postedDate: new Date().toISOString().split('T')[0],
             applicationMode: document.querySelector('input[name="applicationMode"]:checked').value,
         };

@@ -17,6 +17,8 @@ import notificationsController from './controllers/bloom/notificationsController
 import profileController from './controllers/bloom/profileController.js';
 import dashboardController from './controllers/dashboardController.js';
 import candidatesController from './controllers/evergreen/candidatesController.js';
+import adminCompaniesController from './controllers/meridian/adminCompaniesController.js';
+import adminJobsController from './controllers/meridian/adminJobsController.js';
 import jobApplicantsController from './controllers/evergreen/jobApplicantsController.js';
 import employerMessagesController from './controllers/evergreen/messagesController.js';
 import myJobsController from './controllers/evergreen/myJobsController.js';
@@ -108,6 +110,12 @@ function registerRoutes() {
         true,
         ['employer']
     );
+
+    // Admin routes (Meridian module)
+    router.addRoute('/admin/users', adminUsersController, true, ['admin']);
+    router.addRoute('/admin/jobs', adminJobsController, true, ['admin']);
+    router.addRoute('/admin/companies', adminCompaniesController, true, ['admin']);
+    router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/employer/jobs', myJobsController, true, ['employer']);
     router.addRoute('/employer/jobs/:id/applicants', jobApplicantsController, true, ['employer']);
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
@@ -122,7 +130,6 @@ function registerRoutes() {
     router.addRoute('/employer/company-profile', companyProfileController, true, ['employer']);
 
     // Admin routes (Meridian module)
-    router.addRoute('/admin/users', adminUsersController, true, ['admin']);
     router.addRoute('/admin/students', adminStudentsController, true, ['admin']);
     router.addRoute('/admin/students/import', adminStudentImportController, true, ['admin']);
     router.addRoute('/admin/students/export', adminStudentExportController, true, ['admin']);
@@ -130,22 +137,6 @@ function registerRoutes() {
     router.addRoute('/admin/students/:id/programme', adminStudentProgrammeController, true, ['admin']);
     router.addRoute('/admin/students/:id/privacy-log', adminStudentPrivacyLogController, true, ['admin']);
     router.addRoute('/admin/students/:id', adminStudentDetailController, true, ['admin']);
-    router.addRoute('/admin/jobs', createPlaceholderController('Job Management', 'Manage all job postings'), true, ['admin']);
-    router.addRoute(
-        '/admin/jobs',
-        createPlaceholderController('Job Management', 'Manage all job postings'),
-        true,
-        ['admin']
-    );
-    router.addRoute(
-        '/admin/companies',
-        createPlaceholderController(
-            'Company Management',
-            'Oversee employer accounts and verifications'
-        ),
-        true,
-        ['admin']
-    );
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/admin/events', adminEventsController, true, ['admin']);
     router.addRoute('/admin/resources', adminResourcesController, true, ['admin']);

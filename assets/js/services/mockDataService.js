@@ -5,6 +5,7 @@
  */
 
 import {
+    ProfileAccessRequest,
     ProfileAccessLog,
     User,
     CVProfile,
@@ -44,8 +45,10 @@ class MockDataService {
     initializeMockData() {
         this.users = this.generateMockUsers();
         this.companies = this.generateMockCompanies();
+        this.companyApplications = this.generateMockCompanyApplications();
         this.jobs = this.generateMockJobs();
         this.applications = this.generateMockApplications();
+        this.profileAccessRequests = this.generateMockProfileAccessRequests();
         this.cvProfiles = this.generateMockCVProfiles();
         this.accessLogs = this.generateMockAccessLogs();
         this.successStories = this.generateMockSuccessStories();
@@ -70,6 +73,7 @@ class MockDataService {
                 companies: this.companies,
                 jobs: this.jobs,
                 applications: this.applications,
+                companyApplications: this.companyApplications,
                 cvProfiles: this.cvProfiles,
                 successStories: this.successStories,
                 events: this.events,
@@ -99,6 +103,7 @@ class MockDataService {
 
         if (!this.messages) this.messages = this.generateMockMessages();
         if (!this.notifications) this.notifications = this.generateMockNotifications();
+        if (!this.companyApplications) this.companyApplications = this.generateMockCompanyApplications();
         if (!this.scheduledReports) this.scheduledReports = this.generateMockScheduledReports();
         if (!this.scheduledReportDeliveries)
             this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
@@ -448,6 +453,7 @@ class MockDataService {
                 subscriptionPlan: 'premium',
                 jobPostingLimit: 80,
                 jobPostingsUsed: 12,
+                featured: true,
                 applicationResponseRate: 92,
                 averageTimeToUpdateStatus: 2.5,
                 profileAccessRequests: 156,
@@ -465,6 +471,7 @@ class MockDataService {
                 subscriptionPlan: 'advanced',
                 jobPostingLimit: 30,
                 jobPostingsUsed: 8,
+                featured: false,
                 applicationResponseRate: 68,
                 averageTimeToUpdateStatus: 8.3,
                 profileAccessRequests: 89,
@@ -483,6 +490,8 @@ class MockDataService {
                 subscriptionPlan: 'basic',
                 jobPostingLimit: 5,
                 jobPostingsUsed: 3,
+                featured: false,
+
                 applicationResponseRate: 45,
                 averageTimeToUpdateStatus: 14.2,
                 profileAccessRequests: 34,
@@ -500,6 +509,7 @@ class MockDataService {
                 subscriptionPlan: 'advanced',
                 jobPostingLimit: 30,
                 jobPostingsUsed: 15,
+                featured: true,
                 applicationResponseRate: 88,
                 averageTimeToUpdateStatus: 3.1,
                 profileAccessRequests: 142,
@@ -518,6 +528,134 @@ class MockDataService {
         return this.companies.find((c) => c.id === id);
     }
 
+    generateMockCompanyApplications() {
+        const now = new Date();
+        return [
+            {
+                id: 'ca1',
+                representativeName: 'Mila Petrovska',
+                representativeEmail: 'mila@greenlabs.mk',
+                companyName: 'Green Labs Biotech',
+                industry: 'Biotechnology',
+                size: '51-200',
+                location: 'Skopje',
+                website: 'https://greenlabs.example.com',
+                message:
+                    'We want to join Avy to hire junior developers for our growing product team.',
+                status: 'pending',
+                notes: '',
+                submittedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+                id: 'ca2',
+                representativeName: 'Marko Nikolic',
+                representativeEmail: 'marko@edutech.io',
+                companyName: 'EduTech Innovations',
+                industry: 'EdTech',
+                size: '11-50',
+                location: 'Skopje',
+                website: 'https://edutech.example.com',
+                message:
+                    'We are building mentorship and placement tools for students and need access to qualified talent.',
+                status: 'rejected',
+                notes: 'Submitted without company registration number.',
+                submittedAt: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+            },
+            {
+                id: 'ca3',
+                representativeName: 'Aleksandar Kotorov',
+                representativeEmail: 'aleksandar@paywise.com',
+                companyName: 'PayWise Systems',
+                industry: 'Fintech',
+                size: '201-500',
+                location: 'Remote',
+                website: 'https://paywise.example.com',
+                message:
+                    'Seeking a trusted platform to hire engineers and QA talent for our payment product.',
+                status: 'approved',
+                notes: 'Approved 2 weeks ago.',
+                submittedAt: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+            },
+        ];
+    }
+
+    async getAllCompanyApplications(filters = {}) {
+        await this.simulateDelay();
+        let applications = [...this.companyApplications];
+
+        if (filters.status) {
+            applications = applications.filter((app) => app.status === filters.status);
+        }
+        if (filters.search) {
+            const search = filters.search.toLowerCase().trim();
+            applications = applications.filter((app) =>
+                `${app.representativeName} ${app.representativeEmail} ${app.companyName} ${app.industry} ${app.location}`
+                    .toLowerCase()
+                    .includes(search)
+            );
+        }
+        if (filters.industry) {
+            applications = applications.filter((app) => app.industry === filters.industry);
+        }
+
+        return applications;
+    }
+
+    async getCompanyApplicationById(id) {
+        await this.simulateDelay();
+        return this.companyApplications.find((app) => app.id === id);
+    }
+
+    async updateCompanyApplicationStatus(id, status, notes = '') {
+        await this.simulateDelay();
+        const index = this.companyApplications.findIndex((app) => app.id === id);
+        if (index === -1) return null;
+
+        this.companyApplications[index].status = status;
+        this.companyApplications[index].notes = notes || this.companyApplications[index].notes;
+        this.companyApplications[index].updatedAt = new Date().toISOString();
+
+        if (status === 'approved') {
+            const source = this.companyApplications[index];
+            const companyId = `c${this.companies.length + 1}`;
+            const userId = String(this.users.length + 1);
+
+            const newCompany = new Company({
+                id: companyId,
+                name: source.companyName,
+                logo: `https://ui-avatars.com/api/?name=${encodeURIComponent(source.companyName)}&background=4f46e5&color=fff&size=128`,
+                industry: source.industry,
+                description: `Verified employer account for ${source.companyName}.`,
+                website: source.website,
+                locations: [source.location],
+                size: source.size,
+                contactEmail: source.representativeEmail,
+                contactPerson: source.representativeName,
+                subscriptionPlan: 'basic',
+                jobPostingLimit: 5,
+                jobPostingsUsed: 0,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            });
+
+            const newEmployerUser = new User({
+                id: userId,
+                email: source.representativeEmail,
+                name: source.representativeName,
+                role: 'employer',
+                companyId,
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(source.representativeName)}&background=10b981&color=fff`,
+                currentPosition: `${source.representativeName} at ${source.companyName}`,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            });
+
+            this.companies.push(newCompany);
+            this.users.push(newEmployerUser);
+        }
+
+        return this.companyApplications[index];
+    }
     async updateCompany(id, companyData) {
         await this.simulateDelay();
 
@@ -714,6 +852,55 @@ class MockDataService {
                 recommendationClicks: 4,
                 recommendationApplications: 1,
                 averageMatchScore: 71,
+            }),
+            new Job({
+                id: 'j7',
+                companyId: 'c3',
+                title: 'UX/UI Designer',
+                description: 'Creative UX/UI Designer to enhance user experiences.',
+                responsibilities:
+                    'Design user interfaces, create wireframes and prototypes, conduct user research, collaborate with development team.',
+                qualifications:
+                    'Proficiency in Figma/Sketch, understanding of UX principles, portfolio showcasing design work.',
+                benefits: 'Creative environment, design tools provided, flexible hours.',
+                employmentType: 'full-time',
+                location: 'Skopje',
+                workMode: 'hybrid',
+                experienceLevel: 'mid',
+                requiredSkills: ['Figma', 'UX Design', 'UI Design', 'Prototyping'],
+                niceToHaveSkills: ['Adobe Creative Suite', 'User Research', 'Design Systems'],
+                salaryRange: { min: 1000, max: 1500, currency: 'EUR' },
+                applicationDeadline: futureDate.toISOString(),
+                status: 'pending',
+                views: 0,
+                applications: 0,
+            }),
+            new Job({
+                id: 'j8',
+                companyId: 'c4',
+                title: 'Product Manager',
+                description: 'Product Manager to drive product strategy and development.',
+                responsibilities:
+                    'Define product roadmap, work with stakeholders, analyze market trends, manage product lifecycle.',
+                qualifications:
+                    'Experience in product management, analytical skills, communication skills, technical background preferred.',
+                benefits: 'Equity package, leadership opportunities, international exposure.',
+                employmentType: 'full-time',
+                location: 'Remote',
+                workMode: 'remote',
+                experienceLevel: 'senior',
+                requiredSkills: [
+                    'Product Strategy',
+                    'Analytics',
+                    'Stakeholder Management',
+                    'Roadmapping',
+                ],
+                niceToHaveSkills: ['SQL', 'A/B Testing', 'Agile Methodologies'],
+                salaryRange: { min: 2500, max: 3500, currency: 'EUR' },
+                applicationDeadline: futureDate.toISOString(),
+                status: 'pending',
+                views: 0,
+                applications: 0,
             }),
         ];
     }
@@ -946,6 +1133,111 @@ class MockDataService {
                     },
                 ],
             }),
+            new Application({
+                id: 'a4',
+                jobId: 'j1',
+                userId: '3',
+                status: 'interview',
+                coverLetter: 'I have strong skills in React and JavaScript...',
+                appliedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Application({
+                id: 'a5',
+                jobId: 'j1',
+                userId: '4',
+                status: 'rejected',
+                coverLetter: 'Looking forward to contributing to your team...',
+                appliedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Application({
+                id: 'a6',
+                jobId: 'j2',
+                userId: '5',
+                status: 'under_review',
+                coverLetter: 'My backend development experience aligns well...',
+                appliedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Application({
+                id: 'a7',
+                jobId: 'j4',
+                userId: '6',
+                status: 'pending',
+                coverLetter: 'Excited to work on data analytics projects...',
+                appliedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new Application({
+                id: 'a8',
+                jobId: 'j4',
+                userId: '7',
+                status: 'hired',
+                coverLetter: 'I have extensive experience with data analysis...',
+                appliedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+        ];
+    }
+
+    generateMockProfileAccessRequests() {
+        const now = new Date();
+        return [
+            new ProfileAccessRequest({
+                id: 'par1',
+                employerId: 'employer1',
+                studentId: '1',
+                jobId: 'j1',
+                requestReason: 'Reviewing application for Frontend Developer position',
+                status: 'pending',
+                requestedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new ProfileAccessRequest({
+                id: 'par2',
+                employerId: 'employer2',
+                studentId: '2',
+                jobId: 'j2',
+                requestReason: 'Evaluating candidate for Backend Developer role',
+                status: 'approved',
+                requestedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedAt: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedBy: 'admin1',
+                reviewNotes: 'Approved for 30-day access',
+                expiresAt: new Date(now.getTime() + 25 * 24 * 60 * 60 * 1000).toISOString(),
+                accessGranted: true,
+            }),
+            new ProfileAccessRequest({
+                id: 'par3',
+                employerId: 'employer1',
+                studentId: '3',
+                jobId: '',
+                requestReason: 'General talent scouting for future opportunities',
+                status: 'rejected',
+                requestedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedAt: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedBy: 'admin1',
+                reviewNotes: 'Request too broad, requires specific job context',
+                accessGranted: false,
+            }),
+            new ProfileAccessRequest({
+                id: 'par4',
+                employerId: 'employer3',
+                studentId: '4',
+                jobId: 'j4',
+                requestReason: 'Assessing data analyst candidate qualifications',
+                status: 'pending',
+                requestedAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            }),
+            new ProfileAccessRequest({
+                id: 'par5',
+                employerId: 'employer2',
+                studentId: '5',
+                jobId: 'j2',
+                requestReason: 'Follow-up review after initial screening',
+                status: 'expired',
+                requestedAt: new Date(now.getTime() - 35 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedAt: new Date(now.getTime() - 34 * 24 * 60 * 60 * 1000).toISOString(),
+                reviewedBy: 'admin1',
+                reviewNotes: 'Approved for 30-day access',
+                expiresAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                accessGranted: false,
+            }),
         ];
     }
 
@@ -984,6 +1276,56 @@ class MockDataService {
             if (notes) this.applications[index].notes = notes;
             this.applications[index].updatedAt = new Date().toISOString();
             return this.applications[index];
+        }
+        return null;
+    }
+
+    /**
+     * PROFILE ACCESS REQUESTS
+     */
+    async getProfileAccessRequests(filters = {}) {
+        await this.simulateDelay();
+        let requests = [...this.profileAccessRequests];
+
+        if (filters.status) {
+            requests = requests.filter((r) => r.status === filters.status);
+        }
+        if (filters.employerId) {
+            requests = requests.filter((r) => r.employerId === filters.employerId);
+        }
+        if (filters.studentId) {
+            requests = requests.filter((r) => r.studentId === filters.studentId);
+        }
+
+        return requests;
+    }
+
+    async getProfileAccessRequestById(id) {
+        await this.simulateDelay();
+        return this.profileAccessRequests.find((r) => r.id === id);
+    }
+
+    async updateProfileAccessRequestStatus(id, status, reviewNotes = '', adminId = '') {
+        await this.simulateDelay();
+        const index = this.profileAccessRequests.findIndex((r) => r.id === id);
+        if (index !== -1) {
+            const request = this.profileAccessRequests[index];
+            request.status = status;
+            request.reviewedAt = new Date().toISOString();
+            request.reviewedBy = adminId;
+            request.reviewNotes = reviewNotes;
+
+            if (status === 'approved') {
+                request.accessGranted = true;
+                // Set expiration to 30 days from now
+                const expiresAt = new Date();
+                expiresAt.setDate(expiresAt.getDate() + 30);
+                request.expiresAt = expiresAt.toISOString();
+            } else {
+                request.accessGranted = false;
+            }
+
+            return request;
         }
         return null;
     }
@@ -1964,6 +2306,54 @@ class MockDataService {
     async getAnalytics() {
         await this.simulateDelay();
         return this.analytics;
+    }
+
+    async getJobApplicationAnalytics(jobId) {
+        await this.simulateDelay();
+        
+        const job = this.jobs.find(j => j.id === jobId);
+        if (!job) return null;
+        
+        const applications = this.applications.filter(a => a.jobId === jobId);
+        const company = this.companies.find(c => c.id === job.companyId);
+        
+        // Status breakdown
+        const statusBreakdown = {
+            pending: applications.filter(a => a.status === 'pending').length,
+            under_review: applications.filter(a => a.status === 'under_review').length,
+            interview: applications.filter(a => a.status === 'interview').length,
+            rejected: applications.filter(a => a.status === 'rejected').length,
+            hired: applications.filter(a => a.status === 'hired').length,
+        };
+        
+        // Application mode breakdown
+        const easyApplyCount = applications.length; // All current applications are easy apply
+        const fullApplicationCount = 0; // No full applications in current mock data
+        
+        return {
+            job: {
+                id: job.id,
+                title: job.title,
+                companyName: company?.name || 'Unknown Company',
+                applicationMode: job.applicationMode,
+                createdAt: job.createdAt,
+                status: job.status,
+            },
+            totalApplications: applications.length,
+            statusBreakdown,
+            applicationModeBreakdown: {
+                easyApply: easyApplyCount,
+                fullApplication: fullApplicationCount,
+            },
+            recentApplications: applications
+                .sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt))
+                .slice(0, 5)
+                .map(app => ({
+                    id: app.id,
+                    appliedAt: app.appliedAt,
+                    status: app.status,
+                })),
+        };
     }
 
     /**
