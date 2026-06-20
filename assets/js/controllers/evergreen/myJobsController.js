@@ -44,11 +44,11 @@ export default async function myJobsController() {
     const renderJobsList = () => {
         if (jobs.length === 0) {
             return `
-                <div class="card text-center py-16">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center py-16">
                     <i class="fas fa-briefcase text-6xl text-gray-300 mb-4"></i>
                     <h3 class="text-2xl font-bold text-gray-600 mb-2">No Jobs Posted Yet</h3>
                     <p class="text-gray-500 mb-4">Start by posting your first job opening.</p>
-                    <a href="/employer/post-job" data-link class="btn btn-primary">
+                    <a href="/employer/post-job" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]">
                         <i class="fas fa-plus-circle mr-2"></i> Post New Job
                     </a>
                 </div>
@@ -85,7 +85,7 @@ export default async function myJobsController() {
                                     <span class="text-gray-600">${getWorkModeLabel(job.workMode)}</span>
                                 </td>
                                 <td class="py-4 px-4">
-                                    <select class="status-select form-input py-1 px-2 text-sm w-auto" data-job-id="${job.id}">
+                                    <select class="status-select w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] py-1 px-2 text-sm w-auto" data-job-id="${job.id}">
                                         <option value="active" ${job.status === 'active' ? 'selected' : ''}>Active</option>
                                         <option value="paused" ${job.status === 'paused' ? 'selected' : ''}>Paused</option>
                                         <option value="closed" ${job.status === 'closed' ? 'selected' : ''}>Closed</option>
@@ -100,7 +100,7 @@ export default async function myJobsController() {
                                     </a>
                                 </td>
                                 <td class="py-4 px-4 text-right">
-                                    <button class="btn btn-sm btn-outline edit-job-btn" data-job-id="${job.id}">
+                                    <button class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 px-3 py-2 text-sm border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 edit-job-btn" data-job-id="${job.id}">
                                         <i class="fas fa-edit mr-1"></i> Edit
                                     </button>
                                 </td>
@@ -117,13 +117,13 @@ export default async function myJobsController() {
     // Render edit form
     const renderEditForm = (job) => {
         return `
-            <div class="card no-hover mb-6">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:translate-y-0 hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)] mb-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800">
                         <i class="fas fa-edit mr-2"></i>
                         Edit Job: ${job.title}
                     </h2>
-                    <button class="btn btn-outline cancel-edit-btn">
+                    <button class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 cancel-edit-btn">
                         <i class="fas fa-times mr-2"></i> Cancel
                     </button>
                 </div>
@@ -133,13 +133,13 @@ export default async function myJobsController() {
                     
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="md:col-span-2">
-                            <label class="form-label">Job Title *</label>
-                            <input type="text" id="editJobTitle" required class="form-input" value="${job.title}" />
+                            <label class="mb-2 block font-medium text-slate-700">Job Title *</label>
+                            <input type="text" id="editJobTitle" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${job.title}" />
                         </div>
                         
                         <div>
-                            <label class="form-label">Employment Type *</label>
-                            <select id="editEmploymentType" required class="form-input">
+                            <label class="mb-2 block font-medium text-slate-700">Employment Type *</label>
+                            <select id="editEmploymentType" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                 <option value="full-time" ${job.employmentType === 'full-time' ? 'selected' : ''}>Full-time</option>
                                 <option value="part-time" ${job.employmentType === 'part-time' ? 'selected' : ''}>Part-time</option>
                                 <option value="internship" ${job.employmentType === 'internship' ? 'selected' : ''}>Internship</option>
@@ -149,8 +149,8 @@ export default async function myJobsController() {
                         </div>
                         
                         <div>
-                            <label class="form-label">Work Mode *</label>
-                            <select id="editWorkMode" required class="form-input">
+                            <label class="mb-2 block font-medium text-slate-700">Work Mode *</label>
+                            <select id="editWorkMode" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                 <option value="onsite" ${job.workMode === 'onsite' ? 'selected' : ''}>On-site</option>
                                 <option value="remote" ${job.workMode === 'remote' ? 'selected' : ''}>Remote</option>
                                 <option value="hybrid" ${job.workMode === 'hybrid' ? 'selected' : ''}>Hybrid</option>
@@ -158,13 +158,13 @@ export default async function myJobsController() {
                         </div>
                         
                         <div>
-                            <label class="form-label">Location</label>
-                            <input type="text" id="editLocation" class="form-input" value="${job.location || ''}" placeholder="e.g., Skopje, Macedonia" />
+                            <label class="mb-2 block font-medium text-slate-700">Location</label>
+                            <input type="text" id="editLocation" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${job.location || ''}" placeholder="e.g., Skopje, Macedonia" />
                         </div>
                         
                         <div>
-                            <label class="form-label">Experience Level</label>
-                            <select id="editExperienceLevel" class="form-input">
+                            <label class="mb-2 block font-medium text-slate-700">Experience Level</label>
+                            <select id="editExperienceLevel" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                 <option value="intern" ${job.experienceLevel === 'intern' ? 'selected' : ''}>Intern</option>
                                 <option value="junior" ${job.experienceLevel === 'junior' ? 'selected' : ''}>Junior</option>
                                 <option value="mid" ${job.experienceLevel === 'mid' ? 'selected' : ''}>Mid</option>
@@ -173,24 +173,24 @@ export default async function myJobsController() {
                         </div>
                         
                         <div class="md:col-span-2">
-                            <label class="form-label">Description *</label>
-                            <textarea id="editDescription" required class="form-input" rows="4" placeholder="Job description...">${job.description || ''}</textarea>
+                            <label class="mb-2 block font-medium text-slate-700">Description *</label>
+                            <textarea id="editDescription" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" rows="4" placeholder="Job description...">${job.description || ''}</textarea>
                         </div>
                         
                         <div class="md:col-span-2">
-                            <label class="form-label">Responsibilities</label>
-                            <textarea id="editResponsibilities" class="form-input" rows="3" placeholder="Key responsibilities...">${job.responsibilities || ''}</textarea>
+                            <label class="mb-2 block font-medium text-slate-700">Responsibilities</label>
+                            <textarea id="editResponsibilities" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" rows="3" placeholder="Key responsibilities...">${job.responsibilities || ''}</textarea>
                         </div>
                         
                         <div class="md:col-span-2">
-                            <label class="form-label">Qualifications</label>
-                            <textarea id="editQualifications" class="form-input" rows="3" placeholder="Required qualifications...">${job.qualifications || ''}</textarea>
+                            <label class="mb-2 block font-medium text-slate-700">Qualifications</label>
+                            <textarea id="editQualifications" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" rows="3" placeholder="Required qualifications...">${job.qualifications || ''}</textarea>
                         </div>
                     </div>
                     
                     <div class="flex justify-end gap-3 pt-4 border-t">
-                        <button type="button" class="btn btn-outline cancel-edit-btn">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 cancel-edit-btn">Cancel</button>
+                        <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]">
                             <i class="fas fa-save mr-2"></i> Save Changes
                         </button>
                     </div>
@@ -203,7 +203,7 @@ export default async function myJobsController() {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in" id="jobsContainer">
                     <div class="mb-8 flex justify-between items-center">
                         <div>
@@ -213,7 +213,7 @@ export default async function myJobsController() {
                             </h1>
                             <p class="text-gray-600">Manage your active job postings</p>
                         </div>
-                        <a href="/employer/post-job" data-link class="btn btn-primary">
+                        <a href="/employer/post-job" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]">
                             <i class="fas fa-plus-circle mr-2"></i> Post New Job
                         </a>
                     </div>

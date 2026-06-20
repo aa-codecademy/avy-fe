@@ -19,7 +19,7 @@ export default async function adminStudentsController() {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
                         <div>
@@ -31,11 +31,11 @@ export default async function adminStudentsController() {
                         </div>
                         <div class="flex flex-wrap items-center gap-3 flex-shrink-0">
                             <a href="/admin/students/export" data-link
-                                class="btn btn-secondary flex items-center gap-2">
+                                class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white flex items-center gap-2">
                                 <i class="fas fa-file-export"></i>Export
                             </a>
                             <a href="/admin/students/import" data-link
-                                class="btn btn-primary flex items-center gap-2">
+                                class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] flex items-center gap-2">
                                 <i class="fas fa-file-import"></i>Import CSV
                             </a>
                         </div>
@@ -57,39 +57,39 @@ export default async function adminStudentsController() {
                     <div class="grid lg:grid-cols-4 gap-6">
                         <!-- Filters sidebar -->
                         <div class="lg:col-span-1">
-                            <div class="card sticky top-4">
+                            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] sticky top-4">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4">
                                     <i class="fas fa-filter mr-2"></i>Filters
                                 </h3>
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="form-label">Search</label>
+                                        <label class="mb-2 block font-medium text-slate-700">Search</label>
                                         <input
                                             type="text"
                                             id="searchStudents"
-                                            class="form-input"
+                                            class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                                             placeholder="Name, email, skill..."
                                             autocomplete="off"
                                         />
                                     </div>
                                     <div>
-                                        <label class="form-label">Academy Track</label>
-                                        <select id="filterTrack" class="form-input">
+                                        <label class="mb-2 block font-medium text-slate-700">Academy Track</label>
+                                        <select id="filterTrack" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                             <option value="">All Tracks</option>
                                             ${allTracks.map(t => `<option value="${t}">${t}</option>`).join('')}
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="form-label">Profile Visibility</label>
-                                        <select id="filterVisibility" class="form-input">
+                                        <label class="mb-2 block font-medium text-slate-700">Profile Visibility</label>
+                                        <select id="filterVisibility" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                             <option value="">All</option>
                                             <option value="public">Public</option>
                                             <option value="private">Private</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="form-label">Submission Status</label>
-                                        <select id="filterStatus" class="form-input">
+                                        <label class="mb-2 block font-medium text-slate-700">Submission Status</label>
+                                        <select id="filterStatus" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                             <option value="">All</option>
                                             <option value="pending">Pending Review</option>
                                             <option value="approved">Approved</option>
@@ -97,8 +97,8 @@ export default async function adminStudentsController() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="form-label">Account Status</label>
-                                        <select id="filterAccountStatus" class="form-input">
+                                        <label class="mb-2 block font-medium text-slate-700">Account Status</label>
+                                        <select id="filterAccountStatus" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                             <option value="">All</option>
                                             <option value="active">Active</option>
                                             <option value="suspended">Suspended</option>
@@ -106,14 +106,14 @@ export default async function adminStudentsController() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="form-label">Sort By</label>
-                                        <select id="sortStudents" class="form-input">
+                                        <label class="mb-2 block font-medium text-slate-700">Sort By</label>
+                                        <select id="sortStudents" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                             <option value="name">Name (A–Z)</option>
                                             <option value="newest">Newest First</option>
                                             <option value="oldest">Oldest First</option>
                                         </select>
                                     </div>
-                                    <button id="clearFiltersBtn" class="btn btn-secondary w-full">
+                                    <button id="clearFiltersBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full">
                                         <i class="fas fa-times mr-1"></i> Clear Filters
                                     </button>
                                 </div>
@@ -122,7 +122,7 @@ export default async function adminStudentsController() {
 
                         <!-- Results panel -->
                         <div class="lg:col-span-3">
-                            <div class="card mb-4">
+                            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-4">
                                 <p class="text-gray-700 font-semibold">
                                     Showing <span id="studentCount">${students.length}</span> of ${students.length} students
                                 </p>
@@ -132,7 +132,7 @@ export default async function adminStudentsController() {
                                 ${renderStudentsGrid(students)}
                             </div>
 
-                            <div id="noStudents" class="card text-center py-16 hidden">
+                            <div id="noStudents" class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center py-16 hidden">
                                 <i class="fas fa-user-slash text-gray-300 text-6xl mb-4"></i>
                                 <p class="text-gray-500 text-lg font-semibold">No students match your filters</p>
                                 <p class="text-gray-400 text-sm mt-1">Try adjusting your search or clearing the filters</p>
@@ -216,7 +216,7 @@ function renderStudentCard(student) {
     const cardOpacity = acctStatus === 'deactivated' ? 'opacity-60' : '';
 
     return `
-        <div class="card hover:shadow-xl transition duration-300 cursor-pointer ${cardOpacity}"
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-xl transition duration-300 cursor-pointer ${cardOpacity}"
              onclick="window.router.navigate('/admin/students/${student.id}')">
             <div class="flex gap-5">
                 <div class="flex-shrink-0">

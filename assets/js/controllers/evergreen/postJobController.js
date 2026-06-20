@@ -28,7 +28,7 @@ export default async function postJobController() {
         ${renderAppHeader(user, window.location.pathname)}
 
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -43,7 +43,7 @@ export default async function postJobController() {
                     ${
                         activeJobs >= company.jobPostingLimit
                             ? `
-                        <div class="card bg-red-50 border-2 border-red-300 mb-6">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-red-50 border-2 border-red-300 mb-6">
                             <div class="flex items-center">
                                 <i class="fas fa-exclamation-triangle text-red-600 text-3xl mr-4"></i>
                                 <div>
@@ -52,7 +52,7 @@ export default async function postJobController() {
                                         You've reached your subscription limit of ${company.jobPostingLimit} active job postings.
                                         Please upgrade your plan or deactivate an existing job to post a new one.
                                     </p>
-                                    <button class="btn btn-primary mt-3">
+                                    <button class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] mt-3">
                                         <i class="fas fa-crown mr-2"></i> Upgrade Subscription
                                     </button>
                                 </div>
@@ -62,7 +62,7 @@ export default async function postJobController() {
                             : ''
                     }
                     <form id="jobPostForm" ${activeJobs >= company.jobPostingLimit ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>
-                        <div class="card no-hover mb-6">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:translate-y-0 hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)] mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-info-circle mr-2"></i>
                                 Basic Information
@@ -70,12 +70,12 @@ export default async function postJobController() {
 
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2">
-                                    <label class="form-label">Job Title *</label>
-                                    <input type="text" id="jobTitle" required class="form-input" placeholder="e.g., Senior Frontend Developer" />
+                                    <label class="mb-2 block font-medium text-slate-700">Job Title *</label>
+                                    <input type="text" id="jobTitle" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="e.g., Senior Frontend Developer" />
                                 </div>
                                 <div>
-                                    <label class="form-label">Employment Type *</label>
-                                    <select id="employmentType" required class="form-input">
+                                    <label class="mb-2 block font-medium text-slate-700">Employment Type *</label>
+                                    <select id="employmentType" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                         <option value="">Select type...</option>
                                         <option value="full-time">Full-time</option>
                                         <option value="part-time">Part-time</option>
@@ -85,8 +85,8 @@ export default async function postJobController() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="form-label">Work Mode *</label>
-                                    <select id="workMode" required class="form-input">
+                                    <label class="mb-2 block font-medium text-slate-700">Work Mode *</label>
+                                    <select id="workMode" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                         <option value="">Select mode...</option>
                                         <option value="onsite">On-site</option>
                                         <option value="remote">Remote</option>
@@ -94,12 +94,12 @@ export default async function postJobController() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="form-label">Location *</label>
-                                    <input type="text" id="location" required class="form-input" placeholder="e.g., Skopje, Macedonia" />
+                                    <label class="mb-2 block font-medium text-slate-700">Location *</label>
+                                    <input type="text" id="location" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="e.g., Skopje, Macedonia" />
                                 </div>
                                 <div>
-                                    <label class="form-label">Experience Level *</label>
-                                    <select id="experienceLevel" required class="form-input">
+                                    <label class="mb-2 block font-medium text-slate-700">Experience Level *</label>
+                                    <select id="experienceLevel" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                         <option value="">Select level...</option>
                                         <option value="entry">Entry Level (0-2 years)</option>
                                         <option value="mid">Mid Level (2-5 years)</option>
@@ -109,64 +109,64 @@ export default async function postJobController() {
                             </div>
                         </div>
 
-                        <div class="card mb-6">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-file-alt mr-2"></i>
                                 Job Description
                             </h2>
                             <div class="mb-6">
-                                <label class="form-label">Description *</label>
-                                <textarea id="description" required rows="5" class="form-input" placeholder="Provide a detailed description of the role..."></textarea>
+                                <label class="mb-2 block font-medium text-slate-700">Description *</label>
+                                <textarea id="description" required rows="5" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="Provide a detailed description of the role..."></textarea>
                             </div>
                             <div class="mb-6">
-                                <label class="form-label">Responsibilities *</label>
-                                <textarea id="responsibilities" required rows="4" class="form-input" placeholder="List key responsibilities (one per line)..."></textarea>
+                                <label class="mb-2 block font-medium text-slate-700">Responsibilities *</label>
+                                <textarea id="responsibilities" required rows="4" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="List key responsibilities (one per line)..."></textarea>
                                 <p class="text-xs text-gray-500 mt-1">Separate each responsibility with a new line</p>
                             </div>
                             <div class="mb-6">
-                                <label class="form-label">Qualifications *</label>
-                                <textarea id="qualifications" required rows="4" class="form-input" placeholder="List required qualifications (one per line)..."></textarea>
+                                <label class="mb-2 block font-medium text-slate-700">Qualifications *</label>
+                                <textarea id="qualifications" required rows="4" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="List required qualifications (one per line)..."></textarea>
                                 <p class="text-xs text-gray-500 mt-1">Separate each qualification with a new line</p>
                             </div>
                             <div>
-                                <label class="form-label">Benefits</label>
-                                <textarea id="benefits" rows="3" class="form-input" placeholder="List benefits and perks (one per line)..."></textarea>
+                                <label class="mb-2 block font-medium text-slate-700">Benefits</label>
+                                <textarea id="benefits" rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="List benefits and perks (one per line)..."></textarea>
                             </div>
                         </div>
 
-                        <div class="card mb-6">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                                 <i class="fas fa-code mr-2"></i>
                                 Required Skills
                             </h2>
                             <div class="mb-6">
-                                <label class="form-label">Required Skills *</label>
+                                <label class="mb-2 block font-medium text-slate-700">Required Skills *</label>
                                 <div class="flex gap-2 mb-3">
-                                    <input type="text" id="requiredSkillInput" class="form-input" placeholder="Add a required skill..." />
-                                    <button type="button" id="addRequiredSkillBtn" class="btn btn-secondary"><i class="fas fa-plus"></i></button>
+                                    <input type="text" id="requiredSkillInput" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="Add a required skill..." />
+                                    <button type="button" id="addRequiredSkillBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white"><i class="fas fa-plus"></i></button>
                                 </div>
                                 <div id="requiredSkillsList" class="flex flex-wrap gap-2 min-h-[2rem]"></div>
                             </div>
                             <div>
-                                <label class="form-label">Nice-to-Have Skills</label>
+                                <label class="mb-2 block font-medium text-slate-700">Nice-to-Have Skills</label>
                                 <div class="flex gap-2 mb-3">
-                                    <input type="text" id="niceToHaveSkillInput" class="form-input" placeholder="Add a nice-to-have skill..." />
-                                    <button type="button" id="addNiceToHaveSkillBtn" class="btn btn-secondary"><i class="fas fa-plus"></i></button>
+                                    <input type="text" id="niceToHaveSkillInput" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="Add a nice-to-have skill..." />
+                                    <button type="button" id="addNiceToHaveSkillBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white"><i class="fas fa-plus"></i></button>
                                 </div>
                                 <div id="niceToHaveSkillsList" class="flex flex-wrap gap-2 min-h-[2rem]"></div>
                             </div>
                         </div>
 
-                        <div class="card mb-6">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                                <div><label class="form-label">Minimum Salary (EUR)</label><input type="number" id="salaryMin" class="form-input" min="0" /></div>
-                                <div><label class="form-label">Maximum Salary (EUR)</label><input type="number" id="salaryMax" class="form-input" min="0" /></div>
-                                <div><label class="form-label">Application Deadline *</label><input type="date" id="deadline" required class="form-input" min="${new Date().toISOString().split('T')[0]}" /></div>
-                                <div><label class="form-label">Priority (for Featured badge)</label><select id="priority" class="form-input"><option value="normal">Normal</option><option value="high">High (Featured)</option></select></div>
+                                <div><label class="mb-2 block font-medium text-slate-700">Minimum Salary (EUR)</label><input type="number" id="salaryMin" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" min="0" /></div>
+                                <div><label class="mb-2 block font-medium text-slate-700">Maximum Salary (EUR)</label><input type="number" id="salaryMax" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" min="0" /></div>
+                                <div><label class="mb-2 block font-medium text-slate-700">Application Deadline *</label><input type="date" id="deadline" required class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" min="${new Date().toISOString().split('T')[0]}" /></div>
+                                <div><label class="mb-2 block font-medium text-slate-700">Priority (for Featured badge)</label><select id="priority" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"><option value="normal">Normal</option><option value="high">High (Featured)</option></select></div>
                             </div>
                         </div>
 
-                        <div class="card no-hover mb-6">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:translate-y-0 hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)] mb-6">
                             <h2 class="text-2xl font-bold text-gray-800 mb-4">
                                 <i class="fas fa-file-signature mr-2"></i>
                                 Application method
@@ -183,14 +183,14 @@ export default async function postJobController() {
                             </div>
                         </div>
 
-                        <div class="card bg-purple-50 border-2 border-purple-200">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-purple-50 border-2 border-purple-200">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-purple-900 font-semibold"><i class="fas fa-info-circle mr-2"></i>Fields marked with * are required</p>
                                 </div>
                                 <div class="flex gap-3">
-                                    <button type="button" class="btn btn-secondary" onclick="window.router.navigate('/employer/jobs')">Cancel</button>
-                                    <button type="submit" class="btn btn-primary text-lg px-8">Post Job</button>
+                                    <button type="button" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white" onclick="window.router.navigate('/employer/jobs')">Cancel</button>
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] text-lg px-8">Post Job</button>
                                 </div>
                             </div>
                         </div>

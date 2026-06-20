@@ -31,7 +31,7 @@ export default async function companyProfileController() {
         ${renderAppHeader(user, window.location.pathname)}
 
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -43,12 +43,12 @@ export default async function companyProfileController() {
 
                     <div class="grid gap-8">
                         <!-- Company Info Section -->
-                        <div class="card">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                             <div class="flex items-center gap-6 mb-6 pb-6 border-b border-gray-200">
                                 <div class="flex flex-col items-center">
                                     <img id="companyLogo" src="${company.logo}" alt="${company.name}" class="w-32 h-32 rounded-lg object-cover border-4 border-purple-200 mb-3">
                                     <input type="file" id="logoInput" accept="image/*" style="display:none;">
-                                    <button type="button" class="btn btn-xs btn-secondary px-2 py-1 text-xs" id="changeLogo" title="Change logo">
+                                    <button type="button" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 px-2 py-1 text-xs border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white px-2 py-1 text-xs" id="changeLogo" title="Change logo">
                                         <i class="fas fa-camera mr-1"></i>Change Logo
                                     </button>
                                 </div>
@@ -65,16 +65,16 @@ export default async function companyProfileController() {
 
                             <form id="companyEditForm" class="space-y-6">
                                 <div>
-                                    <label for="description" class="form-label">Company Description</label>
-                                    <textarea id="description" name="description" rows="5" class="form-input">${company.description || ''}</textarea>
+                                    <label for="description" class="mb-2 block font-medium text-slate-700">Company Description</label>
+                                    <textarea id="description" name="description" rows="5" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">${company.description || ''}</textarea>
                                 </div>
 
                                 <div>
-                                    <label for="website" class="form-label">Website</label>
-                                    <input type="url" id="website" name="website" class="form-input" value="${company.website || ''}" placeholder="https://example.com">
+                                    <label for="website" class="mb-2 block font-medium text-slate-700">Website</label>
+                                    <input type="url" id="website" name="website" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${company.website || ''}" placeholder="https://example.com">
                                 </div>
 
-                                <button type="submit" class="btn btn-primary w-full">
+                                <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">
                                     <i class="fas fa-save mr-2"></i>Save Changes
                                 </button>
                             </form>
@@ -87,7 +87,7 @@ export default async function companyProfileController() {
                                     <i class="fas fa-briefcase text-purple-600 mr-2"></i>
                                     Your Job Postings <span class="text-purple-600">(${jobs.length})</span>
                                 </h2>
-                                <button type="button" class="btn btn-primary" id="newJobBtn">
+                                <button type="button" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]" id="newJobBtn">
                                     <i class="fas fa-plus-circle mr-2"></i>New Job Posting
                                 </button>
                             </div>
@@ -99,7 +99,7 @@ export default async function companyProfileController() {
                                     ${jobs
                                         .map(
                                             (job) => `
-                                        <div class="card hover:shadow-xl transition duration-300">
+                                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-xl transition duration-300">
                                             <div class="flex justify-between items-start mb-4">
                                                 <div class="flex-1">
                                                     <h3 class="text-xl font-bold text-gray-800 mb-1">${job.title}</h3>
@@ -121,10 +121,10 @@ export default async function companyProfileController() {
                                                     <span><i class="fas fa-file-alt text-purple-600 mr-1"></i>${job.applications} applications</span>
                                                 </div>
                                                 <div class="flex gap-2">
-                                                    <button type="button" class="btn btn-secondary btn-sm" data-job-id="${job.id}">
+                                                    <button type="button" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white px-3 py-2 text-sm" data-job-id="${job.id}">
                                                         <i class="fas fa-edit mr-1"></i>Edit
                                                     </button>
-                                                    <button type="button" class="btn btn-danger btn-sm" data-job-id="${job.id}">
+                                                    <button type="button" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-red-600 text-white hover:bg-red-700 px-3 py-2 text-sm" data-job-id="${job.id}">
                                                         <i class="fas fa-trash mr-1"></i>Delete
                                                     </button>
                                                 </div>
@@ -136,11 +136,11 @@ export default async function companyProfileController() {
                                 </div>
                             `
                                     : `
-                                <div class="card text-center py-12">
+                                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center py-12">
                                     <i class="fas fa-briefcase text-gray-300 text-6xl mb-4"></i>
                                     <p class="text-gray-500 text-lg mb-2">No job postings yet</p>
                                     <p class="text-gray-400 mb-6">Create your first job posting to start hiring talent!</p>
-                                    <button type="button" class="btn btn-primary" id="newJobBtnEmpty">
+                                    <button type="button" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]" id="newJobBtnEmpty">
                                         <i class="fas fa-plus-circle mr-2"></i>Create First Job Post
                                     </button>
                                 </div>

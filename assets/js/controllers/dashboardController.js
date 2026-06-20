@@ -47,7 +47,7 @@ async function renderStudentDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
 
-        <div class="container mx-auto px-4 py-8">
+        <div class="w-full max-w-[1200px] mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -56,15 +56,15 @@ async function renderStudentDashboard(app, user, path) {
                     <p class="text-gray-600">${moduleName} - Your Career Development Hub</p>
                 </div>
 
-                <div class="card mb-8">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-8">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-search text-purple-600 mr-2"></i>
                         Find your next role
                     </h2>
                     <p class="text-gray-600 text-sm mb-4">Search jobs by title, company, location, or skills — same search as the job board.</p>
                     <div class="flex flex-col sm:flex-row gap-3">
-                        <input type="text" id="dashJobSearch" class="form-input flex-1" placeholder="Keywords, job title, company, location..." />
-                        <button type="button" id="dashJobSearchBtn" class="btn btn-primary whitespace-nowrap">
+                        <input type="text" id="dashJobSearch" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] flex-1" placeholder="Keywords, job title, company, location..." />
+                        <button type="button" id="dashJobSearchBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] whitespace-nowrap">
                             <i class="fas fa-search mr-2"></i> Search jobs
                         </button>
                     </div>
@@ -92,7 +92,7 @@ async function renderStudentDashboard(app, user, path) {
                 </div>
 
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Profile Views</p>
@@ -102,7 +102,7 @@ async function renderStudentDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Applications</p>
@@ -112,7 +112,7 @@ async function renderStudentDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Interviews</p>
@@ -122,7 +122,7 @@ async function renderStudentDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Profile Score</p>
@@ -134,7 +134,7 @@ async function renderStudentDashboard(app, user, path) {
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-8">
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-clipboard-list text-purple-600 mr-2"></i>
                             Recent Applications
@@ -147,7 +147,7 @@ async function renderStudentDashboard(app, user, path) {
                         </a>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-briefcase text-indigo-600 mr-2"></i>
                             Recommended Jobs
@@ -191,7 +191,7 @@ function renderLatestListingRows(jobs, companyMap) {
             const company = companyMap[job.companyId] || {};
             const isNew = now - new Date(job.createdAt) < 3 * 24 * 60 * 60 * 1000;
             return `
-            <div class="card hover:shadow-lg transition cursor-pointer py-4" role="link" tabindex="0" data-job-id="${job.id}">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-lg transition cursor-pointer py-4" role="link" tabindex="0" data-job-id="${job.id}">
                 <div class="flex justify-between items-start gap-4">
                     <div>
                         <h3 class="text-lg font-bold text-gray-800">
@@ -224,8 +224,9 @@ function renderFeaturedCompanies(companies) {
     }
 
     const companiesGrid = companies
-        .map((company) => `
-        <div class="card hover:shadow-xl transition cursor-pointer bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
+        .map(
+            (company) => `
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-xl transition cursor-pointer bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
             <div class="flex flex-col h-full">
                 <div class="flex items-center justify-between mb-3">
                     <img src="${company.logo}" alt="${company.name}" class="h-12 w-12 rounded-full object-cover" />
@@ -242,7 +243,8 @@ function renderFeaturedCompanies(companies) {
                 </div>
             </div>
         </div>
-    `)
+    `
+        )
         .join('');
 
     return `
@@ -259,7 +261,7 @@ function renderEmployerDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
 
-        <div class="container mx-auto px-4 py-8">
+        <div class="w-full max-w-[1200px] mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -269,7 +271,7 @@ function renderEmployerDashboard(app, user, path) {
                 </div>
 
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Active Jobs</p>
@@ -279,7 +281,7 @@ function renderEmployerDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Applications</p>
@@ -289,7 +291,7 @@ function renderEmployerDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Interviews</p>
@@ -299,7 +301,7 @@ function renderEmployerDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Hired</p>
@@ -311,21 +313,21 @@ function renderEmployerDashboard(app, user, path) {
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-8">
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                            <i class="fas fa-clipboard-list text-purple-600  mr-2"></i>
+                            <i class="fas fa-clipboard-list text-purple-600 mr-2"></i>
                             Your Job Postings
                         </h2>
                         <div class="space-y-4">
                             ${renderMockEmployerJobs()}
                         </div>
-                        <a href="/employer/post-job" data-link class="btn btn-primary mt-4 inline-flex items-center">
+                        <a href="/employer/post-job" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] mt-4 inline-flex items-center">
                             <i class="fas fa-plus mr-2"></i>
                             Post New Job
                         </a>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-users text-indigo-600 mr-2"></i>
                             Recent Candidates
@@ -361,7 +363,7 @@ async function renderAdminDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
 
-        <div class="container mx-auto px-4 py-8">
+        <div class="w-full max-w-[1200px] mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -371,7 +373,7 @@ async function renderAdminDashboard(app, user, path) {
                 </div>
 
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Total Students</p>
@@ -381,7 +383,7 @@ async function renderAdminDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Active Job Listings</p>
@@ -391,7 +393,7 @@ async function renderAdminDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Pending Approvals</p>
@@ -401,7 +403,7 @@ async function renderAdminDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Events This Month</p>
@@ -413,25 +415,25 @@ async function renderAdminDashboard(app, user, path) {
                 </div>
 
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
-                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
+                    <a href="/admin/students" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
                         <i class="fas fa-user-plus text-4xl text-blue-600 mb-3"></i>
                         <h3 class="font-bold text-gray-800">Add Student</h3>
                         <p class="text-gray-600 text-sm mt-1">Register new student</p>
                     </a>
 
-                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
+                    <a href="/admin/jobs" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
                         <i class="fas fa-plus-circle text-4xl text-indigo-600 mb-3"></i>
                         <h3 class="font-bold text-gray-800">Add Job</h3>
                         <p class="text-gray-600 text-sm mt-1">Post new job listing</p>
                     </a>
 
-                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
+                    <a href="/admin/events" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
                         <i class="fas fa-calendar-plus text-4xl text-red-600 mb-3"></i>
                         <h3 class="font-bold text-gray-800">Create Event</h3>
                         <p class="text-gray-600 text-sm mt-1">Schedule new event</p>
                     </a>
 
-                    <a href="#" class="card text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
+                    <a href="/admin/resources" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl hover:scale-105 transition block no-underline text-inherit cursor-pointer">
                         <i class="fas fa-file-import text-4xl text-blue-600 mb-3"></i>
                         <h3 class="font-bold text-gray-800">Add Resource</h3>
                         <p class="text-gray-600 text-sm mt-1">Create learning material</p>
@@ -439,7 +441,7 @@ async function renderAdminDashboard(app, user, path) {
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-8 mb-8">
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-tasks text-red-600 mr-2"></i>
                             Pending Actions
@@ -449,7 +451,7 @@ async function renderAdminDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-bell text-orange-600 mr-2"></i>
                             Alerts & Notices
@@ -462,44 +464,44 @@ async function renderAdminDashboard(app, user, path) {
 
 
                 <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-8 mb-8">
-                    <a href="/admin/users" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                    <a href="/admin/users" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-user-cog text-5xl text-purple-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Users</h3>
                         <p class="text-gray-600 mt-2">View and manage user accounts</p>
                     </a>
 
-                    <a href="/admin/settings" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                    <a href="/admin/settings" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-sliders-h text-5xl text-red-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Settings & Permissions</h3>
                         <p class="text-gray-600 mt-2">Configure roles, templates, privacy, and exports</p>
                     </a>
 
-                    <a href="/admin/companies" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                    <a href="/admin/companies" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-building text-5xl text-indigo-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Manage Companies</h3>
                         <p class="text-gray-600 mt-2">Oversee company profiles</p>
                     </a>
 
-                    <a href="/admin/analytics" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                    <a href="/admin/analytics" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-chart-line text-5xl text-green-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Analytics</h3>
                         <p class="text-gray-600 mt-2">View system analytics</p>
                     </a>
 
-                    <a href="/admin/events" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                    <a href="/admin/events" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-calendar text-5xl text-red-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Events</h3>
                         <p class="text-gray-600 mt-2">Manage system events</p>
                     </a>
 
-                    <a href="/admin/resources" data-link class="card text-center hover:shadow-xl block no-underline text-inherit">
+                    <a href="/admin/resources" data-link class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center hover:shadow-xl block no-underline text-inherit">
                         <i class="fas fa-newspaper text-5xl text-blue-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-800">Resources</h3>
                         <p class="text-gray-600 mt-2">Manage platform resources</p>
                     </a>
                 </div>
 
-                <div class="card">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-history text-purple-600 mr-2"></i>
                         Recent Activity

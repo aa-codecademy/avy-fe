@@ -28,7 +28,7 @@ export default async function jobBoardController() {
         ${renderAppHeader(user, window.location.pathname)}
         
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -40,39 +40,39 @@ export default async function jobBoardController() {
                     
                     <div class="grid lg:grid-cols-4 gap-6">
                         <div class="lg:col-span-1">
-                            <div class="card sticky top-4">
+                            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] sticky top-4">
                                 <h2 class="text-xl font-bold text-gray-800 mb-4">
                                     <i class="fas fa-filter mr-2"></i>
                                     Filters
                                 </h2>
                                 
                                 <div class="mb-4">
-                                    <label class="form-label">Search</label>
+                                    <label class="mb-2 block font-medium text-slate-700">Search</label>
                                     <input 
                                         type="text" 
                                         id="searchInput" 
-                                        class="form-input" 
+                                        class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" 
                                         placeholder="Title, company, location, skills..."
                                     />
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Industry</label>
-                                    <select id="industryFilter" class="form-input">
+                                    <label class="mb-2 block font-medium text-slate-700">Industry</label>
+                                    <select id="industryFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                         <option value="">All industries</option>
                                         ${industries.map((ind) => `<option value="${ind}">${ind}</option>`).join('')}
                                     </select>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Skills</label>
-                                    <input type="text" id="skillsFilter" class="form-input" placeholder="e.g. React, SQL" />
+                                    <label class="mb-2 block font-medium text-slate-700">Skills</label>
+                                    <input type="text" id="skillsFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="e.g. React, SQL" />
                                     <p class="text-xs text-gray-500 mt-1">Comma-separated</p>
                                 </div>
                                 
                                 <div class="mb-4">
-                                    <label class="form-label">Employment Type</label>
-                                    <select id="employmentTypeFilter" class="form-input">
+                                    <label class="mb-2 block font-medium text-slate-700">Employment Type</label>
+                                    <select id="employmentTypeFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                         <option value="">All</option>
                                         <option value="full-time">Full-time</option>
                                         <option value="part-time">Part-time</option>
@@ -83,8 +83,8 @@ export default async function jobBoardController() {
                                 </div>
                                 
                                 <div class="mb-4">
-                                    <label class="form-label">Work Mode</label>
-                                    <select id="workModeFilter" class="form-input">
+                                    <label class="mb-2 block font-medium text-slate-700">Work Mode</label>
+                                    <select id="workModeFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                         <option value="">All</option>
                                         <option value="onsite">On-site</option>
                                         <option value="remote">Remote</option>
@@ -93,8 +93,8 @@ export default async function jobBoardController() {
                                 </div>
                                 
                                 <div class="mb-4">
-                                    <label class="form-label">Experience Level</label>
-                                    <select id="experienceLevelFilter" class="form-input">
+                                    <label class="mb-2 block font-medium text-slate-700">Experience Level</label>
+                                    <select id="experienceLevelFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                         <option value="">All</option>
                                         <option value="intern">Intern</option>
                                         <option value="junior">Junior</option>
@@ -104,18 +104,18 @@ export default async function jobBoardController() {
                                 </div>
                                 
                                 <div class="mb-4">
-                                    <label class="form-label">Company</label>
-                                    <select id="companyFilter" class="form-input">
+                                    <label class="mb-2 block font-medium text-slate-700">Company</label>
+                                    <select id="companyFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                         <option value="">All Companies</option>
                                         ${companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                                     </select>
                                 </div>
                                 
-                                <button id="applyFiltersBtn" class="btn btn-primary w-full">
+                                <button id="applyFiltersBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">
                                     Apply Filters
                                 </button>
                                 
-                                <button id="clearFiltersBtn" class="btn btn-secondary w-full mt-2">
+                                <button id="clearFiltersBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full mt-2">
                                     Clear All
                                 </button>
                             </div>
@@ -126,7 +126,7 @@ export default async function jobBoardController() {
                                 <p class="text-gray-600">
                                     <span id="jobCount">${jobs.length}</span> jobs found
                                 </p>
-                                <select id="sortBy" class="form-input w-auto">
+                                <select id="sortBy" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-auto">
                                     <option value="newest">Newest First</option>
                                     <option value="oldest">Oldest First</option>
                                     <option value="mostApplicants">Most Applicants</option>
@@ -169,7 +169,7 @@ function renderJobGrid(jobs, companyMap) {
         const daysUntilDeadline = Math.ceil((new Date(job.applicationDeadline) - new Date()) / (24 * 60 * 60 * 1000));
         
         return `
-            <div class="card hover:shadow-xl transition cursor-pointer" onclick="window.router.navigate('/jobs/${job.id}')">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-xl transition cursor-pointer" onclick="window.router.navigate('/jobs/${job.id}')">
                 <div class="flex items-start gap-4">
                     <img src="${company.logo}" alt="${company.name}" class="w-16 h-16 rounded-lg" />
                     

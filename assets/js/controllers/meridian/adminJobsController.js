@@ -40,7 +40,7 @@ export default async function adminJobsController() {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -51,87 +51,87 @@ export default async function adminJobsController() {
                     </div>
 
                     <div class="grid gap-4 md:grid-cols-5 mb-6">
-                        <div class="card p-5 bg-white shadow-sm">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] p-5 bg-white shadow-sm">
                             <p class="text-sm text-gray-500">Total jobs</p>
                             <h3 class="text-3xl font-bold text-gray-800">${counts.total}</h3>
                         </div>
-                        <div class="card p-5 bg-white shadow-sm">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] p-5 bg-white shadow-sm">
                             <p class="text-sm text-gray-500">Pending approval</p>
                             <h3 class="text-3xl font-bold text-orange-600">${counts.pending}</h3>
                         </div>
-                        <div class="card p-5 bg-white shadow-sm">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] p-5 bg-white shadow-sm">
                             <p class="text-sm text-gray-500">Active listings</p>
                             <h3 class="text-3xl font-bold text-green-600">${counts.active}</h3>
                         </div>
-                        <div class="card p-5 bg-white shadow-sm">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] p-5 bg-white shadow-sm">
                             <p class="text-sm text-gray-500">Paused listings</p>
                             <h3 class="text-3xl font-bold text-yellow-600">${counts.paused}</h3>
                         </div>
-                        <div class="card p-5 bg-white shadow-sm">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] p-5 bg-white shadow-sm">
                             <p class="text-sm text-gray-500">Closed listings</p>
                             <h3 class="text-3xl font-bold text-red-600">${counts.closed}</h3>
                         </div>
                     </div>
 
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 items-end">
                             <div>
-                                <label for="jobSearch" class="form-label">Search</label>
-                                <input id="jobSearch" type="text" class="form-input w-full" placeholder="Title, company, location, skills..." />
+                                <label for="jobSearch" class="mb-2 block font-medium text-slate-700">Search</label>
+                                <input id="jobSearch" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full" placeholder="Title, company, location, skills..." />
                             </div>
                             <div>
-                                <label for="statusFilter" class="form-label">Status</label>
-                                <select id="statusFilter" class="form-input w-full">
+                                <label for="statusFilter" class="mb-2 block font-medium text-slate-700">Status</label>
+                                <select id="statusFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                     <option value="">All statuses</option>
                                     ${statuses.map((status) => `<option value="${status}">${status}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
-                                <label for="companyFilter" class="form-label">Company</label>
-                                <select id="companyFilter" class="form-input w-full">
+                                <label for="companyFilter" class="mb-2 block font-medium text-slate-700">Company</label>
+                                <select id="companyFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                     <option value="">All companies</option>
                                     ${companies.map((company) => `<option value="${company.id}">${company.name}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
-                                <label for="industryFilter" class="form-label">Industry</label>
-                                <select id="industryFilter" class="form-input w-full">
+                                <label for="industryFilter" class="mb-2 block font-medium text-slate-700">Industry</label>
+                                <select id="industryFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                     <option value="">All industries</option>
                                     ${industries.map((industry) => `<option value="${industry}">${industry}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
-                                <label for="employmentTypeFilter" class="form-label">Employment type</label>
-                                <select id="employmentTypeFilter" class="form-input w-full">
+                                <label for="employmentTypeFilter" class="mb-2 block font-medium text-slate-700">Employment type</label>
+                                <select id="employmentTypeFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                     <option value="">All types</option>
                                     ${employmentTypes.map((type) => `<option value="${type}">${type}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
-                                <label for="workModeFilter" class="form-label">Work mode</label>
-                                <select id="workModeFilter" class="form-input w-full">
+                                <label for="workModeFilter" class="mb-2 block font-medium text-slate-700">Work mode</label>
+                                <select id="workModeFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                     <option value="">All modes</option>
                                     ${workModes.map((mode) => `<option value="${mode}">${mode}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
-                                <label for="experienceFilter" class="form-label">Experience level</label>
-                                <select id="experienceFilter" class="form-input w-full">
+                                <label for="experienceFilter" class="mb-2 block font-medium text-slate-700">Experience level</label>
+                                <select id="experienceFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                     <option value="">All levels</option>
                                     ${experienceLevels.map((level) => `<option value="${level}">${level}</option>`).join('')}
                                 </select>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button id="applyJobFilters" class="btn btn-primary w-full">Apply filters</button>
-                                <button id="clearJobFilters" class="btn btn-secondary w-full">Reset</button>
+                                <button id="applyJobFilters" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">Apply filters</button>
+                                <button id="clearJobFilters" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full">Reset</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card overflow-x-auto">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] overflow-x-auto">
                         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
                             <p class="text-gray-600"><span id="jobCount">${jobs.length}</span> listings</p>
-                            <select id="jobSort" class="form-input w-full md:w-auto">
+                            <select id="jobSort" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full md:w-auto">
                                 <option value="newest">Newest first</option>
                                 <option value="oldest">Oldest first</option>
                                 <option value="mostApplicants">Most applicants</option>
@@ -216,33 +216,33 @@ function renderJobActionButtons(job) {
     const buttons = [];
     if (job.status === 'pending') {
         buttons.push(
-            `<button data-action="approve" data-id="${job.id}" class="btn btn-success w-full">Approve</button>`
+            `<button data-action="approve" data-id="${job.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-green-600 text-white hover:bg-green-700 w-full">Approve</button>`
         );
         buttons.push(
-            `<button data-action="reject" data-id="${job.id}" class="btn btn-danger w-full">Reject</button>`
+            `<button data-action="reject" data-id="${job.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-red-600 text-white hover:bg-red-700 w-full">Reject</button>`
         );
     } else if (job.status === 'active') {
         buttons.push(
-            `<button data-action="pause" data-id="${job.id}" class="btn btn-secondary w-full">Pause</button>`
+            `<button data-action="pause" data-id="${job.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full">Pause</button>`
         );
         buttons.push(
-            `<button data-action="close" data-id="${job.id}" class="btn btn-danger w-full">Close</button>`
+            `<button data-action="close" data-id="${job.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-red-600 text-white hover:bg-red-700 w-full">Close</button>`
         );
     } else if (job.status === 'paused') {
         buttons.push(
-            `<button data-action="activate" data-id="${job.id}" class="btn btn-primary w-full">Activate</button>`
+            `<button data-action="activate" data-id="${job.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">Activate</button>`
         );
         buttons.push(
-            `<button data-action="close" data-id="${job.id}" class="btn btn-danger w-full">Close</button>`
+            `<button data-action="close" data-id="${job.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-red-600 text-white hover:bg-red-700 w-full">Close</button>`
         );
     } else if (job.status === 'closed') {
         buttons.push(
-            `<button data-action="activate" data-id="${job.id}" class="btn btn-primary w-full">Reopen</button>`
+            `<button data-action="activate" data-id="${job.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">Reopen</button>`
         );
     }
 
     buttons.push(
-        `<button data-action="delete" data-id="${job.id}" class="btn btn-muted w-full">Delete</button>`
+        `<button data-action="delete" data-id="${job.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-slate-100 text-slate-600 hover:bg-slate-200 w-full">Delete</button>`
     );
     return buttons.join('');
 }

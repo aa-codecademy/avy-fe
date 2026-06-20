@@ -33,7 +33,7 @@ export default async function adminUsersController() {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -43,7 +43,7 @@ export default async function adminUsersController() {
                         <p class="text-gray-600">Search, review, and manage registered employer accounts.</p>
                     </div>
 
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                             <div>
                                 <h2 class="text-xl font-bold text-gray-800">Filter employers</h2>
@@ -51,31 +51,31 @@ export default async function adminUsersController() {
                             </div>
                             <div class="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 items-end">
                                 <div>
-                                    <label for="employerSearch" class="form-label">Search</label>
-                                    <input id="employerSearch" type="text" class="form-input w-full" placeholder="Search employers, company, email..." />
+                                    <label for="employerSearch" class="mb-2 block font-medium text-slate-700">Search</label>
+                                    <input id="employerSearch" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full" placeholder="Search employers, company, email..." />
                                 </div>
                                 <div>
-                                    <label for="companyFilter" class="form-label">Company</label>
-                                    <select id="companyFilter" class="form-input w-full">
+                                    <label for="companyFilter" class="mb-2 block font-medium text-slate-700">Company</label>
+                                    <select id="companyFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                         <option value="">All companies</option>
                                         ${employerCompanies.map((company) => `<option value="${company.id}">${company.name}</option>`).join('')}
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="industryFilter" class="form-label">Industry</label>
-                                    <select id="industryFilter" class="form-input w-full">
+                                    <label for="industryFilter" class="mb-2 block font-medium text-slate-700">Industry</label>
+                                    <select id="industryFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                         <option value="">All industries</option>
                                         ${industries.map((industry) => `<option value="${industry}">${industry}</option>`).join('')}
                                     </select>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <button id="resetFilters" class="btn btn-secondary w-full">Reset filters</button>
+                                    <button id="resetFilters" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full">Reset filters</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
                             <div>
                                 <h3 class="text-xl font-bold text-gray-800">
@@ -86,7 +86,7 @@ export default async function adminUsersController() {
                         </div>
 
                         <div class="overflow-x-auto">
-                            <table class="w-full">
+                            <table class="w-full data-table-min">
                                 <thead class="bg-gray-100 border-b-2 border-gray-300">
                                     <tr>
                                         <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Representative</th>

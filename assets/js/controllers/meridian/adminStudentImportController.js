@@ -51,7 +51,7 @@ function renderImportPage(app, user) {
     app.innerHTML = `
         ${renderAppHeader(user, '/admin/students')}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
 
                     <div class="mb-6">
@@ -69,7 +69,7 @@ function renderImportPage(app, user) {
                     </div>
 
                     <!-- Format Guide -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <h2 class="text-lg font-bold text-gray-800 mb-3">
                             <i class="fas fa-info-circle text-blue-500 mr-2"></i>CSV Format Guide
                         </h2>
@@ -114,7 +114,7 @@ function renderImportPage(app, user) {
                     </div>
 
                     <!-- Upload Zone -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">
                             <i class="fas fa-upload text-purple-500 mr-2"></i>Upload File
                         </h2>
@@ -124,7 +124,7 @@ function renderImportPage(app, user) {
                             <p class="text-gray-600 font-medium mb-1">Drag & drop your CSV file here</p>
                             <p class="text-gray-400 text-sm mb-4">or</p>
                             <label for="csvFileInput"
-                                class="btn btn-primary cursor-pointer inline-flex items-center gap-2">
+                                class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] cursor-pointer inline-flex items-center gap-2">
                                 <i class="fas fa-folder-open"></i>Browse file
                             </label>
                             <input type="file" id="csvFileInput" accept=".csv,text/csv" class="hidden" />
@@ -147,7 +147,7 @@ function renderImportPage(app, user) {
 
                     <!-- Preview & Import -->
                     <div id="previewSection" class="hidden">
-                        <div class="card mb-6">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                             <div class="flex items-center justify-between mb-4">
                                 <h2 class="text-lg font-bold text-gray-800">
                                     <i class="fas fa-table text-purple-500 mr-2"></i>Preview
@@ -169,11 +169,11 @@ function renderImportPage(app, user) {
                             </div>
                         </div>
                         <div class="flex gap-4 items-center">
-                            <button id="importBtn" class="btn btn-primary flex items-center gap-2">
+                            <button id="importBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] flex items-center gap-2">
                                 <i class="fas fa-file-import"></i>
                                 <span id="importBtnLabel">Import Students</span>
                             </button>
-                            <button id="cancelImportBtn" class="btn btn-secondary">
+                            <button id="cancelImportBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white">
                                 <i class="fas fa-times mr-2"></i>Cancel
                             </button>
                         </div>
@@ -443,7 +443,7 @@ function renderResultsView(app, user, results, totalParsed) {
     app.innerHTML = `
         ${renderAppHeader(user, '/admin/students')}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
 
                     <div class="mb-7">
@@ -454,15 +454,15 @@ function renderResultsView(app, user, results, totalParsed) {
                     </div>
 
                     <div class="grid md:grid-cols-3 gap-4 mb-6">
-                        <div class="card text-center">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center">
                             <div class="text-3xl font-bold text-gray-700 mb-1">${totalParsed}</div>
                             <p class="text-sm text-gray-500">Rows in CSV</p>
                         </div>
-                        <div class="card text-center" style="border-left: 4px solid #10b981;">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center" style="border-left: 4px solid #10b981;">
                             <div class="text-3xl font-bold text-emerald-600 mb-1">${created.length}</div>
                             <p class="text-sm text-gray-500">Accounts created</p>
                         </div>
-                        <div class="card text-center" style="border-left: 4px solid ${failed.length > 0 ? '#ef4444' : '#e5e7eb'};">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center" style="border-left: 4px solid ${failed.length > 0 ? '#ef4444' : '#e5e7eb'};">
                             <div class="text-3xl font-bold ${failed.length > 0 ? 'text-red-500' : 'text-gray-400'} mb-1">${failed.length}</div>
                             <p class="text-sm text-gray-500">Skipped / failed</p>
                         </div>
@@ -471,7 +471,7 @@ function renderResultsView(app, user, results, totalParsed) {
                     ${
                         created.length > 0
                             ? `
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">
                             <i class="fas fa-check-circle text-emerald-500 mr-2"></i>Successfully Created (${created.length})
                         </h2>
@@ -512,7 +512,7 @@ function renderResultsView(app, user, results, totalParsed) {
                     ${
                         failed.length > 0
                             ? `
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">
                             <i class="fas fa-times-circle text-red-500 mr-2"></i>Skipped Rows (${failed.length})
                         </h2>
@@ -544,10 +544,10 @@ function renderResultsView(app, user, results, totalParsed) {
                     }
 
                     <div class="flex flex-wrap gap-4">
-                        <a href="/admin/students" data-link class="btn btn-primary">
+                        <a href="/admin/students" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]">
                             <i class="fas fa-users mr-2"></i>View Student Directory
                         </a>
-                        <a href="/admin/students/import" data-link class="btn btn-secondary">
+                        <a href="/admin/students/import" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white">
                             <i class="fas fa-file-import mr-2"></i>Import Another File
                         </a>
                     </div>

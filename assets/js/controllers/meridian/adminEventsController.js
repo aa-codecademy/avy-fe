@@ -43,7 +43,7 @@ const EventManager = {
             const app = document.getElementById('app');
             app.innerHTML = `
             ${renderAppHeader(EventManager.user, window.location.pathname)}
-            <div class="container mx-auto px-4 py-8 gap-6 flex flex-col">
+            <div class="w-full max-w-[1200px] mx-auto px-4 py-8 gap-6 flex flex-col">
 
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div>

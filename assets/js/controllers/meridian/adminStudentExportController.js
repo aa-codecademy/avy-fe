@@ -53,7 +53,7 @@ function renderExportPage(app, user, allStudents) {
     app.innerHTML = `
         ${renderAppHeader(user, '/admin/students')}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
 
                     <div class="mb-6">
@@ -71,34 +71,34 @@ function renderExportPage(app, user, allStudents) {
                     </div>
 
                     <!-- Filters -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">
                             <i class="fas fa-filter text-purple-500 mr-2"></i>Filter Students
                         </h2>
                         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div>
-                                <label class="form-label">Search</label>
-                                <input type="text" id="exportSearch" class="form-input"
+                                <label class="mb-2 block font-medium text-slate-700">Search</label>
+                                <input type="text" id="exportSearch" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                                     placeholder="Name or email…" autocomplete="off" />
                             </div>
                             <div>
-                                <label class="form-label">Academy Track</label>
-                                <select id="exportTrack" class="form-input">
+                                <label class="mb-2 block font-medium text-slate-700">Academy Track</label>
+                                <select id="exportTrack" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                     <option value="">All Tracks</option>
                                     ${allTracks.map(t => `<option value="${t}">${t}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
-                                <label class="form-label">Profile Visibility</label>
-                                <select id="exportVisibility" class="form-input">
+                                <label class="mb-2 block font-medium text-slate-700">Profile Visibility</label>
+                                <select id="exportVisibility" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                     <option value="">All</option>
                                     <option value="public">Public</option>
                                     <option value="private">Private</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="form-label">Submission Status</label>
-                                <select id="exportStatus" class="form-input">
+                                <label class="mb-2 block font-medium text-slate-700">Submission Status</label>
+                                <select id="exportStatus" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                     <option value="">All</option>
                                     <option value="pending">Pending</option>
                                     <option value="approved">Approved</option>
@@ -106,8 +106,8 @@ function renderExportPage(app, user, allStudents) {
                                 </select>
                             </div>
                             <div>
-                                <label class="form-label">Account Status</label>
-                                <select id="exportAccountStatus" class="form-input">
+                                <label class="mb-2 block font-medium text-slate-700">Account Status</label>
+                                <select id="exportAccountStatus" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                     <option value="">All</option>
                                     <option value="active">Active</option>
                                     <option value="suspended">Suspended</option>
@@ -125,7 +125,7 @@ function renderExportPage(app, user, allStudents) {
                     </div>
 
                     <!-- Column Selection -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="text-lg font-bold text-gray-800">
                                 <i class="fas fa-columns text-purple-500 mr-2"></i>Columns to Export
@@ -170,7 +170,7 @@ function renderExportPage(app, user, allStudents) {
                     </div>
 
                     <!-- Export Format -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">
                             <i class="fas fa-download text-purple-500 mr-2"></i>Export Format
                         </h2>
@@ -211,11 +211,11 @@ function renderExportPage(app, user, allStudents) {
 
                     <!-- Actions -->
                     <div class="flex flex-wrap gap-4 items-center">
-                        <button id="exportBtn" class="btn btn-primary flex items-center gap-2">
+                        <button id="exportBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] flex items-center gap-2">
                             <i class="fas fa-download"></i>
                             <span id="exportBtnLabel">Export Students</span>
                         </button>
-                        <a href="/admin/students" data-link class="btn btn-secondary">
+                        <a href="/admin/students" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white">
                             <i class="fas fa-times mr-2"></i>Cancel
                         </a>
                     </div>

@@ -22,8 +22,8 @@ function renderProfileAccessRequestsTable(requests, studentMap, companyMap, jobM
     return requests
         .map((request) => {
             const student = studentMap[request.studentId];
-            const employerCompany = Object.values(companyMap).find(c =>
-                c.contactEmail && c.contactEmail.includes('company')
+            const employerCompany = Object.values(companyMap).find(
+                (c) => c.contactEmail && c.contactEmail.includes('company')
             ); // Mock employer lookup
             const job = jobMap[request.jobId];
 
@@ -76,19 +76,25 @@ function renderProfileAccessRequestsTable(requests, studentMap, companyMap, jobM
                         <span class="px-3 py-1 rounded-full text-sm font-semibold ${statusColors[request.status] || 'bg-gray-100 text-gray-800'}">
                             ${statusLabels[request.status] || request.status}
                         </span>
-                        ${request.expiresAt && request.status === 'approved' ? `
+                        ${
+                            request.expiresAt && request.status === 'approved'
+                                ? `
                             <p class="text-xs text-gray-500 mt-1">
                                 Expires: ${new Date(request.expiresAt).toLocaleDateString()}
                             </p>
-                        ` : ''}
+                        `
+                                : ''
+                        }
                     </td>
                     <td class="px-4 py-4 align-top">
-                        ${request.status === 'pending' ? `
+                        ${
+                            request.status === 'pending'
+                                ? `
                             <div class="flex flex-col gap-2">
                                 <button
                                     data-approve-request
                                     data-request-id="${request.id}"
-                                    class="btn btn-success text-sm"
+                                    class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-green-600 text-white hover:bg-green-700 text-sm"
                                 >
                                     <i class="fas fa-check mr-1"></i>
                                     Approve
@@ -96,19 +102,27 @@ function renderProfileAccessRequestsTable(requests, studentMap, companyMap, jobM
                                 <button
                                     data-reject-request
                                     data-request-id="${request.id}"
-                                    class="btn btn-danger text-sm"
+                                    class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-red-600 text-white hover:bg-red-700 text-sm"
                                 >
                                     <i class="fas fa-times mr-1"></i>
                                     Reject
                                 </button>
                             </div>
-                        ` : `
+                        `
+                                : `
                             <div class="text-sm text-gray-600">
-                                ${request.status === 'approved' ? 'Access granted' :
-                                  request.status === 'rejected' ? 'Access denied' :
-                                  request.status === 'expired' ? 'Access expired' : 'No actions'}
+                                ${
+                                    request.status === 'approved'
+                                        ? 'Access granted'
+                                        : request.status === 'rejected'
+                                          ? 'Access denied'
+                                          : request.status === 'expired'
+                                            ? 'Access expired'
+                                            : 'No actions'
+                                }
                             </div>
-                        `}
+                        `
+                        }
                     </td>
                 </tr>
             `;
@@ -123,11 +137,20 @@ function bindRequestActionButtons() {
     tableBody.querySelectorAll('button[data-approve-request]').forEach((button) => {
         button.addEventListener('click', async (event) => {
             const requestId = event.currentTarget.dataset.requestId;
-            const reviewNotes = prompt('Enter approval notes (optional):', 'Approved for 30-day access');
+            const reviewNotes = prompt(
+                'Enter approval notes (optional):',
+                'Approved for 30-day access'
+            );
 
-            if (reviewNotes !== null) { // User didn't cancel
+            if (reviewNotes !== null) {
+                // User didn't cancel
                 try {
-                    await mockDataService.updateProfileAccessRequestStatus(requestId, 'approved', reviewNotes, 'admin1');
+                    await mockDataService.updateProfileAccessRequestStatus(
+                        requestId,
+                        'approved',
+                        reviewNotes,
+                        'admin1'
+                    );
                     alert('Request approved successfully!');
                     // Refresh the table
                     const statusFilter = document.getElementById('requestStatusFilter');
@@ -143,11 +166,19 @@ function bindRequestActionButtons() {
     tableBody.querySelectorAll('button[data-reject-request]').forEach((button) => {
         button.addEventListener('click', async (event) => {
             const requestId = event.currentTarget.dataset.requestId;
-            const reviewNotes = prompt('Enter rejection reason:', 'Request does not meet approval criteria');
+            const reviewNotes = prompt(
+                'Enter rejection reason:',
+                'Request does not meet approval criteria'
+            );
 
             if (reviewNotes !== null && reviewNotes.trim()) {
                 try {
-                    await mockDataService.updateProfileAccessRequestStatus(requestId, 'rejected', reviewNotes, 'admin1');
+                    await mockDataService.updateProfileAccessRequestStatus(
+                        requestId,
+                        'rejected',
+                        reviewNotes,
+                        'admin1'
+                    );
                     alert('Request rejected successfully!');
                     // Refresh the table
                     const statusFilter = document.getElementById('requestStatusFilter');
@@ -171,22 +202,34 @@ async function loadProfileAccessRequests(status = 'pending') {
         const companies = await mockDataService.getAllCompanies();
         const jobs = await mockDataService.getAllJobs();
 
-        const studentMap = Object.fromEntries(allStudents.map(s => [s.id, s]));
-        const companyMap = Object.fromEntries(companies.map(c => [c.id, c]));
-        const jobMap = Object.fromEntries(jobs.map(j => [j.id, j]));
+        const studentMap = Object.fromEntries(allStudents.map((s) => [s.id, s]));
+        const companyMap = Object.fromEntries(companies.map((c) => [c.id, c]));
+        const jobMap = Object.fromEntries(jobs.map((j) => [j.id, j]));
 
         const requestsTableBody = document.getElementById('profileAccessRequestsTableBody');
-        requestsTableBody.innerHTML = renderProfileAccessRequestsTable(requests, studentMap, companyMap, jobMap);
+        requestsTableBody.innerHTML = renderProfileAccessRequestsTable(
+            requests,
+            studentMap,
+            companyMap,
+            jobMap
+        );
         bindRequestActionButtons();
     } catch (error) {
         console.error('Failed to load profile access requests:', error);
         const requestsTableBody = document.getElementById('profileAccessRequestsTableBody');
-        requestsTableBody.innerHTML = '<tr><td colspan="7" class="px-4 py-6 text-center text-red-600">Failed to load requests</td></tr>';
+        requestsTableBody.innerHTML =
+            '<tr><td colspan="7" class="px-4 py-6 text-center text-red-600">Failed to load requests</td></tr>';
     }
 }
 
 function renderJobAnalytics(analytics) {
-    const { job, totalApplications, statusBreakdown, applicationModeBreakdown, recentApplications } = analytics;
+    const {
+        job,
+        totalApplications,
+        statusBreakdown,
+        applicationModeBreakdown,
+        recentApplications,
+    } = analytics;
 
     const statusColors = {
         pending: 'bg-gray-100 text-gray-800',
@@ -212,45 +255,53 @@ function renderJobAnalytics(analytics) {
         </div>
 
         <div class="grid md:grid-cols-3 gap-6 mb-8">
-            <div class="card bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-gradient-to-br from-purple-500 to-purple-600 text-white">
                 <p class="text-purple-100 mb-1">Total Applications</p>
                 <h3 class="text-4xl font-bold">${totalApplications}</h3>
             </div>
-            <div class="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-gradient-to-br from-blue-500 to-blue-600 text-white">
                 <p class="text-blue-100 mb-1">Easy Apply</p>
                 <h3 class="text-4xl font-bold">${applicationModeBreakdown.easyApply}</h3>
             </div>
-            <div class="card bg-gradient-to-br from-green-500 to-green-600 text-white">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-gradient-to-br from-green-500 to-green-600 text-white">
                 <p class="text-green-100 mb-1">Full Applications</p>
                 <h3 class="text-4xl font-bold">${applicationModeBreakdown.fullApplication}</h3>
             </div>
         </div>
 
         <div class="grid md:grid-cols-2 gap-8">
-            <div class="card">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                 <h4 class="text-lg font-bold text-gray-800 mb-4">
                     <i class="fas fa-chart-pie text-purple-600 mr-2"></i>
                     Application Status Breakdown
                 </h4>
                 <div class="space-y-3">
-                    ${Object.entries(statusBreakdown).map(([status, count]) => `
+                    ${Object.entries(statusBreakdown)
+                        .map(
+                            ([status, count]) => `
                         <div class="flex justify-between items-center">
                             <span class="px-3 py-1 rounded-full text-sm font-semibold ${statusColors[status]}">
                                 ${statusLabels[status]}
                             </span>
                             <span class="font-bold text-gray-800">${count}</span>
                         </div>
-                    `).join('')}
+                    `
+                        )
+                        .join('')}
                 </div>
             </div>
 
-            <div class="card">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                 <h4 class="text-lg font-bold text-gray-800 mb-4">
                     <i class="fas fa-clock text-indigo-600 mr-2"></i>
                     Recent Applications
                 </h4>
                 <div class="space-y-3">
-                    ${recentApplications.length > 0 ? recentApplications.map(app => `
+                    ${
+                        recentApplications.length > 0
+                            ? recentApplications
+                                  .map(
+                                      (app) => `
                         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
                             <div>
                                 <p class="text-sm font-semibold text-gray-800">Application ${app.id}</p>
@@ -260,7 +311,11 @@ function renderJobAnalytics(analytics) {
                                 ${statusLabels[app.status] || app.status}
                             </span>
                         </div>
-                    `).join('') : '<p class="text-gray-500 text-sm">No applications yet</p>'}
+                    `
+                                  )
+                                  .join('')
+                            : '<p class="text-gray-500 text-sm">No applications yet</p>'
+                    }
                 </div>
             </div>
         </div>
@@ -435,9 +490,9 @@ export default async function adminAnalyticsController() {
     const analytics = await mockDataService.getAnalytics();
     const allJobs = await mockDataService.getAllJobs();
     const allCompanies = await mockDataService.getAllCompanies();
-    
+
     const companies = mockDataService.generateMockCompanies();
-    const companyMap = Object.fromEntries(companies.map(c => [c.id, c]));
+    const companyMap = Object.fromEntries(companies.map((c) => [c.id, c]));
     const jobs = mockDataService.generateMockJobs();
     const applications = mockDataService.generateMockApplications();
     const companyMetrics = getCompanyPerformanceMetrics(companies, jobs, applications);
@@ -451,14 +506,14 @@ export default async function adminAnalyticsController() {
     app.innerHTML = `
     ${renderAppHeader(user, window.location.pathname)}
 
-    <div class="bg-gray-50 min-h-screen py-8">
-        <div class="container mx-auto px-4">
+    <div class="bg-gray-50 min-h-screen py-8" style="overflow-x: hidden;">
+        <div class="w-full max-w-[1200px] mx-auto px-4">
 
             <!-- MAIN LAYOUT -->
-            <div class="flex gap-8">
+            <div class="flex flex-col gap-8 lg:flex-row">
 
                 <!-- CONTENT -->
-                <section id="platform-analytics" class="flex-1 fade-in">
+                <section id="platform-analytics" class="min-w-0 flex-1 fade-in" style="overflow-x: hidden;">
 
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -484,7 +539,7 @@ export default async function adminAnalyticsController() {
                 </section>
 
                 <!-- RIGHT SIDE VERTICAL NAVIGATION -->
-    <div class="hidden lg:block w-72">
+    <div class="hidden w-72 shrink-0 lg:block">
 
     <div class="sticky top-24 bg-white border border-gray-200 rounded-2xl shadow-xl p-6">
 
@@ -688,7 +743,7 @@ function renderPlatformOverviewSection(analytics, trends) {
                 )}
             </div>
 
-            <div class="card">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800">
@@ -700,7 +755,7 @@ function renderPlatformOverviewSection(analytics, trends) {
                     <p class="text-sm text-gray-500">${trends[0].month} - ${trends[trends.length - 1].month}</p>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-left">
+                    <table class="w-full data-table-min text-left">
                         <thead>
                             <tr class="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
                                 <th class="py-3 pr-4 font-semibold">Month</th>
@@ -722,7 +777,7 @@ function renderPlatformOverviewSection(analytics, trends) {
 
 function renderPlatformKpiCard(title, value, change, icon, backgroundClass, labelClass) {
     return `
-        <div class="card ${backgroundClass} text-white">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] ${backgroundClass} text-white">
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <p class="${labelClass} mb-1">${title}</p>
@@ -789,8 +844,8 @@ function renderStudentEngagementSection(metrics) {
                 )}
             </div>
 
-            <div class="grid lg:grid-cols-5 gap-8">
-                <div class="card lg:col-span-2">
+            <div class="grid gap-8 lg:grid-cols-5">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] lg:col-span-2">
                     <h3 class="text-xl font-bold text-gray-800 mb-5">
                         <i class="fas fa-chart-simple text-purple-600 mr-2"></i>
                         Dashboard Interaction Patterns
@@ -802,7 +857,7 @@ function renderStudentEngagementSection(metrics) {
                     </div>
                 </div>
 
-                <div class="card lg:col-span-3 overflow-hidden">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] lg:col-span-3 overflow-hidden">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-5">
                         <h3 class="text-xl font-bold text-gray-800">
                             <i class="fas fa-layer-group text-purple-600 mr-2"></i>
@@ -811,7 +866,7 @@ function renderStudentEngagementSection(metrics) {
                         <p class="text-sm text-gray-500">Use risk level to prioritize outreach</p>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full text-left">
+                        <table class="w-full data-table-min text-left">
                             <thead>
                                 <tr class="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
                                     <th class="py-3 pr-4 font-semibold">Cohort</th>
@@ -835,7 +890,7 @@ function renderStudentEngagementSection(metrics) {
 
 function renderEngagementSummaryCard(title, value, description, icon, valueColor, iconColor) {
     return `
-        <div class="card">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-600 text-sm">${title}</p>
@@ -909,8 +964,8 @@ function renderJobApplicationFunnelSection(metrics) {
                 <p class="text-gray-600">Student movement from job views to saves, applications, and outcomes</p>
             </div>
 
-            <div class="grid lg:grid-cols-5 gap-8 mb-8">
-                <div class="card lg:col-span-3">
+            <div class="grid gap-8 lg:grid-cols-5 mb-8">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] lg:col-span-3">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-6">
                         <h3 class="text-xl font-bold text-gray-800">
                             <i class="fas fa-chart-column text-purple-600 mr-2"></i>
@@ -923,7 +978,7 @@ function renderJobApplicationFunnelSection(metrics) {
                     </div>
                 </div>
 
-                <div class="card lg:col-span-2">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] lg:col-span-2">
                     <h3 class="text-xl font-bold text-gray-800 mb-5">
                         <i class="fas fa-triangle-exclamation text-yellow-600 mr-2"></i>
                         Largest Drop-Off Points
@@ -948,7 +1003,7 @@ function renderJobApplicationFunnelSection(metrics) {
                 </div>
             </div>
 
-            <div class="card overflow-hidden">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] overflow-hidden">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-5">
                     <h3 class="text-xl font-bold text-gray-800">
                         <i class="fas fa-briefcase text-purple-600 mr-2"></i>
@@ -957,7 +1012,7 @@ function renderJobApplicationFunnelSection(metrics) {
                     <p class="text-sm text-gray-500">Use high drop-off listings for employer coaching</p>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-left">
+                    <table class="w-full data-table-min text-left">
                         <thead>
                             <tr class="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
                                 <th class="py-3 pr-4 font-semibold">Listing</th>
@@ -1174,7 +1229,7 @@ function renderCompanyPerformanceSection(companyMetrics) {
             </div>
 
             <!-- COMPANY LIST -->
-            <div class="card">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                 <div class="mb-6">
                     <h3 class="text-xl font-bold text-gray-800 mb-2">
                         <i class="fas fa-table text-purple-600 mr-2"></i>
@@ -1183,7 +1238,7 @@ function renderCompanyPerformanceSection(companyMetrics) {
                     <p class="text-gray-600 text-sm">Real-time metrics for all employers by company.</p>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-left">
+                    <table class="w-full data-table-min text-left">
                         <thead>
                             <tr class="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
                                 <th class="py-3 pr-4 font-semibold">Company</th>
@@ -1247,7 +1302,7 @@ function renderCompanyPerformanceSection(companyMetrics) {
 
 function renderPerformanceSummaryCard(title, value, icon, backgroundClass, subtitle) {
     return `
-        <div class="card ${backgroundClass} text-white">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] ${backgroundClass} text-white">
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <p class="text-white/80 mb-1">${title}</p>
@@ -1422,7 +1477,7 @@ function renderUnresponsiveEmployersSection(unresponsiveEmployers) {
                                 </div>
 
                                 <!-- STATS -->
-                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
 
                                     <div class="bg-white rounded-2xl p-3 border border-gray-100">
 
@@ -1512,15 +1567,6 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
     const programmeBreakdown = getProgrammeBreakdown(events);
     const effectiveness = evaluateEventEffectiveness(events);
 
-    const chartData = {
-        events,
-        registrationCounts,
-        attendanceRates,
-        noShowRates,
-        programmeBreakdown,
-        effectiveness,
-    };
-
     return `
         <section id="event-attendance" class="mt-8">
             <div class="mb-6">
@@ -1531,9 +1577,8 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                 <p class="text-gray-600">Comprehensive view of event attendance, no-show rates, and programme participation</p>
             </div>
 
-            <!-- Summary Cards -->
-            <div class="grid md:grid-cols-4 gap-6 mb-8">
-                <div class="card bg-blue-50 border-blue-200">
+            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4 mb-8">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-blue-50 border-blue-200">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-blue-100 rounded-lg">
                             <i class="fas fa-user-check text-blue-600 text-xl"></i>
@@ -1544,7 +1589,7 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                         </div>
                     </div>
                 </div>
-                <div class="card bg-green-50 border-green-200">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-green-50 border-green-200">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-green-100 rounded-lg">
                             <i class="fas fa-users text-green-600 text-xl"></i>
@@ -1555,7 +1600,7 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                         </div>
                     </div>
                 </div>
-                <div class="card bg-purple-50 border-purple-200">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-purple-50 border-purple-200">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-purple-100 rounded-lg">
                             <i class="fas fa-chart-pie text-purple-600 text-xl"></i>
@@ -1566,7 +1611,7 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                         </div>
                     </div>
                 </div>
-                <div class="card bg-red-50 border-red-200">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-red-50 border-red-200">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-red-100 rounded-lg">
                             <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
@@ -1576,98 +1621,11 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                             <p class="text-2xl font-bold text-red-900">${noShowRates.rate}%</p>
                         </div>
                     </div>
-
-                    <div class="mt-12">
-                        <h2 class="text-3xl font-bold text-gray-800 mb-6">
-                            <i class="fas fa-chart-bar text-indigo-600 mr-3"></i>
-                            Job Application Analytics
-                        </h2>
-                        <p class="text-gray-600 mb-6">Monitor application statistics for individual job listings</p>
-
-                        <div class="card mb-6">
-                            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-end">
-                                <div>
-                                    <label for="jobSelect" class="form-label">Select Job Listing</label>
-                                    <select id="jobSelect" class="form-input w-full">
-                                        <option value="">Choose a job...</option>
-                                        ${jobs.filter(job => job.status === 'active').map(job => {
-                                            const company = companyMap[job.companyId];
-                                            return `<option value="${job.id}">${job.title} - ${company?.name || 'Unknown'}</option>`;
-                                        }).join('')}
-                                    </select>
-                                </div>
-                                <div class="flex items-end">
-                                    <button id="viewJobAnalytics" class="btn btn-primary" disabled>
-                                        <i class="fas fa-chart-line mr-2"></i>
-                                        View Analytics
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="jobAnalyticsContainer" class="hidden">
-                            <div class="card">
-                                <div id="jobAnalyticsContent">
-                                    <!-- Job analytics will be loaded here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-12">
-                        <h2 class="text-3xl font-bold text-gray-800 mb-6">
-                            <i class="fas fa-user-shield text-red-600 mr-3"></i>
-                            Profile Access Requests
-                        </h2>
-                        <p class="text-gray-600 mb-6">Review and manage employer requests to access private student profiles</p>
-
-                        <div class="card mb-6">
-                            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end">
-                                <div>
-                                    <label for="requestStatusFilter" class="form-label">Status</label>
-                                    <select id="requestStatusFilter" class="form-input w-full">
-                                        <option value="">All statuses</option>
-                                        <option value="pending" selected>Pending</option>
-                                        <option value="approved">Approved</option>
-                                        <option value="rejected">Rejected</option>
-                                        <option value="expired">Expired</option>
-                                    </select>
-                                </div>
-                                <div class="flex items-end">
-                                    <button id="refreshRequests" class="btn btn-secondary">
-                                        <i class="fas fa-sync mr-2"></i>
-                                        Refresh
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card overflow-x-auto">
-                            <table class="w-full min-w-max">
-                                <thead class="bg-gray-100 border-b-2 border-gray-300">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Employer</th>
-                                        <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Student</th>
-                                        <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Job Position</th>
-                                        <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Request Reason</th>
-                                        <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Requested</th>
-                                        <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Status</th>
-                                        <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="profileAccessRequestsTableBody">
-                                    <!-- Profile access requests will be loaded here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            <!-- Charts Grid -->
-            <div class="grid lg:grid-cols-2 gap-8 mb-8">
-                <!-- Attendance Rate Chart -->
-                <div class="card">
+            <div class="space-y-6 mb-8">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-chart-bar text-purple-600 mr-2"></i>
                         Event Attendance Rates
@@ -1677,8 +1635,7 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                     </div>
                 </div>
 
-                <!-- Registration vs Attendance Chart -->
-                <div class="card">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-chart-line text-purple-600 mr-2"></i>
                         Registration vs Attendance
@@ -1688,8 +1645,7 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                     </div>
                 </div>
 
-                <!-- Programme Breakdown Chart -->
-                <div class="card">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-chart-pie text-purple-600 mr-2"></i>
                         Attendance by Programme
@@ -1699,9 +1655,7 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                     </div>
                 </div>
 
-                <!-- No show rate -->
-
-                <div class="card">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-user-clock text-red-600 mr-2"></i>
                         Event No-Show Rates
@@ -1710,17 +1664,15 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                         <canvas id="noShowChart"></canvas>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Programme Breakdown Table -->
-            <div class="card mb-8">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-8">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">
                     <i class="fas fa-layer-group text-purple-600 mr-2"></i>
                     Attendance Breakdown by Student Programme
                 </h3>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-left">
+                    <table class="w-full data-table-min text-left">
                         <thead>
                             <tr class="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
                                 <th class="py-3 pr-4 font-semibold">Programme</th>
@@ -1756,9 +1708,7 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                 </div>
             </div>
 
-
-            <!-- Event Effectiveness -->
-            <div class="card bg-gray-50">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-gray-50 mb-8">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">
                     <i class="fas fa-trophy text-purple-600 mr-2"></i>
                     Event Effectiveness Evaluation
@@ -1799,9 +1749,97 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
                     </div>
                 </div>
             </div>
+
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-8">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-chart-bar text-indigo-600 mr-3"></i>
+                        Job Application Analytics
+                    </h3>
+                    <p class="text-gray-600">Monitor application statistics for individual job listings.</p>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-end mb-6">
+                    <div>
+                        <label for="jobSelect" class="mb-2 block font-medium text-slate-700">Select Job Listing</label>
+                        <select id="jobSelect" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
+                            <option value="">Choose a job...</option>
+                            ${jobs
+                                .filter((job) => job.status === 'active')
+                                .map((job) => {
+                                    const company = companyMap[job.companyId];
+                                    return `<option value="${job.id}">${job.title} - ${company?.name || 'Unknown'}</option>`;
+                                })
+                                .join('')}
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="viewJobAnalytics" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]" disabled>
+                            <i class="fas fa-chart-line mr-2"></i>
+                            View Analytics
+                        </button>
+                    </div>
+                </div>
+
+                <div id="jobAnalyticsContainer" class="hidden">
+                    <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-6">
+                        <div id="jobAnalyticsContent">
+                            <!-- Job analytics will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-8">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-user-shield text-red-600 mr-3"></i>
+                        Profile Access Requests
+                    </h3>
+                    <p class="text-gray-600">Review and manage employer requests to access private student profiles.</p>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end mb-6">
+                    <div>
+                        <label for="requestStatusFilter" class="mb-2 block font-medium text-slate-700">Status</label>
+                        <select id="requestStatusFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
+                            <option value="">All statuses</option>
+                            <option value="pending" selected>Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="refreshRequests" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white">
+                            <i class="fas fa-sync mr-2"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full data-table-min">
+                        <thead class="bg-gray-100 border-b-2 border-gray-300">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Employer</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Student</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Job Position</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Request Reason</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Requested</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Status</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profileAccessRequestsTableBody">
+                            <!-- Profile access requests will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
     `;
-    
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 
@@ -1827,7 +1865,8 @@ function renderEventAttendanceAnalyticsSection(events, jobs = [], companyMap = {
             }
         } catch (error) {
             console.error('Failed to load job analytics:', error);
-            analyticsContent.innerHTML = '<p class="text-red-600">Failed to load analytics. Please try again.</p>';
+            analyticsContent.innerHTML =
+                '<p class="text-red-600">Failed to load analytics. Please try again.</p>';
             analyticsContainer.classList.remove('hidden');
         }
     });
@@ -1866,7 +1905,7 @@ function renderRecommendationAnalyticsSection(analytics) {
 
             <!-- Overall Performance Metrics -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="card bg-blue-50 border-blue-200">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-blue-50 border-blue-200">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-blue-100 rounded-lg">
                             <i class="fas fa-eye text-blue-600 text-xl"></i>
@@ -1877,7 +1916,7 @@ function renderRecommendationAnalyticsSection(analytics) {
                         </div>
                     </div>
                 </div>
-                <div class="card bg-green-50 border-green-200">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-green-50 border-green-200">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-green-100 rounded-lg">
                             <i class="fas fa-mouse-pointer text-green-600 text-xl"></i>
@@ -1888,7 +1927,7 @@ function renderRecommendationAnalyticsSection(analytics) {
                         </div>
                     </div>
                 </div>
-                <div class="card bg-purple-50 border-purple-200">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-purple-50 border-purple-200">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-purple-100 rounded-lg">
                             <i class="fas fa-file-signature text-purple-600 text-xl"></i>
@@ -1899,7 +1938,7 @@ function renderRecommendationAnalyticsSection(analytics) {
                         </div>
                     </div>
                 </div>
-                <div class="card bg-indigo-50 border-indigo-200">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-indigo-50 border-indigo-200">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-indigo-100 rounded-lg">
                             <i class="fas fa-star text-indigo-600 text-xl"></i>
@@ -1913,7 +1952,7 @@ function renderRecommendationAnalyticsSection(analytics) {
             </div>
 
             <!-- Performance by Match Score Range -->
-            <div class="card mb-8">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-8">
                 <h3 class="text-xl font-bold text-gray-800 mb-6">
                     <i class="fas fa-chart-bar text-indigo-600 mr-2"></i>
                     Performance by Match Quality
@@ -1946,13 +1985,13 @@ function renderRecommendationAnalyticsSection(analytics) {
             </div>
 
             <!-- Individual Job Performance Table -->
-            <div class="card mb-8">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-8">
                 <h3 class="text-xl font-bold text-gray-800 mb-6">
                     <i class="fas fa-list text-indigo-600 mr-2"></i>
                     Individual Job Performance
                 </h3>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full table-auto">
+                    <table class="w-full data-table-min table-auto">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
@@ -2003,7 +2042,7 @@ function renderRecommendationAnalyticsSection(analytics) {
             </div>
 
             <!-- Algorithm Health Check -->
-            <div class="card bg-gray-50">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-gray-50">
                 <h3 class="text-xl font-bold text-gray-800 mb-6">
                     <i class="fas fa-heartbeat text-indigo-600 mr-2"></i>
                     Algorithm Health Check
@@ -2114,17 +2153,17 @@ function renderReportBuilderSection(options) {
                                     Metrics
                                 </p>
 
-                                <div class="grid grid-cols-2 gap-3">
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 
                                     ${options.metrics
                                         .map(
                                             (metric) => `
                                                 <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition cursor-pointer">
 
-                                                    <input 
-                                                        type="checkbox" 
-                                                        data-report-input="metric" 
-                                                        value="${metric.id}" 
+                                                    <input
+                                                        type="checkbox"
+                                                        data-report-input="metric"
+                                                        value="${metric.id}"
                                                         class="h-3.5 w-3.5 text-purple-600 rounded border-gray-300"
                                                     />
 
@@ -2149,17 +2188,17 @@ function renderReportBuilderSection(options) {
                                     Filters
                                 </p>
 
-                                <div class="grid grid-cols-2 gap-3">
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 
                                     ${options.filters
                                         .map(
                                             (filter) => `
                                                 <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition cursor-pointer">
 
-                                                    <input 
-                                                        type="checkbox" 
-                                                        data-report-input="filter" 
-                                                        value="${filter.id}" 
+                                                    <input
+                                                        type="checkbox"
+                                                        data-report-input="filter"
+                                                        value="${filter.id}"
                                                         class="h-3.5 w-3.5 text-blue-600 rounded border-gray-300"
                                                     />
 
@@ -2184,17 +2223,17 @@ function renderReportBuilderSection(options) {
                                     Dimensions
                                 </p>
 
-                                <div class="grid grid-cols-2 gap-3">
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 
                                     ${options.dimensions
                                         .map(
                                             (dimension) => `
                                                 <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition cursor-pointer">
 
-                                                    <input 
-                                                        type="checkbox" 
-                                                        data-report-input="dimension" 
-                                                        value="${dimension.id}" 
+                                                    <input
+                                                        type="checkbox"
+                                                        data-report-input="dimension"
+                                                        value="${dimension.id}"
                                                         class="h-3.5 w-3.5 text-green-600 rounded border-gray-300"
                                                     />
 
@@ -2219,17 +2258,17 @@ function renderReportBuilderSection(options) {
                                     Formats
                                 </p>
 
-                                <div class="grid grid-cols-2 gap-3">
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 
                                     ${options.formats
                                         .map(
                                             (format) => `
                                                 <label class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition cursor-pointer">
 
-                                                    <input 
-                                                        type="checkbox" 
-                                                        data-report-input="format" 
-                                                        value="${format.id}" 
+                                                    <input
+                                                        type="checkbox"
+                                                        data-report-input="format"
+                                                        value="${format.id}"
                                                         class="h-3.5 w-3.5 text-orange-600 rounded border-gray-300"
                                                     />
 
@@ -2267,8 +2306,8 @@ function renderReportBuilderSection(options) {
                                     Report Name
                                 </label>
 
-                                <input 
-                                    id="reportNameInput" 
+                                <input
+                                    id="reportNameInput"
                                     type="text"
                                     placeholder="Weekly student and job metrics"
                                     class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400 outline-none transition"
@@ -2283,8 +2322,8 @@ function renderReportBuilderSection(options) {
                                     Recipients
                                 </label>
 
-                                <input 
-                                    id="reportRecipientsInput" 
+                                <input
+                                    id="reportRecipientsInput"
                                     type="text"
                                     value="admin@avy.com"
                                     class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
@@ -2303,7 +2342,7 @@ function renderReportBuilderSection(options) {
                                     Frequency
                                 </label>
 
-                                <select 
+                                <select
                                     id="reportFrequencyInput"
                                     class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 focus:border-green-400 outline-none transition"
                                 >
@@ -2321,7 +2360,7 @@ function renderReportBuilderSection(options) {
                                     Send At
                                 </label>
 
-                                <input 
+                                <input
                                     id="reportScheduleTimeInput"
                                     type="time"
                                     value="08:00"
@@ -2331,7 +2370,7 @@ function renderReportBuilderSection(options) {
                             </div>
 
                             <!-- BUTTON -->
-                            <button 
+                            <button
                                 id="saveReportBuilderBtn"
                                 class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow hover:shadow-lg transition-all duration-300"
                             >
@@ -2560,19 +2599,6 @@ function renderScheduledExportsSection(reports, deliveries) {
                     }
 
                 </div>
-
-            </div>
-
-            <!-- BACK TO TOP -->
-            <div class="flex justify-end">
-
-                <a 
-                    href="#platform-analytics"
-                    class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-purple-600 transition"
-                >
-                    <i class="fas fa-arrow-up text-xs"></i>
-                    Back to Top
-                </a>
 
             </div>
 

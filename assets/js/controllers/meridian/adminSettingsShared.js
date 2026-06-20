@@ -4,39 +4,6 @@
 import authService from '../../services/authService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
-const SETTINGS_SECTIONS = [
-    {
-        href: '/admin/settings',
-        label: 'Overview',
-        icon: 'fa-sliders-h',
-    },
-    {
-        href: '/admin/settings/roles',
-        label: 'Roles',
-        icon: 'fa-key',
-    },
-    {
-        href: '/admin/settings/templates',
-        label: 'Templates',
-        icon: 'fa-copy',
-    },
-    {
-        href: '/admin/settings/platform',
-        label: 'Platform',
-        icon: 'fa-globe',
-    },
-    {
-        href: '/admin/settings/audit',
-        label: 'Audit',
-        icon: 'fa-history',
-    },
-    {
-        href: '/admin/settings/compliance',
-        label: 'Compliance',
-        icon: 'fa-file-export',
-    },
-];
-
 export function requireAdminUser() {
     const user = authService.getCurrentUser();
 
@@ -67,7 +34,7 @@ export function renderAdminSettingsLayout({
     return `
         ${renderAppHeader(user, currentPath)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
                         <div>
@@ -80,35 +47,9 @@ export function renderAdminSettingsLayout({
                         ${headerActions}
                     </div>
 
-                    ${renderSettingsTabs(currentPath)}
                     ${renderSummaryCards(summaryCards)}
                     ${content}
                 </div>
-            </div>
-        </div>
-    `;
-}
-
-function renderSettingsTabs(currentPath) {
-    return `
-        <div class="card mb-8">
-            <div class="flex flex-wrap gap-3">
-                ${SETTINGS_SECTIONS.map((section) => {
-                    const isOverviewSection = section.href === '/admin/settings';
-                    const isActive = isOverviewSection
-                        ? currentPath === section.href
-                        : currentPath === section.href ||
-                          currentPath.startsWith(section.href + '/');
-                    const linkClass = isActive
-                        ? 'bg-purple-600 text-white shadow-md'
-                        : 'bg-white text-gray-700 border border-gray-200 hover:border-purple-300 hover:text-purple-700';
-
-                    return `
-                        <a href="${section.href}" data-link class="px-4 py-2 rounded-lg font-semibold transition ${linkClass}">
-                            <i class="fas ${section.icon} mr-2"></i>${section.label}
-                        </a>
-                    `;
-                }).join('')}
             </div>
         </div>
     `;
@@ -124,7 +65,7 @@ function renderSummaryCards(summaryCards) {
             ${summaryCards
                 .map(
                     (card) => `
-                <div class="card bg-white">
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                     <p class="text-sm text-gray-500 mb-1">${card.label}</p>
                     <p class="text-3xl font-bold ${card.valueClass || 'text-gray-800'}">${card.value}</p>
                     ${card.helperText ? `<p class="text-sm text-gray-500 mt-2">${card.helperText}</p>` : ''}
@@ -138,7 +79,7 @@ function renderSummaryCards(summaryCards) {
 
 export function renderSettingsActionLink(href, label, icon = 'fa-arrow-right') {
     return `
-        <a href="${href}" data-link class="btn btn-secondary text-center">
+        <a href="${href}" data-link class="inline-flex items-center justify-center rounded-lg border-2 border-[#dd2c00] bg-white px-6 py-3 text-base font-semibold text-[#dd2c00] transition-all duration-200 hover:bg-[#dd2c00] hover:text-white text-center">
             <i class="fas ${icon} mr-2"></i>${label}
         </a>
     `;

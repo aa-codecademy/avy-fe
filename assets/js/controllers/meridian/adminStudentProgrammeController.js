@@ -44,7 +44,7 @@ export default async function adminStudentProgrammeController(params = {}) {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="max-w-3xl mx-auto fade-in">
 
                     <div class="mb-6">
@@ -69,7 +69,7 @@ export default async function adminStudentProgrammeController(params = {}) {
                     </div>
 
                     <!-- Student Info Banner -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex items-center gap-4">
                             <img src="${student.avatar}" alt="${student.name}"
                                  class="w-14 h-14 rounded-full border-2 border-purple-200 flex-shrink-0" />
@@ -91,7 +91,7 @@ export default async function adminStudentProgrammeController(params = {}) {
                     ${hasProgramme ? renderCurrentProgrammeCard(primaryProgramme) : ''}
 
                     <!-- Assignment Form -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <h2 class="text-xl font-bold text-gray-800 mb-5">
                             <i class="fas fa-university text-purple-500 mr-2"></i>${hasProgramme ? 'Change Programme' : 'Assign Programme'}
                         </h2>
@@ -107,33 +107,33 @@ export default async function adminStudentProgrammeController(params = {}) {
                         }
                         <div class="grid md:grid-cols-2 gap-5">
                             <div>
-                                <label class="form-label">Academy Name <span class="text-red-500">*</span></label>
-                                <input type="text" id="progAcademyName" class="form-input"
+                                <label class="mb-2 block font-medium text-slate-700">Academy Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="progAcademyName" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                                     value="${hasProgramme ? primaryProgramme.academyName : 'Avenga Academy'}"
                                     placeholder="e.g. Avenga Academy" />
                             </div>
                             <div>
-                                <label class="form-label">Track <span class="text-red-500">*</span></label>
-                                <select id="progTrack" class="form-input">
+                                <label class="mb-2 block font-medium text-slate-700">Track <span class="text-red-500">*</span></label>
+                                <select id="progTrack" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                     ${TRACKS.map(t => `<option value="${t}" ${hasProgramme && primaryProgramme.track === t ? 'selected' : ''}>${t}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
-                                <label class="form-label">Start Date</label>
-                                <input type="date" id="progStartDate" class="form-input"
+                                <label class="mb-2 block font-medium text-slate-700">Start Date</label>
+                                <input type="date" id="progStartDate" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                                     value="${hasProgramme ? primaryProgramme.startDate : ''}" />
                             </div>
                             <div>
-                                <label class="form-label">
+                                <label class="mb-2 block font-medium text-slate-700">
                                     End Date
                                     <span class="text-gray-400 font-normal text-xs">(leave blank if active)</span>
                                 </label>
-                                <input type="date" id="progEndDate" class="form-input"
+                                <input type="date" id="progEndDate" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                                     value="${hasProgramme ? primaryProgramme.endDate : ''}" />
                             </div>
                             <div>
-                                <label class="form-label">Status</label>
-                                <select id="progStatus" class="form-input">
+                                <label class="mb-2 block font-medium text-slate-700">Status</label>
+                                <select id="progStatus" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                     <option value="active" ${!hasProgramme || primaryProgramme.status === 'active' ? 'selected' : ''}>Active</option>
                                     <option value="completed" ${hasProgramme && primaryProgramme.status === 'completed' ? 'selected' : ''}>Completed</option>
                                 </select>
@@ -144,10 +144,10 @@ export default async function adminStudentProgrammeController(params = {}) {
                     <!-- Form Actions -->
                     <div class="flex items-center justify-end gap-3 pb-8">
                         <a href="/admin/students/${studentId}" data-link
-                            class="btn btn-secondary">
+                            class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white">
                             <i class="fas fa-times mr-1"></i> Cancel
                         </a>
-                        <button id="saveProgrammeBtn" class="btn btn-primary">
+                        <button id="saveProgrammeBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]">
                             <i class="fas fa-save mr-2"></i>${hasProgramme ? 'Save Changes' : 'Assign Programme'}
                         </button>
                     </div>
@@ -177,7 +177,7 @@ function renderCurrentProgrammeCard(programme) {
            </span>`;
 
     return `
-        <div class="card mb-6 border border-purple-200 bg-purple-50">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6 border border-purple-200 bg-purple-50">
             <h3 class="text-sm font-bold text-gray-700 mb-3">
                 <i class="fas fa-graduation-cap text-purple-500 mr-2"></i>Current Programme
             </h3>

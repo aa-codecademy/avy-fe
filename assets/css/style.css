@@ -231,3 +231,11 @@ body {
 .hover-text-brand:hover {
     color: var(--color-primary);
 }
+
+.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+}
+
+.data-table-min {
+    min-width: 42rem;
+}

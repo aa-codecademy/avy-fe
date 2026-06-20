@@ -37,7 +37,7 @@ export default async function jobApplicantsController(params = {}) {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <a href="/employer/jobs" data-link class="text-purple-600 hover:text-purple-800 mb-2 inline-block">
@@ -49,7 +49,7 @@ export default async function jobApplicantsController(params = {}) {
                         </h1>
                         <p class="text-gray-600">Review applicants for job <code class="px-2 py-1 bg-gray-100 rounded">${jobId || 'unknown'}</code></p>
                     </div>
-                    <div class="card text-center py-16">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center py-16">
                         <i class="fas fa-tools text-6xl text-gray-300 mb-4"></i>
                         <h3 class="text-2xl font-bold text-gray-600 mb-2">TODO: Applicants pipeline</h3>
                         <p class="text-gray-500">Implement applicant list, filters, status updates, and internal notes.</p>

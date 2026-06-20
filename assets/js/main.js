@@ -52,6 +52,7 @@ import resetPasswordController from './controllers/resetPasswordController.js';
 
 // Import services (make available globally)
 import authService from './services/authService.js';
+import { initAppBackToTop } from './views/appBackToTop.js';
 import { renderAppHeader } from './views/appHeader.js';
 
 // Make router globally available
@@ -70,6 +71,7 @@ async function initApp() {
 
     // Register routes
     registerRoutes();
+    initAppBackToTop();
 
     // Trigger the first navigation only after routes are registered.
     await router.navigate(window.location.pathname, false);
@@ -134,8 +136,12 @@ function registerRoutes() {
     router.addRoute('/admin/students/import', adminStudentImportController, true, ['admin']);
     router.addRoute('/admin/students/export', adminStudentExportController, true, ['admin']);
     router.addRoute('/admin/students/:id/edit', adminStudentEditController, true, ['admin']);
-    router.addRoute('/admin/students/:id/programme', adminStudentProgrammeController, true, ['admin']);
-    router.addRoute('/admin/students/:id/privacy-log', adminStudentPrivacyLogController, true, ['admin']);
+    router.addRoute('/admin/students/:id/programme', adminStudentProgrammeController, true, [
+        'admin',
+    ]);
+    router.addRoute('/admin/students/:id/privacy-log', adminStudentPrivacyLogController, true, [
+        'admin',
+    ]);
     router.addRoute('/admin/students/:id', adminStudentDetailController, true, ['admin']);
     router.addRoute('/admin/analytics', adminAnalyticsController, true, ['admin']);
     router.addRoute('/admin/events', adminEventsController, true, ['admin']);
@@ -165,7 +171,7 @@ function createPlaceholderController(title, description) {
         app.innerHTML = `
             ${renderAppHeader(user, window.location.pathname)}
 
-            <div class="container mx-auto px-4 py-20 text-center">
+            <div class="w-full max-w-[1200px] mx-auto px-4 py-20 text-center">
                 <div class="max-w-2xl mx-auto fade-in">
                     <div class="text-6xl mb-6">🚧</div>
                     <h1 class="text-4xl font-bold text-gray-800 mb-4">${title}</h1>
@@ -179,7 +185,7 @@ function createPlaceholderController(title, description) {
                             This feature is currently under development and will be available in a future version.
                         </p>
                     </div>
-                    <a href="/dashboard" data-link class="btn btn-primary mt-8">
+                    <a href="/dashboard" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] mt-8">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Back to Dashboard
                     </a>

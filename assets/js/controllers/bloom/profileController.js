@@ -21,7 +21,7 @@ export default async function profileController() {
         ${renderAppHeader(user, window.location.pathname)}
         
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -31,13 +31,13 @@ export default async function profileController() {
                         <p class="text-gray-600">Manage your professional profile</p>
                     </div>
                     
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
                                 <i class="fas fa-id-card mr-2"></i>
                                 Personal Information
                             </h2>
-                            <button id="editPersonalInfoBtn" class="btn btn-secondary text-sm">
+                            <button id="editPersonalInfoBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm">
                                 <i class="fas fa-edit mr-1"></i> Edit
                             </button>
                         </div>
@@ -47,7 +47,7 @@ export default async function profileController() {
                                 <img src="${user.avatar}" alt="${user.name}" class="w-24 h-24 rounded-full border-4 border-purple-200" />
                                 <div>
                                     <input type="file" id="photoUpload" class="hidden" accept="image/*" />
-                                    <label for="photoUpload" class="btn btn-secondary text-sm cursor-pointer">
+                                    <label for="photoUpload" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm cursor-pointer">
                                         <i class="fas fa-camera mr-1"></i> Change Photo
                                     </label>
                                     <p class="text-xs text-gray-500 mt-1">Optional</p>
@@ -55,53 +55,53 @@ export default async function profileController() {
                             </div>
                             
                             <div>
-                                <label class="form-label">Full Name *</label>
-                                <input type="text" id="name" class="form-input" value="${user.name}" />
+                                <label class="mb-2 block font-medium text-slate-700">Full Name *</label>
+                                <input type="text" id="name" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${user.name}" />
                             </div>
                             
                             <div>
-                                <label class="form-label">Educational Degree *</label>
-                                <input type="text" id="educationDegree" class="form-input" value="${user.educationDegree || ''}" />
+                                <label class="mb-2 block font-medium text-slate-700">Educational Degree *</label>
+                                <input type="text" id="educationDegree" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${user.educationDegree || ''}" />
                             </div>
                             
                             <div>
-                                <label class="form-label">Current Position *</label>
-                                <input type="text" id="currentPosition" class="form-input" value="${user.currentPosition || ''}" />
+                                <label class="mb-2 block font-medium text-slate-700">Current Position *</label>
+                                <input type="text" id="currentPosition" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${user.currentPosition || ''}" />
                             </div>
                             
                             <div>
-                                <label class="form-label">Email *</label>
-                                <input type="email" id="email" class="form-input" value="${user.email}" readonly />
+                                <label class="mb-2 block font-medium text-slate-700">Email *</label>
+                                <input type="email" id="email" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${user.email}" readonly />
                             </div>
                             
                             <div>
-                                <label class="form-label">Phone Number</label>
-                                <input type="tel" id="phone" class="form-input" value="${user.phone || ''}" />
+                                <label class="mb-2 block font-medium text-slate-700">Phone Number</label>
+                                <input type="tel" id="phone" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${user.phone || ''}" />
                             </div>
                             
                             <div>
-                                <label class="form-label">Date of Birth *</label>
-                                <input type="date" id="dateOfBirth" class="form-input" value="${user.dateOfBirth || ''}" />
+                                <label class="mb-2 block font-medium text-slate-700">Date of Birth *</label>
+                                <input type="date" id="dateOfBirth" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${user.dateOfBirth || ''}" />
                             </div>
                             
                             <div>
-                                <label class="form-label">Citizenship</label>
-                                <input type="text" id="citizenship" class="form-input" value="${user.citizenship || ''}" />
+                                <label class="mb-2 block font-medium text-slate-700">Citizenship</label>
+                                <input type="text" id="citizenship" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${user.citizenship || ''}" />
                             </div>
                             
                             <div>
-                                <label class="form-label">LinkedIn Profile</label>
-                                <input type="url" id="linkedIn" class="form-input" value="${user.linkedIn || ''}" placeholder="https://linkedin.com/in/yourprofile" />
+                                <label class="mb-2 block font-medium text-slate-700">LinkedIn Profile</label>
+                                <input type="url" id="linkedIn" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${user.linkedIn || ''}" placeholder="https://linkedin.com/in/yourprofile" />
                             </div>
                             
                             <div>
-                                <label class="form-label">Portfolio Link</label>
-                                <input type="url" id="portfolio" class="form-input" value="${user.portfolio || ''}" placeholder="https://yourportfolio.com" />
+                                <label class="mb-2 block font-medium text-slate-700">Portfolio Link</label>
+                                <input type="url" id="portfolio" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${user.portfolio || ''}" placeholder="https://yourportfolio.com" />
                             </div>
                             
                             <div>
-                                <label class="form-label">Profile Visibility</label>
-                                <select id="profileVisibility" class="form-input">
+                                <label class="mb-2 block font-medium text-slate-700">Profile Visibility</label>
+                                <select id="profileVisibility" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                     <option value="public" ${user.profileVisibility === 'public' ? 'selected' : ''}>Public</option>
                                     <option value="private" ${user.profileVisibility === 'private' ? 'selected' : ''}>Private (Companies need approval)</option>
                                 </select>
@@ -110,13 +110,13 @@ export default async function profileController() {
                         
                 <div class="mt-6 flex justify-between items-center flex-wrap gap-3">
                     <div>
-                        <button id="savePersonalInfoBtn" class="btn btn-primary">
+                        <button id="savePersonalInfoBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]">
                             <i class="fas fa-save mr-2"></i> Save Personal Information
                         </button>
                     </div>
 
                     <div>
-                        <button id="togglePasswordFormBtn" class="btn btn-secondary">
+                        <button id="togglePasswordFormBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white">
                             <i class="fas fa-lock mr-2"></i> Change Password
                         </button>
                     </div>
@@ -125,22 +125,22 @@ export default async function profileController() {
                 <div id="changePasswordSection" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
                     <div class="grid md:grid-cols-2 gap-4">
                         <div class="md:col-span-2">
-                            <label class="form-label">Current Password *</label>
-                            <input type="password" id="currentPassword" class="form-input" />
+                            <label class="mb-2 block font-medium text-slate-700">Current Password *</label>
+                            <input type="password" id="currentPassword" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" />
                         </div>
 
                         <div>
-                            <label class="form-label">New Password *</label>
-                            <input type="password" id="newPassword" class="form-input" />
+                            <label class="mb-2 block font-medium text-slate-700">New Password *</label>
+                            <input type="password" id="newPassword" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" />
                         </div>
 
                         <div>
-                            <label class="form-label">Confirm New Password *</label>
-                            <input type="password" id="confirmNewPassword" class="form-input" />
+                            <label class="mb-2 block font-medium text-slate-700">Confirm New Password *</label>
+                            <input type="password" id="confirmNewPassword" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" />
                         </div>
                     </div>
 
-                    <button id="savePasswordBtn" class="btn btn-primary mt-4">
+                    <button id="savePasswordBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] mt-4">
                         <i class="fas fa-check mr-2"></i> Update Password
                     </button>
                     <p id="passwordMessage" class="hidden mt-3 text-sm font-medium" aria-live="polite"></p>
@@ -148,13 +148,13 @@ export default async function profileController() {
                         
                     </div>
                     
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
                                 <i class="fas fa-briefcase mr-2"></i>
                                 Work Experience / Volunteering
                             </h2>
-                            <button id="addWorkExpBtn" class="btn btn-secondary text-sm">
+                            <button id="addWorkExpBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm">
                                 <i class="fas fa-plus mr-1"></i> Add
                             </button>
                         </div>
@@ -164,13 +164,13 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
                                 <i class="fas fa-graduation-cap mr-2"></i>
                                 Education *
                             </h2>
-                            <button id="addEducationBtn" class="btn btn-secondary text-sm">
+                            <button id="addEducationBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm">
                                 <i class="fas fa-plus mr-1"></i> Add
                             </button>
                         </div>
@@ -180,13 +180,13 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
                                 <i class="fas fa-school mr-2"></i>
                                 Avenga Academy Attendance *
                             </h2>
-                            <button id="addAcademyBtn" class="btn btn-secondary text-sm">
+                            <button id="addAcademyBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm">
                                 <i class="fas fa-plus mr-1"></i> Add
                             </button>
                         </div>
@@ -196,7 +196,7 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
                                 <i class="fas fa-code mr-2"></i>
@@ -206,8 +206,8 @@ export default async function profileController() {
                         
                         <div class="mb-4">
                             <div class="flex gap-2 mb-3">
-                                <input type="text" id="skillInput" class="form-input" placeholder="Add a skill..." />
-                                <button id="addSkillBtn" class="btn btn-secondary">
+                                <input type="text" id="skillInput" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="Add a skill..." />
+                                <button id="addSkillBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
@@ -218,13 +218,13 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">
                                 <i class="fas fa-language mr-2"></i>
                                 Language Knowledge
                             </h2>
-                            <button id="addLanguageBtn" class="btn btn-secondary text-sm">
+                            <button id="addLanguageBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm">
                                 <i class="fas fa-plus mr-1"></i> Add
                             </button>
                         </div>
@@ -234,13 +234,13 @@ export default async function profileController() {
                         </div>
                     </div>
                     
-                    <div class="card bg-purple-50 border-2 border-purple-200">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-purple-50 border-2 border-purple-200">
                         <div class="text-center">
                             <p class="text-purple-900 font-semibold mb-4">
                                 <i class="fas fa-info-circle mr-2"></i>
                                 Fields marked with * are required and visible to employers
                             </p>
-                            <button id="saveCVBtn" class="btn btn-primary text-lg px-8">
+                            <button id="saveCVBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] text-lg px-8">
                                 <i class="fas fa-save mr-2"></i> Save Complete CV
                             </button>
                         </div>

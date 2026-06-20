@@ -88,7 +88,7 @@ export default async function adminAuditLogController() {
                     </form>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <table class="w-full data-table-min">
                             <thead class="bg-gray-100 border-b-2 border-gray-300">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Timestamp</th>

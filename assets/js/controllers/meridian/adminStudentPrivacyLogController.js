@@ -3,12 +3,36 @@ import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
 const EVENT_CONFIG = {
-    view:    { label: 'Profile View',   icon: 'fa-eye',           badgeCls: 'bg-blue-100 text-blue-800 border border-blue-200'     },
-    export:  { label: 'Data Export',    icon: 'fa-file-download', badgeCls: 'bg-purple-100 text-purple-800 border border-purple-200' },
-    request: { label: 'Access Request', icon: 'fa-hand-paper',    badgeCls: 'bg-amber-100 text-amber-800 border border-amber-200'   },
-    grant:   { label: 'Access Granted', icon: 'fa-check-circle',  badgeCls: 'bg-green-100 text-green-800 border border-green-200'   },
-    deny:    { label: 'Access Denied',  icon: 'fa-times-circle',  badgeCls: 'bg-red-100 text-red-800 border border-red-200'         },
-    revoke:  { label: 'Access Revoked', icon: 'fa-ban',           badgeCls: 'bg-orange-100 text-orange-800 border border-orange-200' },
+    view: {
+        label: 'Profile View',
+        icon: 'fa-eye',
+        badgeCls: 'bg-blue-100 text-blue-800 border border-blue-200',
+    },
+    export: {
+        label: 'Data Export',
+        icon: 'fa-file-download',
+        badgeCls: 'bg-purple-100 text-purple-800 border border-purple-200',
+    },
+    request: {
+        label: 'Access Request',
+        icon: 'fa-hand-paper',
+        badgeCls: 'bg-amber-100 text-amber-800 border border-amber-200',
+    },
+    grant: {
+        label: 'Access Granted',
+        icon: 'fa-check-circle',
+        badgeCls: 'bg-green-100 text-green-800 border border-green-200',
+    },
+    deny: {
+        label: 'Access Denied',
+        icon: 'fa-times-circle',
+        badgeCls: 'bg-red-100 text-red-800 border border-red-200',
+    },
+    revoke: {
+        label: 'Access Revoked',
+        icon: 'fa-ban',
+        badgeCls: 'bg-orange-100 text-orange-800 border border-orange-200',
+    },
 };
 
 // Module-level reference so filter callbacks can access the full dataset after initial load
@@ -42,7 +66,7 @@ export default async function adminStudentPrivacyLogController(params = {}) {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
 
                     <div class="mb-6">
@@ -62,10 +86,7 @@ export default async function adminStudentPrivacyLogController(params = {}) {
                                 <span class="font-semibold text-gray-700">${student.name}</span>
                             </p>
                         </div>
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold
-                            ${isPrivate
-                                ? 'bg-gray-100 text-gray-700 border border-gray-200'
-                                : 'bg-green-100 text-green-700 border border-green-200'}">
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold ${ isPrivate ? 'bg-gray-100 text-gray-700 border border-gray-200' : 'bg-green-100 text-green-700 border border-green-200' }">
                             <i class="fas ${isPrivate ? 'fa-lock' : 'fa-globe'} mr-1.5"></i>
                             ${isPrivate ? 'Private Profile' : 'Public Profile'}
                         </span>
@@ -74,7 +95,7 @@ export default async function adminStudentPrivacyLogController(params = {}) {
                     ${renderStudentMiniCard(student)}
                     ${renderSummaryStats(stats)}
 
-                    <div class="card mt-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mt-6">
                         <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
                             <h2 class="text-base font-bold text-gray-800">
                                 <i class="fas fa-list-alt text-purple-500 mr-2"></i>Access Events
@@ -106,10 +127,10 @@ export default async function adminStudentPrivacyLogController(params = {}) {
 
 function computeStats(logs) {
     return {
-        total:           logs.length,
-        views:           logs.filter(l => l.type === 'view').length,
-        requests:        logs.filter(l => l.type === 'request').length,
-        uniqueEmployers: new Set(logs.map(l => l.employerId).filter(Boolean)).size,
+        total: logs.length,
+        views: logs.filter((l) => l.type === 'view').length,
+        requests: logs.filter((l) => l.type === 'request').length,
+        uniqueEmployers: new Set(logs.map((l) => l.employerId).filter(Boolean)).size,
     };
 }
 
@@ -118,14 +139,18 @@ function computeStats(logs) {
 function renderStudentMiniCard(student) {
     const accountStatus = student.accountStatus || 'active';
     const statusCfg = {
-        active:      { cls: 'bg-green-100 text-green-700',   icon: 'fa-check-circle',  label: 'Active'      },
-        suspended:   { cls: 'bg-orange-100 text-orange-700', icon: 'fa-pause-circle',  label: 'Suspended'   },
-        deactivated: { cls: 'bg-red-100 text-red-700',       icon: 'fa-ban',           label: 'Deactivated' },
+        active: { cls: 'bg-green-100 text-green-700', icon: 'fa-check-circle', label: 'Active' },
+        suspended: {
+            cls: 'bg-orange-100 text-orange-700',
+            icon: 'fa-pause-circle',
+            label: 'Suspended',
+        },
+        deactivated: { cls: 'bg-red-100 text-red-700', icon: 'fa-ban', label: 'Deactivated' },
     };
     const sc = statusCfg[accountStatus] || statusCfg.active;
 
     return `
-        <div class="card flex flex-wrap items-center gap-4 mb-6">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] flex flex-wrap items-center gap-4 mb-6">
             <img src="${student.avatar}" alt="${student.name}"
                  class="w-14 h-14 rounded-full border-2 border-purple-200 flex-shrink-0" />
             <div class="flex-1 min-w-0">
@@ -141,21 +166,53 @@ function renderStudentMiniCard(student) {
 
 function renderSummaryStats(stats) {
     const items = [
-        { icon: 'fa-history',    label: 'Total Events',     value: stats.total,           color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
-        { icon: 'fa-eye',        label: 'Profile Views',    value: stats.views,           color: 'text-blue-600',   bg: 'bg-blue-50',   border: 'border-blue-100'   },
-        { icon: 'fa-building',   label: 'Unique Employers', value: stats.uniqueEmployers, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
-        { icon: 'fa-hand-paper', label: 'Access Requests',  value: stats.requests,        color: 'text-amber-600',  bg: 'bg-amber-50',  border: 'border-amber-100'  },
+        {
+            icon: 'fa-history',
+            label: 'Total Events',
+            value: stats.total,
+            color: 'text-purple-600',
+            bg: 'bg-purple-50',
+            border: 'border-purple-100',
+        },
+        {
+            icon: 'fa-eye',
+            label: 'Profile Views',
+            value: stats.views,
+            color: 'text-blue-600',
+            bg: 'bg-blue-50',
+            border: 'border-blue-100',
+        },
+        {
+            icon: 'fa-building',
+            label: 'Unique Employers',
+            value: stats.uniqueEmployers,
+            color: 'text-indigo-600',
+            bg: 'bg-indigo-50',
+            border: 'border-indigo-100',
+        },
+        {
+            icon: 'fa-hand-paper',
+            label: 'Access Requests',
+            value: stats.requests,
+            color: 'text-amber-600',
+            bg: 'bg-amber-50',
+            border: 'border-amber-100',
+        },
     ];
 
     return `
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            ${items.map(item => `
-                <div class="card ${item.bg} border ${item.border} text-center py-5">
+            ${items
+                .map(
+                    (item) => `
+                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] ${item.bg} border ${item.border} text-center py-5">
                     <i class="fas ${item.icon} ${item.color} text-xl mb-2 block"></i>
                     <p class="text-3xl font-bold ${item.color}">${item.value}</p>
                     <p class="text-xs text-gray-500 mt-1">${item.label}</p>
                 </div>
-            `).join('')}
+            `
+                )
+                .join('')}
         </div>
     `;
 }
@@ -164,18 +221,18 @@ function renderFilterBar() {
     return `
         <div class="flex flex-wrap gap-3 items-end">
             <div class="flex-1 min-w-48">
-                <label class="form-label text-xs mb-1">Search</label>
+                <label class="mb-2 block font-medium text-slate-700 text-xs mb-1">Search</label>
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
                     <input id="logSearch" type="text"
                         placeholder="Employer name or company..."
-                        class="form-input pl-9"
+                        class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] pl-9"
                         style="padding-top: 0.5rem; padding-bottom: 0.5rem; font-size: 0.875rem;" />
                 </div>
             </div>
             <div>
-                <label class="form-label text-xs mb-1">Event type</label>
-                <select id="logTypeFilter" class="form-input"
+                <label class="mb-2 block font-medium text-slate-700 text-xs mb-1">Event type</label>
+                <select id="logTypeFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                     style="padding-top: 0.5rem; padding-bottom: 0.5rem; font-size: 0.875rem;">
                     <option value="">All types</option>
                     <option value="view">Profile View</option>
@@ -187,8 +244,8 @@ function renderFilterBar() {
                 </select>
             </div>
             <div>
-                <label class="form-label text-xs mb-1">Period</label>
-                <select id="logPeriodFilter" class="form-input"
+                <label class="mb-2 block font-medium text-slate-700 text-xs mb-1">Period</label>
+                <select id="logPeriodFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                     style="padding-top: 0.5rem; padding-bottom: 0.5rem; font-size: 0.875rem;">
                     <option value="">All time</option>
                     <option value="week">Last 7 days</option>
@@ -215,7 +272,7 @@ function renderLogTable(logs, isFiltered) {
 
     return `
         <div class="overflow-x-auto rounded-xl border border-gray-100">
-            <table class="w-full text-sm">
+            <table class="w-full text-sm data-table-min">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200">
                         <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Timestamp</th>
@@ -237,7 +294,11 @@ function renderLogTable(logs, isFiltered) {
 function renderLogRow(log, index) {
     const cfg = EVENT_CONFIG[log.type] || EVENT_CONFIG.view;
     const ts = new Date(log.timestamp);
-    const dateStr = ts.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const dateStr = ts.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    });
     const timeStr = ts.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
     const employerCell = log.employerName
@@ -265,9 +326,11 @@ function renderLogRow(log, index) {
             <td class="px-4 py-3 align-top">${companyCell}</td>
             <td class="px-4 py-3 align-top">
                 <p class="text-gray-500 text-sm leading-relaxed">${log.details || '—'}</p>
-                ${log.ipAddress
-                    ? `<p class="text-gray-300 text-xs mt-1 font-mono">${log.ipAddress}</p>`
-                    : ''}
+                ${
+                    log.ipAddress
+                        ? `<p class="text-gray-300 text-xs mt-1 font-mono">${log.ipAddress}</p>`
+                        : ''
+                }
             </td>
         </tr>
     `;
@@ -316,31 +379,32 @@ function renderPrivacyNote() {
 
 function applyFilters() {
     const search = (document.getElementById('logSearch')?.value || '').toLowerCase().trim();
-    const type   =  document.getElementById('logTypeFilter')?.value  || '';
-    const period =  document.getElementById('logPeriodFilter')?.value || '';
+    const type = document.getElementById('logTypeFilter')?.value || '';
+    const period = document.getElementById('logPeriodFilter')?.value || '';
 
     let filtered = [..._allLogs];
 
     if (type) {
-        filtered = filtered.filter(l => l.type === type);
+        filtered = filtered.filter((l) => l.type === type);
     }
 
     if (search) {
-        filtered = filtered.filter(l =>
-            l.employerName.toLowerCase().includes(search) ||
-            l.companyName.toLowerCase().includes(search)  ||
-            l.details.toLowerCase().includes(search)
+        filtered = filtered.filter(
+            (l) =>
+                l.employerName.toLowerCase().includes(search) ||
+                l.companyName.toLowerCase().includes(search) ||
+                l.details.toLowerCase().includes(search)
         );
     }
 
     if (period) {
         const cutoffs = {
-            week:    Date.now() -  7 * 86400000,
-            month:   Date.now() - 30 * 86400000,
+            week: Date.now() - 7 * 86400000,
+            month: Date.now() - 30 * 86400000,
             quarter: Date.now() - 90 * 86400000,
         };
         if (cutoffs[period]) {
-            filtered = filtered.filter(l => new Date(l.timestamp).getTime() >= cutoffs[period]);
+            filtered = filtered.filter((l) => new Date(l.timestamp).getTime() >= cutoffs[period]);
         }
     }
 
@@ -349,12 +413,12 @@ function applyFilters() {
 }
 
 function setupFilters() {
-    document.getElementById('logSearch')?.addEventListener('input',  applyFilters);
-    document.getElementById('logTypeFilter')?.addEventListener('change',  applyFilters);
+    document.getElementById('logSearch')?.addEventListener('input', applyFilters);
+    document.getElementById('logTypeFilter')?.addEventListener('change', applyFilters);
     document.getElementById('logPeriodFilter')?.addEventListener('change', applyFilters);
     document.getElementById('clearFiltersBtn')?.addEventListener('click', () => {
-        document.getElementById('logSearch').value       = '';
-        document.getElementById('logTypeFilter').value   = '';
+        document.getElementById('logSearch').value = '';
+        document.getElementById('logTypeFilter').value = '';
         document.getElementById('logPeriodFilter').value = '';
         applyFilters();
     });

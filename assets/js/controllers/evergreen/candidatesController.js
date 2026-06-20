@@ -23,7 +23,7 @@ export default async function candidatesController() {
         ${renderAppHeader(user, window.location.pathname)}
 
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -35,48 +35,48 @@ export default async function candidatesController() {
 
                     <div class="grid lg:grid-cols-4 gap-6">
                         <div class="lg:col-span-1">
-                            <div class="card sticky top-4">
+                            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] sticky top-4">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4">
                                     <i class="fas fa-filter mr-2"></i>
                                     Filters
                                 </h3>
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="form-label">Search</label>
-                                        <input type="text" id="searchCandidates" class="form-input" placeholder="Name, position, degree..." />
+                                        <label class="mb-2 block font-medium text-slate-700">Search</label>
+                                        <input type="text" id="searchCandidates" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="Name, position, degree..." />
                                     </div>
                                     <div>
-                                        <label class="form-label">Type</label>
-                                        <select id="filterType" class="form-input">
+                                        <label class="mb-2 block font-medium text-slate-700">Type</label>
+                                        <select id="filterType" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                             <option value="">All</option>
                                             <option value="student">Students Only</option>
                                             <option value="alumni">Alumni Only</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="form-label">Skills</label>
-                                        <input type="text" id="filterSkills" class="form-input" placeholder="React, Node.js..." />
+                                        <label class="mb-2 block font-medium text-slate-700">Skills</label>
+                                        <input type="text" id="filterSkills" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="React, Node.js..." />
                                     </div>
                                     <div>
-                                        <label class="form-label">Profile Visibility</label>
-                                        <select id="filterVisibility" class="form-input">
+                                        <label class="mb-2 block font-medium text-slate-700">Profile Visibility</label>
+                                        <select id="filterVisibility" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                             <option value="">All</option>
                                             <option value="public">Public Only</option>
                                         </select>
                                     </div>
-                                    <button id="applyFiltersBtn" class="btn btn-primary w-full">Apply Filters</button>
-                                    <button id="clearFiltersBtn" class="btn btn-secondary w-full">Clear</button>
+                                    <button id="applyFiltersBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">Apply Filters</button>
+                                    <button id="clearFiltersBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full">Clear</button>
                                 </div>
                             </div>
                         </div>
 
                         <div class="lg:col-span-3">
-                            <div class="card mb-6">
+                            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                                 <div class="flex justify-between items-center">
                                     <h3 class="text-xl font-bold text-gray-800">
                                         <span id="candidateCount">${allCandidates.length}</span> Candidates Found
                                     </h3>
-                                    <select id="sortCandidates" class="form-input w-48">
+                                    <select id="sortCandidates" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-48">
                                         <option value="name">Sort by Name</option>
                                         <option value="students">Students First</option>
                                         <option value="alumni">Alumni First</option>
@@ -90,7 +90,7 @@ export default async function candidatesController() {
 
                             ${renderContactModal()}
 
-                            <div id="noCandidates" class="card text-center py-12 hidden">
+                            <div id="noCandidates" class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center py-12 hidden">
                                 <i class="fas fa-user-slash text-gray-300 text-6xl mb-4"></i>
                                 <p class="text-gray-500 text-lg">No candidates match your filters</p>
                             </div>
@@ -113,7 +113,7 @@ function renderCandidatesGrid(candidates) {
         .map((candidate) => {
             const isPrivate = candidate.profileVisibility === 'private';
             return `
-            <div class="card hover:shadow-xl transition duration-300">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-xl transition duration-300">
                 <div class="flex gap-6">
                     <div class="flex-shrink-0">
                         <img src="${candidate.avatar}" alt="${candidate.name}" class="w-24 h-24 rounded-full border-4 border-purple-200" />
@@ -133,12 +133,12 @@ function renderCandidatesGrid(candidates) {
                             </span>
                         </div>
                         <div class="flex gap-3">
-                            <button class="btn btn-primary text-sm" onclick="viewCandidateProfile('${candidate.id}')">View Profile</button>
-                            <button class="btn btn-secondary text-sm" onclick="saveCandidate('${candidate.id}')">Save</button>
+                            <button class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] text-sm" onclick="viewCandidateProfile('${candidate.id}')">View Profile</button>
+                            <button class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm" onclick="saveCandidate('${candidate.id}')">Save</button>
                             ${
                                 isPrivate
-                                    ? `<button class="btn btn-secondary text-sm" onclick="requestAccess('${candidate.id}')">Request Access</button>`
-                                    : `<button class="btn btn-secondary text-sm" onclick="contactCandidate('${candidate.id}')">Contact</button>`
+                                    ? `<button class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm" onclick="requestAccess('${candidate.id}')">Request Access</button>`
+                                    : `<button class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm" onclick="contactCandidate('${candidate.id}')">Contact</button>`
                             }
                         </div>
                     </div>
@@ -151,28 +151,28 @@ function renderCandidatesGrid(candidates) {
 
 function renderContactModal() {
     return `
-        <div id="contactModal" class="modal-overlay hidden">
-            <div class="modal-content">
+        <div id="contactModal" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 hidden">
+            <div class="max-h-[90vh] w-[90%] overflow-y-auto rounded-xl bg-white p-8 max-w-[500px]">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800 mb-1">Contact Candidate</h2>
                         <p class="text-gray-600 text-sm" id="contactModalCandidateName"></p>
                     </div>
-                    <button type="button" id="closeContactModal" class="btn btn-secondary btn-sm">&times;</button>
+                    <button type="button" id="closeContactModal" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white px-3 py-2 text-sm">&times;</button>
                 </div>
                 <form id="contactForm" class="space-y-4">
                     <input type="hidden" id="contactCandidateId" />
                     <div>
-                        <label class="form-label" for="contactSubject">Subject</label>
-                        <input type="text" id="contactSubject" class="form-input" required placeholder="Subject" />
+                        <label class="mb-2 block font-medium text-slate-700" for="contactSubject">Subject</label>
+                        <input type="text" id="contactSubject" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" required placeholder="Subject" />
                     </div>
                     <div>
-                        <label class="form-label" for="contactMessage">Message</label>
-                        <textarea id="contactMessage" class="form-input h-32" required placeholder="Write your message..."></textarea>
+                        <label class="mb-2 block font-medium text-slate-700" for="contactMessage">Message</label>
+                        <textarea id="contactMessage" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] h-32" required placeholder="Write your message..."></textarea>
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button type="button" id="cancelContactBtn" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Send message</button>
+                        <button type="button" id="cancelContactBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white">Cancel</button>
+                        <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]">Send message</button>
                     </div>
                 </form>
             </div>

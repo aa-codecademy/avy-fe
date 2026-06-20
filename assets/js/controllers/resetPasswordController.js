@@ -20,13 +20,13 @@ export default async function resetPasswordController() {
     const email = localStorage.getItem('avy_reset_email');
 
     app.innerHTML = `
-        <div class="min-h-screen flex items-center justify-center px-4 bg-brand-gradient">
-            <div class="card max-w-md w-full fade-in">
+        <div class="min-h-screen flex items-center justify-center px-4 bg-[linear-gradient(135deg,#dd2c00_0%,#b02400_100%)]">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] max-w-md w-full fade-in">
 
                 <!-- Logo -->
                 <div class="text-center mb-8">
                     <a href="/" data-link class="inline-block">
-                        <h1 class="text-4xl font-bold mb-2 text-brand-primary hover:opacity-90">
+                        <h1 class="text-4xl font-bold mb-2 text-[#dd2c00] hover:opacity-90">
                             Avy
                         </h1>
                     </a>
@@ -41,7 +41,7 @@ export default async function resetPasswordController() {
                     <p class="text-sm text-gray-600 mb-6">
                         This reset link is no longer valid. Please request a new one.
                     </p>
-                    <a href="/login" data-link class="btn btn-secondary w-full">
+                    <a href="/login" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Back to Sign In
                     </a>
@@ -51,30 +51,30 @@ export default async function resetPasswordController() {
                 <div id="resetFormSection">
                     ${email ? `<p class="text-sm text-gray-500 text-center mb-6">Resetting password for <strong>${email}</strong></p>` : ''}
                     <form id="resetPasswordForm" class="space-y-5">
-                        <div class="form-group">
-                            <label for="newPassword" class="form-label">New Password</label>
+                        <div class="mb-6">
+                            <label for="newPassword" class="mb-2 block font-medium text-slate-700">New Password</label>
                             <input
                                 type="password"
                                 id="newPassword"
-                                class="form-input"
+                                class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                                 placeholder="Choose a strong password"
                                 minlength="6"
                                 required
                             />
                         </div>
-                        <div class="form-group">
-                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <div class="mb-6">
+                            <label for="confirmPassword" class="mb-2 block font-medium text-slate-700">Confirm New Password</label>
                             <input
                                 type="password"
                                 id="confirmPassword"
-                                class="form-input"
+                                class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                                 placeholder="Repeat your new password"
                                 minlength="6"
                                 required
                             />
                         </div>
                         <div id="resetErrorMessage" class="hidden text-red-600 text-sm p-3 bg-red-50 rounded"></div>
-                        <button type="submit" class="btn btn-primary w-full">
+                        <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">
                             <span id="resetBtnText">Set New Password</span>
                             <i id="resetSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
                         </button>
@@ -88,7 +88,7 @@ export default async function resetPasswordController() {
                     <p class="text-sm text-gray-600 mb-6">
                         Your password has been reset successfully. You can now sign in.
                     </p>
-                    <a href="/login" data-link class="btn btn-primary w-full">
+                    <a href="/login" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">
                         <i class="fas fa-sign-in-alt mr-2"></i>
                         Go to Sign In
                     </a>

@@ -13,12 +13,12 @@ export default async function loginController() {
     }
     
     app.innerHTML = `
-        <div class="min-h-screen flex items-center justify-center px-4 bg-brand-gradient">
-            <div class="card max-w-md w-full fade-in">
+        <div class="min-h-screen flex items-center justify-center px-4 bg-[linear-gradient(135deg,#dd2c00_0%,#b02400_100%)]">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] max-w-md w-full fade-in">
                 <!-- Logo -->
                 <div class="text-center mb-8">
                     <a href="/" data-link class="inline-block">
-                        <h1 class="text-4xl font-bold mb-2 text-brand-primary hover:opacity-90">
+                        <h1 class="text-4xl font-bold mb-2 text-[#dd2c00] hover:opacity-90">
                             Avy
                         </h1>
                     </a>
@@ -27,25 +27,25 @@ export default async function loginController() {
                 
                 <!-- Login Form -->
                 <form id="loginForm" class="space-y-6">
-                    <div class="form-group">
-                        <label for="email" class="form-label">Email</label>
+                    <div class="mb-6">
+                        <label for="email" class="mb-2 block font-medium text-slate-700">Email</label>
                         <input 
                             type="email" 
                             id="email" 
                             name="email" 
-                            class="form-input"
+                            class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                             placeholder="your.email@example.com"
                             required
                         />
                     </div>
                     
-                    <div class="form-group">
-                        <label for="password" class="form-label">Password</label>
+                    <div class="mb-6">
+                        <label for="password" class="mb-2 block font-medium text-slate-700">Password</label>
                         <input 
                             type="password" 
                             id="password" 
                             name="password" 
-                            class="form-input"
+                            class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                             placeholder="Enter your password"
                             required
                         />
@@ -53,7 +53,7 @@ export default async function loginController() {
                     
                     <div id="errorMessage" class="hidden text-red-600 text-sm p-3 bg-red-50 rounded"></div>
                     
-                    <button type="submit" class="btn btn-primary w-full">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">
                         <span id="loginButtonText">Sign In</span>
                         <i id="loginSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
                     </button>
@@ -79,13 +79,13 @@ export default async function loginController() {
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-500">
                         Don't have an account? 
-                        <button id="showRegisterBtn" class="text-brand-primary hover:underline font-semibold">
+                        <button id="showRegisterBtn" class="text-[#dd2c00] hover:underline font-semibold">
                             Register here
                         </button>
                     </p>
                     <p class="mt-2 text-sm text-gray-500">
                         Forgot your password?
-                        <button id="showForgotPasswordBtn" class="text-brand-primary hover:underline font-semibold">
+                        <button id="showForgotPasswordBtn" class="text-[#dd2c00] hover:underline font-semibold">
                             Reset here
                         </button>
                     </p>
@@ -167,9 +167,9 @@ export default async function loginController() {
  */
 function showForgotPasswordModal() {
     const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
+    modal.className = 'fixed inset-0 z-[1000] flex items-center justify-center bg-black/50';
     modal.innerHTML = `
-        <div class="modal-content">
+        <div class="max-h-[90vh] w-[90%] overflow-y-auto rounded-xl bg-white p-8 max-w-[500px]">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Reset Password</h2>
                 <button id="closeForgotModalBtn" class="text-gray-500 hover:text-gray-700">
@@ -183,18 +183,18 @@ function showForgotPasswordModal() {
                     Enter the email address linked to your account and we'll send you a reset link.
                 </p>
                 <form id="forgotPasswordForm" class="space-y-4">
-                    <div class="form-group">
-                        <label for="forgotEmail" class="form-label">Email</label>
+                    <div class="mb-6">
+                        <label for="forgotEmail" class="mb-2 block font-medium text-slate-700">Email</label>
                         <input
                             type="email"
                             id="forgotEmail"
-                            class="form-input"
+                            class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                             placeholder="your.email@example.com"
                             required
                         />
                     </div>
                     <div id="forgotErrorMessage" class="hidden text-red-600 text-sm p-3 bg-red-50 rounded"></div>
-                    <button type="submit" class="btn btn-primary w-full">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">
                         <span id="forgotBtnText">Send Reset Link</span>
                         <i id="forgotSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
                     </button>
@@ -210,7 +210,7 @@ function showForgotPasswordModal() {
                 <p class="text-sm text-gray-600 mb-6">
                     If <strong id="forgotEmailConfirm"></strong> is registered, a reset link has been sent.
                 </p>
-                <button id="goToResetPageBtn" class="btn btn-primary w-full mb-4">
+                <button id="goToResetPageBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full mb-4">
                     <i class="fas fa-key mr-2"></i>
                     Open Reset Page
                 </button>
@@ -275,9 +275,9 @@ function showForgotPasswordModal() {
 
 function showRegisterModal() {
     const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
+    modal.className = 'fixed inset-0 z-[1000] flex items-center justify-center bg-black/50';
     modal.innerHTML = `
-        <div class="modal-content">
+        <div class="max-h-[90vh] w-[90%] overflow-y-auto rounded-xl bg-white p-8 max-w-[500px]">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Create Account</h2>
                 <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
@@ -286,31 +286,31 @@ function showRegisterModal() {
             </div>
             
             <form id="registerForm" class="space-y-4">
-                <div class="form-group">
-                    <label for="regName" class="form-label">Full Name</label>
+                <div class="mb-6">
+                    <label for="regName" class="mb-2 block font-medium text-slate-700">Full Name</label>
                     <input 
                         type="text" 
                         id="regName" 
-                        class="form-input"
+                        class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                         placeholder="John Doe"
                         required
                     />
                 </div>
                 
-                <div class="form-group">
-                    <label for="regEmail" class="form-label">Email</label>
+                <div class="mb-6">
+                    <label for="regEmail" class="mb-2 block font-medium text-slate-700">Email</label>
                     <input 
                         type="email" 
                         id="regEmail" 
-                        class="form-input"
+                        class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                         placeholder="john.doe@example.com"
                         required
                     />
                 </div>
                 
-                <div class="form-group">
-                    <label for="regRole" class="form-label">I am a...</label>
-                    <select id="regRole" class="form-input" required>
+                <div class="mb-6">
+                    <label for="regRole" class="mb-2 block font-medium text-slate-700">I am a...</label>
+                    <select id="regRole" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" required>
                         <option value="student">Student</option>
                         <option value="alumni">Alumni</option>
                         <option value="employer">Employer</option>
@@ -319,17 +319,17 @@ function showRegisterModal() {
 
                 <div id="employerFields" class="hidden space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <p class="text-sm font-semibold text-gray-700">Company account</p>
-                    <div class="form-group">
-                        <label for="regCompanyName" class="form-label">Company name *</label>
-                        <input type="text" id="regCompanyName" class="form-input" placeholder="Your company name" />
+                    <div class="mb-6">
+                        <label for="regCompanyName" class="mb-2 block font-medium text-slate-700">Company name *</label>
+                        <input type="text" id="regCompanyName" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="Your company name" />
                     </div>
-                    <div class="form-group">
-                        <label for="regCompanyIndustry" class="form-label">Industry *</label>
-                        <input type="text" id="regCompanyIndustry" class="form-input" placeholder="e.g. Software Development" />
+                    <div class="mb-6">
+                        <label for="regCompanyIndustry" class="mb-2 block font-medium text-slate-700">Industry *</label>
+                        <input type="text" id="regCompanyIndustry" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="e.g. Software Development" />
                     </div>
-                    <div class="form-group">
-                        <label for="regCompanySize" class="form-label">Company size *</label>
-                        <select id="regCompanySize" class="form-input">
+                    <div class="mb-6">
+                        <label for="regCompanySize" class="mb-2 block font-medium text-slate-700">Company size *</label>
+                        <select id="regCompanySize" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                             <option value="">Select size...</option>
                             <option value="1-10">1–10 employees</option>
                             <option value="11-50">11–50 employees</option>
@@ -340,12 +340,12 @@ function showRegisterModal() {
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="regPassword" class="form-label">Password</label>
+                <div class="mb-6">
+                    <label for="regPassword" class="mb-2 block font-medium text-slate-700">Password</label>
                     <input 
                         type="password" 
                         id="regPassword" 
-                        class="form-input"
+                        class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                         placeholder="Choose a strong password"
                         required
                     />
@@ -353,7 +353,7 @@ function showRegisterModal() {
                 
                 <div id="regErrorMessage" class="hidden text-red-600 text-sm p-3 bg-red-50 rounded"></div>
                 
-                <button type="submit" class="btn btn-primary w-full">
+                <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">
                     Create Account
                 </button>
             </form>

@@ -29,7 +29,7 @@ export default async function adminCompaniesController() {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -40,29 +40,29 @@ export default async function adminCompaniesController() {
                     </div>
 
                     <div class="grid gap-4 md:grid-cols-3 mb-6">
-                        <div class="card p-5 bg-white shadow-sm">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] p-5 bg-white shadow-sm">
                             <p class="text-sm text-gray-500">Pending requests</p>
                             <h3 class="text-3xl font-bold text-gray-800">${pendingCount}</h3>
                         </div>
-                        <div class="card p-5 bg-white shadow-sm">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] p-5 bg-white shadow-sm">
                             <p class="text-sm text-gray-500">Approved applications</p>
                             <h3 class="text-3xl font-bold text-gray-800">${approvedCount}</h3>
                         </div>
-                        <div class="card p-5 bg-white shadow-sm">
+                        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] p-5 bg-white shadow-sm">
                             <p class="text-sm text-gray-500">Active companies</p>
                             <h3 class="text-3xl font-bold text-gray-800">${companyCount}</h3>
                         </div>
                     </div>
 
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end">
                             <div>
-                                <label for="applicationSearch" class="form-label">Search</label>
-                                <input id="applicationSearch" type="text" class="form-input w-full" placeholder="Search company, rep, email or industry..." />
+                                <label for="applicationSearch" class="mb-2 block font-medium text-slate-700">Search</label>
+                                <input id="applicationSearch" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full" placeholder="Search company, rep, email or industry..." />
                             </div>
                             <div>
-                                <label for="statusFilter" class="form-label">Status</label>
-                                <select id="statusFilter" class="form-input w-full">
+                                <label for="statusFilter" class="mb-2 block font-medium text-slate-700">Status</label>
+                                <select id="statusFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                     <option value="">All statuses</option>
                                     <option value="pending" selected>Pending</option>
                                     <option value="approved">Approved</option>
@@ -70,19 +70,19 @@ export default async function adminCompaniesController() {
                                 </select>
                             </div>
                             <div>
-                                <label for="industryFilter" class="form-label">Industry</label>
-                                <select id="industryFilter" class="form-input w-full">
+                                <label for="industryFilter" class="mb-2 block font-medium text-slate-700">Industry</label>
+                                <select id="industryFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full">
                                     <option value="">All industries</option>
                                     ${industries.map((industry) => `<option value="${industry}">${industry}</option>`).join('')}
                                 </select>
                             </div>
                             <div class="flex items-center">
-                                <button id="resetFilters" class="btn btn-secondary w-full">Reset filters</button>
+                                <button id="resetFilters" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full">Reset filters</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card overflow-x-auto">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] overflow-x-auto">
                         <table class="w-full min-w-max">
                             <thead class="bg-gray-100 border-b-2 border-gray-300">
                                 <tr>
@@ -109,7 +109,7 @@ export default async function adminCompaniesController() {
                         <p class="text-gray-600">Mark companies as featured to promote them on the student dashboard.</p>
                     </div>
 
-                    <div class="card overflow-x-auto">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] overflow-x-auto">
                         <table class="w-full min-w-max">
                             <thead class="bg-gray-100 border-b-2 border-gray-300">
                                 <tr>
@@ -181,8 +181,8 @@ function renderApplicationRows(applications) {
                     <td class="px-4 py-4 align-top space-y-2">
                         ${
                             app.status === 'pending'
-                                ? `<button data-action="approve" data-id="${app.id}" class="btn btn-primary w-full">Approve</button>
-                               <button data-action="reject" data-id="${app.id}" class="btn btn-secondary w-full">Reject</button>`
+                                ? `<button data-action="approve" data-id="${app.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">Approve</button>
+                               <button data-action="reject" data-id="${app.id}" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full">Reject</button>`
                                 : `<div class="text-sm text-gray-600">No actions available</div>`
                         }
                     </td>
@@ -309,7 +309,7 @@ function renderCompanyManagementRows(companies) {
                                 data-toggle-featured 
                                 data-company-id="${company.id}" 
                                 data-featured="${isFeatured}"
-                                class="btn ${isFeatured ? 'btn-secondary' : 'btn-primary'} text-sm"
+                                class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${isFeatured ? 'border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white' : 'bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]'} text-sm"
                                 ${isSuspended ? 'disabled' : ''}
                             >
                                 <i class="fas fa-star mr-1"></i>
@@ -319,7 +319,7 @@ function renderCompanyManagementRows(companies) {
                                 data-toggle-suspend 
                                 data-company-id="${company.id}" 
                                 data-suspended="${isSuspended}"
-                                class="btn ${isSuspended ? 'btn-success' : 'btn-danger'} text-sm"
+                                class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${isSuspended ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700'} text-sm"
                             >
                                 <i class="fas ${isSuspended ? 'fa-play' : 'fa-ban'} mr-1"></i>
                                 ${isSuspended ? 'Unsuspend' : 'Suspend'}

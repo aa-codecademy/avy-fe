@@ -28,7 +28,7 @@ export default async function adminStudentEditController(params = {}) {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
 
                     <div class="mb-6">
@@ -53,46 +53,46 @@ export default async function adminStudentEditController(params = {}) {
                     </div>
 
                     <!-- Account Details -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <h2 class="text-xl font-bold text-gray-800 mb-5">
                             <i class="fas fa-id-card text-purple-500 mr-2"></i>Account Details
                         </h2>
                         <div class="grid md:grid-cols-2 gap-5">
                             <div>
-                                <label class="form-label">Full Name <span class="text-red-500">*</span></label>
-                                <input type="text" id="editName" class="form-input" value="${student.name}" placeholder="Full name" />
+                                <label class="mb-2 block font-medium text-slate-700">Full Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="editName" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${student.name}" placeholder="Full name" />
                             </div>
                             <div>
-                                <label class="form-label">Email Address <span class="text-red-500">*</span></label>
-                                <input type="email" id="editEmail" class="form-input" value="${student.email}" placeholder="email@example.com" />
+                                <label class="mb-2 block font-medium text-slate-700">Email Address <span class="text-red-500">*</span></label>
+                                <input type="email" id="editEmail" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${student.email}" placeholder="email@example.com" />
                             </div>
                             <div>
-                                <label class="form-label">Phone Number</label>
-                                <input type="tel" id="editPhone" class="form-input" value="${student.phone || ''}" placeholder="+389 70 000 000" />
+                                <label class="mb-2 block font-medium text-slate-700">Phone Number</label>
+                                <input type="tel" id="editPhone" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${student.phone || ''}" placeholder="+389 70 000 000" />
                             </div>
                             <div>
-                                <label class="form-label">Date of Birth</label>
-                                <input type="date" id="editDateOfBirth" class="form-input" value="${student.dateOfBirth || ''}" />
+                                <label class="mb-2 block font-medium text-slate-700">Date of Birth</label>
+                                <input type="date" id="editDateOfBirth" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${student.dateOfBirth || ''}" />
                             </div>
                             <div>
-                                <label class="form-label">Citizenship</label>
-                                <input type="text" id="editCitizenship" class="form-input" value="${student.citizenship || ''}" placeholder="e.g. Macedonian" />
+                                <label class="mb-2 block font-medium text-slate-700">Citizenship</label>
+                                <input type="text" id="editCitizenship" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${student.citizenship || ''}" placeholder="e.g. Macedonian" />
                             </div>
                             <div>
-                                <label class="form-label">Current Position</label>
-                                <input type="text" id="editCurrentPosition" class="form-input" value="${student.currentPosition || ''}" placeholder="e.g. Frontend Developer Intern" />
+                                <label class="mb-2 block font-medium text-slate-700">Current Position</label>
+                                <input type="text" id="editCurrentPosition" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${student.currentPosition || ''}" placeholder="e.g. Frontend Developer Intern" />
                             </div>
                             <div>
-                                <label class="form-label">LinkedIn Profile</label>
-                                <input type="url" id="editLinkedIn" class="form-input" value="${student.linkedIn || ''}" placeholder="https://linkedin.com/in/..." />
+                                <label class="mb-2 block font-medium text-slate-700">LinkedIn Profile</label>
+                                <input type="url" id="editLinkedIn" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${student.linkedIn || ''}" placeholder="https://linkedin.com/in/..." />
                             </div>
                             <div>
-                                <label class="form-label">Portfolio / Website</label>
-                                <input type="url" id="editPortfolio" class="form-input" value="${student.portfolio || ''}" placeholder="https://yourportfolio.com" />
+                                <label class="mb-2 block font-medium text-slate-700">Portfolio / Website</label>
+                                <input type="url" id="editPortfolio" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" value="${student.portfolio || ''}" placeholder="https://yourportfolio.com" />
                             </div>
                             <div>
-                                <label class="form-label">Profile Visibility</label>
-                                <select id="editProfileVisibility" class="form-input">
+                                <label class="mb-2 block font-medium text-slate-700">Profile Visibility</label>
+                                <select id="editProfileVisibility" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                     <option value="public" ${student.profileVisibility === 'public' ? 'selected' : ''}>Public</option>
                                     <option value="private" ${student.profileVisibility === 'private' ? 'selected' : ''}>Private</option>
                                 </select>
@@ -101,12 +101,12 @@ export default async function adminStudentEditController(params = {}) {
                     </div>
 
                     <!-- Programme Assignment -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <div class="flex justify-between items-start mb-5">
                             <h2 class="text-xl font-bold text-gray-800">
                                 <i class="fas fa-university text-purple-500 mr-2"></i>Programme Assignment
                             </h2>
-                            <button id="addAcademyEntryBtn" class="btn btn-secondary text-sm">
+                            <button id="addAcademyEntryBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm">
                                 <i class="fas fa-plus mr-1"></i> Add Entry
                             </button>
                         </div>
@@ -116,13 +116,13 @@ export default async function adminStudentEditController(params = {}) {
                     </div>
 
                     <!-- Skills -->
-                    <div class="card mb-6">
+                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
                         <h2 class="text-xl font-bold text-gray-800 mb-5">
                             <i class="fas fa-code text-purple-500 mr-2"></i>Skills
                         </h2>
                         <div class="flex gap-2 mb-3">
-                            <input type="text" id="editSkillInput" class="form-input" placeholder="Type a skill and press Enter..." />
-                            <button id="addEditSkillBtn" class="btn btn-secondary whitespace-nowrap">
+                            <input type="text" id="editSkillInput" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="Type a skill and press Enter..." />
+                            <button id="addEditSkillBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white whitespace-nowrap">
                                 <i class="fas fa-plus mr-1"></i> Add
                             </button>
                         </div>
@@ -134,10 +134,10 @@ export default async function adminStudentEditController(params = {}) {
                     <!-- Form Actions -->
                     <div class="flex items-center justify-end gap-3 pb-8">
                         <a href="/admin/students/${studentId}" data-link
-                            class="btn btn-secondary">
+                            class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white">
                             <i class="fas fa-times mr-1"></i> Cancel
                         </a>
-                        <button id="saveChangesBtn" class="btn btn-primary">
+                        <button id="saveChangesBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]">
                             <i class="fas fa-save mr-2"></i> Save Changes
                         </button>
                     </div>
@@ -183,27 +183,27 @@ function renderAcademyEntriesList(entries) {
             </div>
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
-                    <label class="form-label">Academy Name</label>
-                    <input type="text" class="form-input academy-name" data-idx="${idx}"
+                    <label class="mb-2 block font-medium text-slate-700">Academy Name</label>
+                    <input type="text" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] academy-name" data-idx="${idx}"
                         value="${a.academyName}" placeholder="e.g. Avenga Academy" />
                 </div>
                 <div>
-                    <label class="form-label">Track</label>
-                    <select class="form-input academy-track" data-idx="${idx}">
+                    <label class="mb-2 block font-medium text-slate-700">Track</label>
+                    <select class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] academy-track" data-idx="${idx}">
                         ${tracks.map(t => `<option value="${t}" ${a.track === t ? 'selected' : ''}>${t}</option>`).join('')}
                     </select>
                 </div>
                 <div>
-                    <label class="form-label">Start Date</label>
-                    <input type="date" class="form-input academy-start" data-idx="${idx}" value="${a.startDate}" />
+                    <label class="mb-2 block font-medium text-slate-700">Start Date</label>
+                    <input type="date" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] academy-start" data-idx="${idx}" value="${a.startDate}" />
                 </div>
                 <div>
-                    <label class="form-label">End Date</label>
-                    <input type="date" class="form-input academy-end" data-idx="${idx}" value="${a.endDate}" />
+                    <label class="mb-2 block font-medium text-slate-700">End Date</label>
+                    <input type="date" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] academy-end" data-idx="${idx}" value="${a.endDate}" />
                 </div>
                 <div>
-                    <label class="form-label">Status</label>
-                    <select class="form-input academy-status" data-idx="${idx}">
+                    <label class="mb-2 block font-medium text-slate-700">Status</label>
+                    <select class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] academy-status" data-idx="${idx}">
                         <option value="active" ${a.status === 'active' ? 'selected' : ''}>Active</option>
                         <option value="completed" ${a.status === 'completed' ? 'selected' : ''}>Completed</option>
                     </select>

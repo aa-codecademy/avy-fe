@@ -27,7 +27,7 @@ export default async function adminStudentDetailController(params = {}) {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="container mx-auto px-4">
+            <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
 
                     <div class="mb-6">
@@ -102,9 +102,9 @@ function setupAdminActions(studentId, currentProfileStatus, currentAccountStatus
 
 function showRejectModal(studentId) {
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
+    overlay.className = 'fixed inset-0 z-[1000] flex items-center justify-center bg-black/50';
     overlay.innerHTML = `
-        <div class="modal-content">
+        <div class="max-h-[90vh] w-[90%] overflow-y-auto rounded-xl bg-white p-8 max-w-[500px]">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold text-gray-800">
                     <i class="fas fa-times-circle text-red-500 mr-2"></i>Reject Profile
@@ -117,12 +117,12 @@ function showRejectModal(studentId) {
                 Provide a reason for rejecting this profile submission. This note is for internal admin records only.
             </p>
             <div class="mb-5">
-                <label class="form-label text-sm">
+                <label class="mb-2 block font-medium text-slate-700 text-sm">
                     Rejection Reason <span class="text-red-500">*</span>
                 </label>
                 <textarea
                     id="rejectionNote"
-                    class="form-input"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                     rows="4"
                     placeholder="e.g. Profile information is incomplete or links are unverifiable..."
                 ></textarea>
@@ -131,7 +131,7 @@ function showRejectModal(studentId) {
                 </p>
             </div>
             <div class="flex gap-3">
-                <button id="cancelRejectBtn" class="flex-1 btn btn-secondary" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
+                <button id="cancelRejectBtn" class="flex-1 inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
                     Cancel
                 </button>
                 <button id="confirmRejectBtn"
@@ -245,7 +245,7 @@ function renderAccountStatusCard(student) {
     }
 
     return `
-        <div class="card ${cfg.wrapperCls}">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] ${cfg.wrapperCls}">
             <h3 class="text-sm font-bold text-gray-700 mb-3">
                 <i class="fas fa-user-lock text-purple-500 mr-2"></i>Account Status
             </h3>
@@ -263,9 +263,9 @@ function renderAccountStatusCard(student) {
 
 function showSuspendModal(studentId) {
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
+    overlay.className = 'fixed inset-0 z-[1000] flex items-center justify-center bg-black/50';
     overlay.innerHTML = `
-        <div class="modal-content">
+        <div class="max-h-[90vh] w-[90%] overflow-y-auto rounded-xl bg-white p-8 max-w-[500px]">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold text-gray-800">
                     <i class="fas fa-pause-circle text-orange-500 mr-2"></i>Suspend Account
@@ -278,12 +278,12 @@ function showSuspendModal(studentId) {
                 The student will lose access to the platform while suspended. You can reactivate the account at any time.
             </p>
             <div class="mb-5">
-                <label class="form-label text-sm">
+                <label class="mb-2 block font-medium text-slate-700 text-sm">
                     Suspension Reason <span class="text-red-500">*</span>
                 </label>
                 <textarea
                     id="suspendNote"
-                    class="form-input"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                     rows="4"
                     placeholder="e.g. Policy violation, pending investigation..."
                 ></textarea>
@@ -292,7 +292,7 @@ function showSuspendModal(studentId) {
                 </p>
             </div>
             <div class="flex gap-3">
-                <button id="cancelSuspendBtn" class="flex-1 btn btn-secondary" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
+                <button id="cancelSuspendBtn" class="flex-1 inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
                     Cancel
                 </button>
                 <button id="confirmSuspendBtn"
@@ -332,9 +332,9 @@ function showSuspendModal(studentId) {
 
 function showDeactivateModal(studentId) {
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
+    overlay.className = 'fixed inset-0 z-[1000] flex items-center justify-center bg-black/50';
     overlay.innerHTML = `
-        <div class="modal-content">
+        <div class="max-h-[90vh] w-[90%] overflow-y-auto rounded-xl bg-white p-8 max-w-[500px]">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold text-gray-800">
                     <i class="fas fa-ban text-red-500 mr-2"></i>Permanently Deactivate Account
@@ -352,12 +352,12 @@ function showDeactivateModal(studentId) {
                 </p>
             </div>
             <div class="mb-5">
-                <label class="form-label text-sm">
+                <label class="mb-2 block font-medium text-slate-700 text-sm">
                     Deactivation Reason <span class="text-red-500">*</span>
                 </label>
                 <textarea
                     id="deactivateNote"
-                    class="form-input"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
                     rows="4"
                     placeholder="e.g. Repeated violations of platform terms of service..."
                 ></textarea>
@@ -366,7 +366,7 @@ function showDeactivateModal(studentId) {
                 </p>
             </div>
             <div class="flex gap-3">
-                <button id="cancelDeactivateBtn" class="flex-1 btn btn-secondary" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
+                <button id="cancelDeactivateBtn" class="flex-1 inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
                     Cancel
                 </button>
                 <button id="confirmDeactivateBtn"
@@ -407,9 +407,9 @@ function showDeactivateModal(studentId) {
 function showReactivateModal(studentId, currentAccountStatus) {
     const fromSuspended = currentAccountStatus === 'suspended';
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
+    overlay.className = 'fixed inset-0 z-[1000] flex items-center justify-center bg-black/50';
     overlay.innerHTML = `
-        <div class="modal-content">
+        <div class="max-h-[90vh] w-[90%] overflow-y-auto rounded-xl bg-white p-8 max-w-[500px]">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold text-gray-800">
                     <i class="fas fa-check-circle text-green-500 mr-2"></i>Reactivate Account
@@ -424,7 +424,7 @@ function showReactivateModal(studentId, currentAccountStatus) {
                     : 'This account was permanently deactivated. Reactivating it will restore the student\'s full access to the platform.'}
             </p>
             <div class="flex gap-3">
-                <button id="cancelReactivateBtn" class="flex-1 btn btn-secondary" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
+                <button id="cancelReactivateBtn" class="flex-1 inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
                     Cancel
                 </button>
                 <button id="confirmReactivateBtn"
@@ -544,7 +544,7 @@ function renderAdminActionsCard(student, cv) {
     }
 
     return `
-        <div class="card ${cfg.wrapperCls}">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] ${cfg.wrapperCls}">
             <h3 class="text-sm font-bold text-gray-700 mb-3">
                 <i class="fas fa-shield-alt text-purple-500 mr-2"></i>Admin Review
             </h3>
@@ -605,7 +605,7 @@ function renderHeroCard(student, cv) {
     });
 
     return `
-        <div class="card text-center">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center">
             <img src="${student.avatar}" alt="${student.name}"
                  class="w-24 h-24 rounded-full border-4 border-purple-200 mx-auto mb-4" />
             <h2 class="text-xl font-bold text-gray-800 mb-1">${student.name}</h2>
@@ -636,7 +636,7 @@ function renderCompletenessCard(completeness) {
     const missing = completeness.checks.filter(c => !c.done);
 
     return `
-        <div class="card">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
             <h3 class="text-sm font-bold text-gray-700 mb-3">
                 <i class="fas fa-chart-pie text-purple-500 mr-2"></i>Profile Completeness
             </h3>
@@ -711,7 +711,7 @@ function renderContactCard(student) {
 
     if (rows.length === 0) {
         return `
-            <div class="card">
+            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
                 <h3 class="text-sm font-bold text-gray-700 mb-3">
                     <i class="fas fa-address-card text-purple-500 mr-2"></i>Contact & Personal
                 </h3>
@@ -721,7 +721,7 @@ function renderContactCard(student) {
     }
 
     return `
-        <div class="card">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
             <h3 class="text-sm font-bold text-gray-700 mb-4">
                 <i class="fas fa-address-card text-purple-500 mr-2"></i>Contact & Personal
             </h3>
@@ -767,7 +767,7 @@ function renderAcademyCard(cv) {
         `).join('');
 
     return `
-        <div class="card">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
             <h3 class="text-base font-bold text-gray-800 mb-4">
                 <i class="fas fa-university text-purple-500 mr-2"></i>Academy Attendance
             </h3>
@@ -797,7 +797,7 @@ function renderEducationCard(cv) {
         `).join('');
 
     return `
-        <div class="card">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
             <h3 class="text-base font-bold text-gray-800 mb-4">
                 <i class="fas fa-graduation-cap text-blue-500 mr-2"></i>Education
             </h3>
@@ -827,7 +827,7 @@ function renderWorkExperienceCard(cv) {
         `).join('');
 
     return `
-        <div class="card">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
             <h3 class="text-base font-bold text-gray-800 mb-4">
                 <i class="fas fa-briefcase text-green-500 mr-2"></i>Work Experience
             </h3>
@@ -850,7 +850,7 @@ function renderSkillsCard(cv) {
            </div>`;
 
     return `
-        <div class="card">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
             <h3 class="text-base font-bold text-gray-800 mb-4">
                 <i class="fas fa-code text-purple-500 mr-2"></i>Skills
                 ${skills.length > 0 ? `<span class="ml-2 text-sm font-normal text-gray-400">(${skills.length})</span>` : ''}
@@ -881,7 +881,7 @@ function renderLanguagesCard(cv) {
            </div>`;
 
     return `
-        <div class="card">
+        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
             <h3 class="text-base font-bold text-gray-800 mb-4">
                 <i class="fas fa-language text-indigo-500 mr-2"></i>Languages
             </h3>

@@ -118,7 +118,7 @@ export default async function adminUsersController() {
                             </div>
 
                             <div class="overflow-x-auto">
-                                <table class="w-full">
+                                <table class="w-full data-table-min">
                                     <thead class="bg-gray-100 border-b-2 border-gray-300">
                                         <tr>
                                             <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">Admin</th>
@@ -135,8 +135,8 @@ export default async function adminUsersController() {
                             </div>
                         </div>
 
-                        <div class="grid xl:grid-cols-5 gap-8">
-                            <div class="xl:col-span-2 card">
+                        <div class="grid xl:grid-cols-5 gap-8 items-start">
+                            <div class="xl:col-span-2 min-w-0 card">
                                 <h2 class="text-2xl font-bold text-gray-800 mb-4">
                                     <i class="fas fa-key text-purple-600 mr-2"></i>
                                     Role Distribution
@@ -146,8 +146,8 @@ export default async function adminUsersController() {
                                 </div>
                             </div>
 
-                            <div class="xl:col-span-3 card">
-                                <div class="flex items-center justify-between mb-4">
+                            <div class="xl:col-span-3 min-w-0 card">
+                                <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                     <div>
                                         <h2 class="text-2xl font-bold text-gray-800">
                                             <i class="fas fa-table text-indigo-600 mr-2"></i>
@@ -158,7 +158,7 @@ export default async function adminUsersController() {
                                     <span class="text-sm text-gray-500">Total users: ${state.analytics.totalUsers}</span>
                                 </div>
                                 <div class="overflow-x-auto">
-                                    <table class="w-full">
+                                    <table class="w-full data-table-min">
                                         <thead class="bg-gray-100 border-b-2 border-gray-300">
                                             <tr>
                                                 <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">User</th>
@@ -330,12 +330,12 @@ function renderRoleCards(roles) {
         .map(
             (role) => `
             <div class="border border-gray-200 rounded-xl p-4">
-                <div class="flex items-start justify-between gap-4 mb-2">
+                <div class="mb-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <h3 class="font-bold text-gray-800">${role.name}</h3>
                         <p class="text-sm text-gray-500">${role.description}</p>
                     </div>
-                    <span class="inline-flex flex-none self-start whitespace-nowrap px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">${role.memberCount} assigned</span>
+                    <span class="inline-flex w-fit flex-none self-start whitespace-nowrap px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">${role.memberCount} assigned</span>
                 </div>
                 <p class="text-xs uppercase tracking-wide text-gray-400 mb-2">Permissions</p>
                 <p class="text-sm text-gray-600">${role.permissions.length} permissions enabled</p>
@@ -394,8 +394,8 @@ function renderAdminModal(state, roles) {
 
     return `
         <div class="modal-overlay px-4">
-            <div class="modal-content modal-content-wide">
-                <div class="flex items-center justify-between mb-6">
+            <div class="modal-content modal-content-wide w-full">
+                <div class="mb-6 flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800">${modalTitle}</h2>
                         <p class="text-gray-500 text-sm mt-1">Update admin details and access settings.</p>
@@ -442,9 +442,9 @@ function renderAdminModal(state, roles) {
                         </div>
                     </div>
 
-                    <div class="flex justify-end gap-3">
-                        <button type="button" data-close-admin-modal class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary">${submitLabel}</button>
+                    <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        <button type="button" data-close-admin-modal class="btn btn-secondary text-center">Cancel</button>
+                        <button type="submit" class="btn btn-primary text-center">${submitLabel}</button>
                     </div>
                 </form>
             </div>
