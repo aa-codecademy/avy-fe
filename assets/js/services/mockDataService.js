@@ -33,9 +33,34 @@ class MockDataService {
             Object.assign(this, data);
 
             this.hydrateOptionalMockData();
+            if (!this.messages) this.messages = this.generateMockMessages();
+            if (!this.notifications) this.notifications = this.generateMockNotifications();
+            if (!this.notificationPreferences)
+                this.notificationPreferences = this.generateMockNotificationPreferences();
         } else {
             this.initializeMockData();
             this.saveToStorage();
+        }
+
+        // Eagerly seed demo notifications for the currently logged-in user
+        // so the header badge shows immediately without visiting the notifications page first.
+        this._seedCurrentUserNotifications();
+    }
+
+    _seedCurrentUserNotifications() {
+        try {
+            const raw = localStorage.getItem('avy_user');
+            if (!raw) return;
+            const user = JSON.parse(raw);
+            if (!user?.id) return;
+            const hasNotifs = this.notifications.some((n) => n.userId === user.id);
+            if (!hasNotifs) {
+                const demo = this.generateDemoNotificationsForUser(user.id);
+                this.notifications.push(...demo);
+                this.saveToStorage();
+            }
+        } catch {
+            /* ignore */
         }
     }
 
@@ -55,6 +80,9 @@ class MockDataService {
         this.events = this.generateMockEvents();
         this.resourceObjects = this.generateMockResourceObjects();
         this.resources = this.generateMockResources();
+        this.messages = this.generateMockMessages();
+        this.notifications = this.generateMockNotifications();
+        this.notificationPreferences = this.generateMockNotificationPreferences();
         this.analytics = this.generateMockAnalytics();
         this.scheduledReports = this.generateMockScheduledReports();
         this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
@@ -81,6 +109,7 @@ class MockDataService {
                 resources: this.resources,
                 messages: this.messages,
                 notifications: this.notifications,
+                notificationPreferences: this.notificationPreferences,
                 analytics: this.analytics,
                 scheduledReports: this.scheduledReports,
                 scheduledReportDeliveries: this.scheduledReportDeliveries || [],
@@ -103,7 +132,8 @@ class MockDataService {
 
         if (!this.messages) this.messages = this.generateMockMessages();
         if (!this.notifications) this.notifications = this.generateMockNotifications();
-        if (!this.companyApplications) this.companyApplications = this.generateMockCompanyApplications();
+        if (!this.companyApplications)
+            this.companyApplications = this.generateMockCompanyApplications();
         if (!this.scheduledReports) this.scheduledReports = this.generateMockScheduledReports();
         if (!this.scheduledReportDeliveries)
             this.scheduledReportDeliveries = this.generateMockScheduledReportDeliveries();
@@ -136,7 +166,7 @@ class MockDataService {
                 portfolio: 'https://johndoe.dev',
                 educationDegree: 'Bachelor in Computer Science',
                 currentPosition: 'Frontend Developer Intern',
-                profileStatus: 'pending'
+                profileStatus: 'pending',
             }),
             new User({
                 id: '2',
@@ -162,7 +192,7 @@ class MockDataService {
                 email: 'admin@avy.com',
                 name: 'Admin User',
                 role: 'admin',
-                avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=ed8936&color=fff'
+                avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=ed8936&color=fff',
             }),
             new User({
                 id: '5',
@@ -178,7 +208,9 @@ class MockDataService {
                 profileVisibility: 'public',
                 createdAt: new Date(Date.now() - 240 * 24 * 60 * 60 * 1000).toISOString(),
                 profileStatus: 'approved',
-                profileStatusUpdatedAt: new Date(Date.now() - 200 * 24 * 60 * 60 * 1000).toISOString()
+                profileStatusUpdatedAt: new Date(
+                    Date.now() - 200 * 24 * 60 * 60 * 1000
+                ).toISOString(),
             }),
             new User({
                 id: '6',
@@ -194,10 +226,15 @@ class MockDataService {
                 profileVisibility: 'public',
                 createdAt: new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString(),
                 profileStatus: 'approved',
-                profileStatusUpdatedAt: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString(),
+                profileStatusUpdatedAt: new Date(
+                    Date.now() - 100 * 24 * 60 * 60 * 1000
+                ).toISOString(),
                 accountStatus: 'suspended',
-                accountStatusNote: 'Reported for sharing confidential employer contacts outside the platform. Under review.',
-                accountStatusUpdatedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
+                accountStatusNote:
+                    'Reported for sharing confidential employer contacts outside the platform. Under review.',
+                accountStatusUpdatedAt: new Date(
+                    Date.now() - 10 * 24 * 60 * 60 * 1000
+                ).toISOString(),
             }),
             new User({
                 id: '7',
@@ -213,11 +250,17 @@ class MockDataService {
                 profileVisibility: 'private',
                 createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
                 profileStatus: 'rejected',
-                profileStatusNote: 'LinkedIn and portfolio links appear broken or missing. Please resubmit with verified contact details.',
-                profileStatusUpdatedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+                profileStatusNote:
+                    'LinkedIn and portfolio links appear broken or missing. Please resubmit with verified contact details.',
+                profileStatusUpdatedAt: new Date(
+                    Date.now() - 60 * 24 * 60 * 60 * 1000
+                ).toISOString(),
                 accountStatus: 'deactivated',
-                accountStatusNote: 'Repeated violations of platform terms of service after prior suspension.',
-                accountStatusUpdatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                accountStatusNote:
+                    'Repeated violations of platform terms of service after prior suspension.',
+                accountStatusUpdatedAt: new Date(
+                    Date.now() - 5 * 24 * 60 * 60 * 1000
+                ).toISOString(),
             }),
             new User({
                 id: '8',
@@ -232,7 +275,7 @@ class MockDataService {
                 currentPosition: 'Data Analyst Intern',
                 profileVisibility: 'public',
                 createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-                profileStatus: 'pending'
+                profileStatus: 'pending',
             }),
             new User({
                 id: '9',
@@ -247,8 +290,8 @@ class MockDataService {
                 currentPosition: 'UX Designer Intern',
                 profileVisibility: 'public',
                 createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-                profileStatus: 'pending'
-            })
+                profileStatus: 'pending',
+            }),
         ];
     }
 
@@ -342,7 +385,7 @@ class MockDataService {
 
     async updateStudentProfile(userId, profileData) {
         await this.simulateDelay();
-        const user = this.users.find(u => u.id === userId);
+        const user = this.users.find((u) => u.id === userId);
         if (user) {
             Object.assign(user, profileData, { updatedAt: new Date().toISOString() });
             return user;
@@ -352,7 +395,7 @@ class MockDataService {
 
     async updateProfileStatus(userId, status, note = '') {
         await this.simulateDelay();
-        const user = this.users.find(u => u.id === userId);
+        const user = this.users.find((u) => u.id === userId);
         if (user) {
             user.profileStatus = status;
             user.profileStatusNote = note;
@@ -365,7 +408,7 @@ class MockDataService {
 
     async updateAccountStatus(userId, status, note = '') {
         await this.simulateDelay();
-        const user = this.users.find(u => u.id === userId);
+        const user = this.users.find((u) => u.id === userId);
         if (user) {
             user.accountStatus = status;
             user.accountStatusNote = note;
@@ -379,9 +422,11 @@ class MockDataService {
     async getStudentsWithProfiles() {
         await this.simulateDelay();
         return this.users
-            .filter(u => u.role === 'student')
-            .map(student => {
-                const cv = this.cvProfiles.find(c => c.userId === student.id) || new CVProfile({ userId: student.id });
+            .filter((u) => u.role === 'student')
+            .map((student) => {
+                const cv =
+                    this.cvProfiles.find((c) => c.userId === student.id) ||
+                    new CVProfile({ userId: student.id });
                 const attendance = cv.academyAttendance[0];
                 const education = cv.education[0];
                 return {
@@ -399,40 +444,44 @@ class MockDataService {
     async getStudentsForExport() {
         await this.simulateDelay();
         return this.users
-            .filter(u => u.role === 'student')
-            .map(student => {
-                const cv         = this.cvProfiles.find(c => c.userId === student.id) || new CVProfile({ userId: student.id });
+            .filter((u) => u.role === 'student')
+            .map((student) => {
+                const cv =
+                    this.cvProfiles.find((c) => c.userId === student.id) ||
+                    new CVProfile({ userId: student.id });
                 const attendance = cv.academyAttendance[0];
-                const education  = cv.education[0];
+                const education = cv.education[0];
                 return {
-                    name:                student.name,
-                    email:               student.email,
-                    phone:               student.phone              || '',
-                    dateOfBirth:         student.dateOfBirth        || '',
-                    citizenship:         student.citizenship        || '',
-                    accountStatus:       student.accountStatus      || 'active',
-                    profileStatus:       student.profileStatus      || 'pending',
-                    profileVisibility:   student.profileVisibility  || 'private',
-                    currentPosition:     student.currentPosition    || '',
-                    linkedIn:            student.linkedIn           || '',
-                    portfolio:           student.portfolio          || '',
-                    createdAt:           student.createdAt          || '',
-                    academyName:         attendance?.academyName    || '',
-                    academyTrack:        attendance?.track          || '',
-                    academyStartDate:    attendance?.startDate      || '',
-                    academyEndDate:      attendance?.endDate        || '',
-                    academyStatus:       attendance?.status         || '',
-                    educationDegree:     education
+                    name: student.name,
+                    email: student.email,
+                    phone: student.phone || '',
+                    dateOfBirth: student.dateOfBirth || '',
+                    citizenship: student.citizenship || '',
+                    accountStatus: student.accountStatus || 'active',
+                    profileStatus: student.profileStatus || 'pending',
+                    profileVisibility: student.profileVisibility || 'private',
+                    currentPosition: student.currentPosition || '',
+                    linkedIn: student.linkedIn || '',
+                    portfolio: student.portfolio || '',
+                    createdAt: student.createdAt || '',
+                    academyName: attendance?.academyName || '',
+                    academyTrack: attendance?.track || '',
+                    academyStartDate: attendance?.startDate || '',
+                    academyEndDate: attendance?.endDate || '',
+                    academyStatus: attendance?.status || '',
+                    educationDegree: education
                         ? `${education.degree} in ${education.fieldOfStudy}`
-                        : (student.educationDegree || ''),
-                    educationInstitution: education?.institution    || '',
-                    educationGrade:       education?.grade          || '',
-                    skills:              (cv.skills    || []).join(', '),
-                    languages:           (cv.languages || []).map(l => `${l.language} (${l.level})`).join(', '),
+                        : student.educationDegree || '',
+                    educationInstitution: education?.institution || '',
+                    educationGrade: education?.grade || '',
+                    skills: (cv.skills || []).join(', '),
+                    languages: (cv.languages || [])
+                        .map((l) => `${l.language} (${l.level})`)
+                        .join(', '),
                 };
             });
     }
-    
+
     /**
      * COMPANIES
      */
@@ -1327,6 +1376,16 @@ class MockDataService {
 
             return request;
         }
+    }
+    async updateApplicationNotes(id, notes) {
+        await this.simulateDelay();
+        const index = this.applications.findIndex((a) => a.id === id);
+        if (index !== -1) {
+            this.applications[index].notes = notes;
+            this.applications[index].updatedAt = new Date().toISOString();
+            this.saveToStorage();
+            return this.applications[index];
+        }
         return null;
     }
 
@@ -1406,8 +1465,8 @@ class MockDataService {
                 ],
                 languages: [
                     new Language({ language: 'English', level: 'C1' }),
-                    new Language({ language: 'Macedonian', level: 'C2' })
-                ]
+                    new Language({ language: 'Macedonian', level: 'C2' }),
+                ],
             }),
             new CVProfile({
                 userId: '5',
@@ -1418,8 +1477,8 @@ class MockDataService {
                         position: 'Backend Developer Intern',
                         startDate: '2024-09-01',
                         endDate: '',
-                        description: 'Building RESTful APIs with Python and Django.'
-                    })
+                        description: 'Building RESTful APIs with Python and Django.',
+                    }),
                 ],
                 education: [
                     new Education({
@@ -1429,8 +1488,8 @@ class MockDataService {
                         fieldOfStudy: 'Computer Science',
                         startDate: '2020-09-01',
                         endDate: '2024-06-30',
-                        grade: '9.1/10'
-                    })
+                        grade: '9.1/10',
+                    }),
                 ],
                 academyAttendance: [
                     new AcademyAttendance({
@@ -1439,14 +1498,14 @@ class MockDataService {
                         track: 'Backend Development',
                         startDate: '2024-03-01',
                         endDate: '2024-06-30',
-                        status: 'completed'
-                    })
+                        status: 'completed',
+                    }),
                 ],
                 skills: ['Python', 'Django', 'PostgreSQL', 'REST API', 'Git', 'Docker'],
                 languages: [
                     new Language({ language: 'English', level: 'B2' }),
-                    new Language({ language: 'Macedonian', level: 'C2' })
-                ]
+                    new Language({ language: 'Macedonian', level: 'C2' }),
+                ],
             }),
             new CVProfile({
                 userId: '6',
@@ -1459,8 +1518,8 @@ class MockDataService {
                         fieldOfStudy: 'Software Engineering',
                         startDate: '2021-09-01',
                         endDate: '',
-                        grade: ''
-                    })
+                        grade: '',
+                    }),
                 ],
                 academyAttendance: [
                     new AcademyAttendance({
@@ -1469,14 +1528,14 @@ class MockDataService {
                         track: 'QA Engineering',
                         startDate: '2024-09-01',
                         endDate: '2024-12-31',
-                        status: 'completed'
-                    })
+                        status: 'completed',
+                    }),
                 ],
                 skills: ['Selenium', 'Cypress', 'Manual Testing', 'JIRA', 'Postman', 'SQL'],
                 languages: [
                     new Language({ language: 'English', level: 'C1' }),
-                    new Language({ language: 'Macedonian', level: 'C2' })
-                ]
+                    new Language({ language: 'Macedonian', level: 'C2' }),
+                ],
             }),
             new CVProfile({
                 userId: '7',
@@ -1487,8 +1546,8 @@ class MockDataService {
                         position: 'Frontend Developer',
                         startDate: '2023-10-01',
                         endDate: '',
-                        description: 'Building UI components with Vue.js and TypeScript.'
-                    })
+                        description: 'Building UI components with Vue.js and TypeScript.',
+                    }),
                 ],
                 education: [
                     new Education({
@@ -1498,8 +1557,8 @@ class MockDataService {
                         fieldOfStudy: 'Human-Computer Interaction',
                         startDate: '2022-09-01',
                         endDate: '2024-06-30',
-                        grade: '9.8/10'
-                    })
+                        grade: '9.8/10',
+                    }),
                 ],
                 academyAttendance: [
                     new AcademyAttendance({
@@ -1508,15 +1567,15 @@ class MockDataService {
                         track: 'Frontend Development',
                         startDate: '2023-03-01',
                         endDate: '2023-06-30',
-                        status: 'completed'
-                    })
+                        status: 'completed',
+                    }),
                 ],
                 skills: ['Vue.js', 'TypeScript', 'JavaScript', 'Figma', 'CSS3', 'UX Research'],
                 languages: [
                     new Language({ language: 'English', level: 'C2' }),
                     new Language({ language: 'Macedonian', level: 'C2' }),
-                    new Language({ language: 'French', level: 'B1' })
-                ]
+                    new Language({ language: 'French', level: 'B1' }),
+                ],
             }),
             new CVProfile({
                 userId: '8',
@@ -1527,8 +1586,8 @@ class MockDataService {
                         position: 'Data Analyst Intern',
                         startDate: '2025-01-01',
                         endDate: '',
-                        description: 'Analyzing datasets and building Power BI dashboards.'
-                    })
+                        description: 'Analyzing datasets and building Power BI dashboards.',
+                    }),
                 ],
                 education: [
                     new Education({
@@ -1538,8 +1597,8 @@ class MockDataService {
                         fieldOfStudy: 'Mathematics',
                         startDate: '2019-09-01',
                         endDate: '2023-06-30',
-                        grade: '8.7/10'
-                    })
+                        grade: '8.7/10',
+                    }),
                 ],
                 academyAttendance: [
                     new AcademyAttendance({
@@ -1548,14 +1607,14 @@ class MockDataService {
                         track: 'Data Analytics',
                         startDate: '2024-09-01',
                         endDate: '2024-12-31',
-                        status: 'completed'
-                    })
+                        status: 'completed',
+                    }),
                 ],
                 skills: ['Python', 'Pandas', 'SQL', 'Power BI', 'Excel', 'Statistics'],
                 languages: [
                     new Language({ language: 'English', level: 'B2' }),
-                    new Language({ language: 'Macedonian', level: 'C2' })
-                ]
+                    new Language({ language: 'Macedonian', level: 'C2' }),
+                ],
             }),
             new CVProfile({
                 userId: '9',
@@ -1568,8 +1627,8 @@ class MockDataService {
                         fieldOfStudy: 'Graphic Design',
                         startDate: '2021-09-01',
                         endDate: '',
-                        grade: ''
-                    })
+                        grade: '',
+                    }),
                 ],
                 academyAttendance: [
                     new AcademyAttendance({
@@ -1578,15 +1637,22 @@ class MockDataService {
                         track: 'UX/UI Design',
                         startDate: '2025-01-01',
                         endDate: '2025-04-30',
-                        status: 'completed'
-                    })
+                        status: 'completed',
+                    }),
                 ],
-                skills: ['Figma', 'Adobe XD', 'Illustrator', 'User Research', 'Prototyping', 'CSS3'],
+                skills: [
+                    'Figma',
+                    'Adobe XD',
+                    'Illustrator',
+                    'User Research',
+                    'Prototyping',
+                    'CSS3',
+                ],
                 languages: [
                     new Language({ language: 'English', level: 'C1' }),
-                    new Language({ language: 'Macedonian', level: 'C2' })
-                ]
-            })
+                    new Language({ language: 'Macedonian', level: 'C2' }),
+                ],
+            }),
         ];
     }
 
@@ -1594,44 +1660,267 @@ class MockDataService {
         await this.simulateDelay();
         return this.cvProfiles.find((cv) => cv.userId === userId) || new CVProfile({ userId });
     }
-    
+
     /**
      * PROFILE ACCESS LOGS
      */
     generateMockAccessLogs() {
         const ago = (days, hours = 0, minutes = 0) =>
-            new Date(Date.now() - (days * 86400 + hours * 3600 + minutes * 60) * 1000).toISOString();
+            new Date(
+                Date.now() - (days * 86400 + hours * 3600 + minutes * 60) * 1000
+            ).toISOString();
 
         return [
             // ── Emily Davis (id:'5') — public, approved — most active ──────────
-            new ProfileAccessLog({ id: 'al01', studentId: '5', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'view',    details: 'Viewed full profile including skills and work experience.',                     ipAddress: '82.117.214.5',   timestamp: ago(0,  2) }),
-            new ProfileAccessLog({ id: 'al02', studentId: '5', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'view',    details: 'Viewed profile overview and academy track.',                                    ipAddress: '91.224.15.77',   timestamp: ago(1,  9) }),
-            new ProfileAccessLog({ id: 'al03', studentId: '5', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'export',  details: 'Downloaded CV and profile data for internal recruitment records.',               ipAddress: '82.117.214.5',   timestamp: ago(3, 14) }),
-            new ProfileAccessLog({ id: 'al04', studentId: '5', employerId: 'e5', employerName: 'Sara Petrovic',  companyId: 'c3', companyName: 'DataWorks Analytics',   type: 'view',    details: 'Viewed profile including education and skills sections.',                       ipAddress: '176.53.8.101',   timestamp: ago(7,  10) }),
-            new ProfileAccessLog({ id: 'al05', studentId: '5', employerId: 'e6', employerName: 'Nikola Spasov',  companyId: 'c4', companyName: 'CloudTech Systems',     type: 'view',    details: 'Viewed profile overview during talent search.',                                 ipAddress: '195.202.42.11',  timestamp: ago(15,  8) }),
-            new ProfileAccessLog({ id: 'al06', studentId: '5', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'export',  details: 'Exported student data for shortlisting pipeline.',                              ipAddress: '91.224.15.77',   timestamp: ago(20, 11) }),
-            new ProfileAccessLog({ id: 'al07', studentId: '5', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'view',    details: 'Reviewed profile following job application submission.',                        ipAddress: '82.117.214.5',   timestamp: ago(45,  9) }),
+            new ProfileAccessLog({
+                id: 'al01',
+                studentId: '5',
+                employerId: 'e3',
+                employerName: 'Alice Johnson',
+                companyId: 'c1',
+                companyName: 'TechCorp Solutions',
+                type: 'view',
+                details: 'Viewed full profile including skills and work experience.',
+                ipAddress: '82.117.214.5',
+                timestamp: ago(0, 2),
+            }),
+            new ProfileAccessLog({
+                id: 'al02',
+                studentId: '5',
+                employerId: 'e4',
+                employerName: 'Mark Wilson',
+                companyId: 'c2',
+                companyName: 'InnoSoft',
+                type: 'view',
+                details: 'Viewed profile overview and academy track.',
+                ipAddress: '91.224.15.77',
+                timestamp: ago(1, 9),
+            }),
+            new ProfileAccessLog({
+                id: 'al03',
+                studentId: '5',
+                employerId: 'e3',
+                employerName: 'Alice Johnson',
+                companyId: 'c1',
+                companyName: 'TechCorp Solutions',
+                type: 'export',
+                details: 'Downloaded CV and profile data for internal recruitment records.',
+                ipAddress: '82.117.214.5',
+                timestamp: ago(3, 14),
+            }),
+            new ProfileAccessLog({
+                id: 'al04',
+                studentId: '5',
+                employerId: 'e5',
+                employerName: 'Sara Petrovic',
+                companyId: 'c3',
+                companyName: 'DataWorks Analytics',
+                type: 'view',
+                details: 'Viewed profile including education and skills sections.',
+                ipAddress: '176.53.8.101',
+                timestamp: ago(7, 10),
+            }),
+            new ProfileAccessLog({
+                id: 'al05',
+                studentId: '5',
+                employerId: 'e6',
+                employerName: 'Nikola Spasov',
+                companyId: 'c4',
+                companyName: 'CloudTech Systems',
+                type: 'view',
+                details: 'Viewed profile overview during talent search.',
+                ipAddress: '195.202.42.11',
+                timestamp: ago(15, 8),
+            }),
+            new ProfileAccessLog({
+                id: 'al06',
+                studentId: '5',
+                employerId: 'e4',
+                employerName: 'Mark Wilson',
+                companyId: 'c2',
+                companyName: 'InnoSoft',
+                type: 'export',
+                details: 'Exported student data for shortlisting pipeline.',
+                ipAddress: '91.224.15.77',
+                timestamp: ago(20, 11),
+            }),
+            new ProfileAccessLog({
+                id: 'al07',
+                studentId: '5',
+                employerId: 'e3',
+                employerName: 'Alice Johnson',
+                companyId: 'c1',
+                companyName: 'TechCorp Solutions',
+                type: 'view',
+                details: 'Reviewed profile following job application submission.',
+                ipAddress: '82.117.214.5',
+                timestamp: ago(45, 9),
+            }),
 
             // ── John Doe (id:'1') — pending review — limited access ───────────
-            new ProfileAccessLog({ id: 'al08', studentId: '1', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'view',    details: 'Viewed profile during candidate shortlisting.',                                 ipAddress: '82.117.214.5',   timestamp: ago(2, 16) }),
-            new ProfileAccessLog({ id: 'al09', studentId: '1', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'view',    details: 'Viewed profile overview.',                                                      ipAddress: '91.224.15.77',   timestamp: ago(10, 13) }),
+            new ProfileAccessLog({
+                id: 'al08',
+                studentId: '1',
+                employerId: 'e3',
+                employerName: 'Alice Johnson',
+                companyId: 'c1',
+                companyName: 'TechCorp Solutions',
+                type: 'view',
+                details: 'Viewed profile during candidate shortlisting.',
+                ipAddress: '82.117.214.5',
+                timestamp: ago(2, 16),
+            }),
+            new ProfileAccessLog({
+                id: 'al09',
+                studentId: '1',
+                employerId: 'e4',
+                employerName: 'Mark Wilson',
+                companyId: 'c2',
+                companyName: 'InnoSoft',
+                type: 'view',
+                details: 'Viewed profile overview.',
+                ipAddress: '91.224.15.77',
+                timestamp: ago(10, 13),
+            }),
 
             // ── James Carter (id:'6') — suspended — historical activity ───────
-            new ProfileAccessLog({ id: 'al10', studentId: '6', employerId: 'e5', employerName: 'Sara Petrovic',  companyId: 'c3', companyName: 'DataWorks Analytics',   type: 'view',    details: 'Viewed full profile before candidate shortlisting.',                            ipAddress: '176.53.8.101',   timestamp: ago(20,  9) }),
-            new ProfileAccessLog({ id: 'al11', studentId: '6', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'view',    details: 'Reviewed profile and skills section.',                                          ipAddress: '82.117.214.5',   timestamp: ago(35, 15) }),
-            new ProfileAccessLog({ id: 'al12', studentId: '6', employerId: 'e3', employerName: 'Alice Johnson',  companyId: 'c1', companyName: 'TechCorp Solutions',    type: 'export',  details: 'Downloaded CV for offline review.',                                             ipAddress: '82.117.214.5',   timestamp: ago(35, 16) }),
+            new ProfileAccessLog({
+                id: 'al10',
+                studentId: '6',
+                employerId: 'e5',
+                employerName: 'Sara Petrovic',
+                companyId: 'c3',
+                companyName: 'DataWorks Analytics',
+                type: 'view',
+                details: 'Viewed full profile before candidate shortlisting.',
+                ipAddress: '176.53.8.101',
+                timestamp: ago(20, 9),
+            }),
+            new ProfileAccessLog({
+                id: 'al11',
+                studentId: '6',
+                employerId: 'e3',
+                employerName: 'Alice Johnson',
+                companyId: 'c1',
+                companyName: 'TechCorp Solutions',
+                type: 'view',
+                details: 'Reviewed profile and skills section.',
+                ipAddress: '82.117.214.5',
+                timestamp: ago(35, 15),
+            }),
+            new ProfileAccessLog({
+                id: 'al12',
+                studentId: '6',
+                employerId: 'e3',
+                employerName: 'Alice Johnson',
+                companyId: 'c1',
+                companyName: 'TechCorp Solutions',
+                type: 'export',
+                details: 'Downloaded CV for offline review.',
+                ipAddress: '82.117.214.5',
+                timestamp: ago(35, 16),
+            }),
 
             // ── Sophia Miller (id:'7') — private, deactivated — full request/grant/deny/revoke flow ──
-            new ProfileAccessLog({ id: 'al13', studentId: '7', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'request', details: 'Requested access to private profile for talent pipeline review.',               ipAddress: '91.224.15.77',   timestamp: ago(30, 10) }),
-            new ProfileAccessLog({ id: 'al14', studentId: '7', employerId: '',   employerName: '',               companyId: '',   companyName: '',                       type: 'grant',   details: 'Admin granted InnoSoft access to view profile for 30 days.',                   ipAddress: '',               timestamp: ago(29, 11) }),
-            new ProfileAccessLog({ id: 'al15', studentId: '7', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'view',    details: 'Viewed profile after access was granted.',                                      ipAddress: '91.224.15.77',   timestamp: ago(28, 14) }),
-            new ProfileAccessLog({ id: 'al16', studentId: '7', employerId: 'e4', employerName: 'Mark Wilson',    companyId: 'c2', companyName: 'InnoSoft',               type: 'export',  details: 'Exported profile data following approved access grant.',                        ipAddress: '91.224.15.77',   timestamp: ago(27,  9) }),
-            new ProfileAccessLog({ id: 'al17', studentId: '7', employerId: 'e6', employerName: 'Nikola Spasov',  companyId: 'c4', companyName: 'CloudTech Systems',     type: 'request', details: 'Requested access to private profile.',                                          ipAddress: '195.202.42.11',  timestamp: ago(15, 13) }),
-            new ProfileAccessLog({ id: 'al18', studentId: '7', employerId: '',   employerName: '',               companyId: '',   companyName: '',                       type: 'deny',    details: 'Admin denied CloudTech Systems access — student account under investigation.',  ipAddress: '',               timestamp: ago(15, 14) }),
-            new ProfileAccessLog({ id: 'al19', studentId: '7', employerId: '',   employerName: '',               companyId: '',   companyName: '',                       type: 'revoke',  details: 'All active access grants revoked following account deactivation.',             ipAddress: '',               timestamp: ago(5,   8) }),
+            new ProfileAccessLog({
+                id: 'al13',
+                studentId: '7',
+                employerId: 'e4',
+                employerName: 'Mark Wilson',
+                companyId: 'c2',
+                companyName: 'InnoSoft',
+                type: 'request',
+                details: 'Requested access to private profile for talent pipeline review.',
+                ipAddress: '91.224.15.77',
+                timestamp: ago(30, 10),
+            }),
+            new ProfileAccessLog({
+                id: 'al14',
+                studentId: '7',
+                employerId: '',
+                employerName: '',
+                companyId: '',
+                companyName: '',
+                type: 'grant',
+                details: 'Admin granted InnoSoft access to view profile for 30 days.',
+                ipAddress: '',
+                timestamp: ago(29, 11),
+            }),
+            new ProfileAccessLog({
+                id: 'al15',
+                studentId: '7',
+                employerId: 'e4',
+                employerName: 'Mark Wilson',
+                companyId: 'c2',
+                companyName: 'InnoSoft',
+                type: 'view',
+                details: 'Viewed profile after access was granted.',
+                ipAddress: '91.224.15.77',
+                timestamp: ago(28, 14),
+            }),
+            new ProfileAccessLog({
+                id: 'al16',
+                studentId: '7',
+                employerId: 'e4',
+                employerName: 'Mark Wilson',
+                companyId: 'c2',
+                companyName: 'InnoSoft',
+                type: 'export',
+                details: 'Exported profile data following approved access grant.',
+                ipAddress: '91.224.15.77',
+                timestamp: ago(27, 9),
+            }),
+            new ProfileAccessLog({
+                id: 'al17',
+                studentId: '7',
+                employerId: 'e6',
+                employerName: 'Nikola Spasov',
+                companyId: 'c4',
+                companyName: 'CloudTech Systems',
+                type: 'request',
+                details: 'Requested access to private profile.',
+                ipAddress: '195.202.42.11',
+                timestamp: ago(15, 13),
+            }),
+            new ProfileAccessLog({
+                id: 'al18',
+                studentId: '7',
+                employerId: '',
+                employerName: '',
+                companyId: '',
+                companyName: '',
+                type: 'deny',
+                details:
+                    'Admin denied CloudTech Systems access — student account under investigation.',
+                ipAddress: '',
+                timestamp: ago(15, 14),
+            }),
+            new ProfileAccessLog({
+                id: 'al19',
+                studentId: '7',
+                employerId: '',
+                employerName: '',
+                companyId: '',
+                companyName: '',
+                type: 'revoke',
+                details: 'All active access grants revoked following account deactivation.',
+                ipAddress: '',
+                timestamp: ago(5, 8),
+            }),
 
             // ── Ryan Brooks (id:'8') — pending — single view ─────────────────
-            new ProfileAccessLog({ id: 'al20', studentId: '8', employerId: 'e5', employerName: 'Sara Petrovic',  companyId: 'c3', companyName: 'DataWorks Analytics',   type: 'view',    details: 'Viewed profile overview.',                                                      ipAddress: '176.53.8.101',   timestamp: ago(5, 17) }),
+            new ProfileAccessLog({
+                id: 'al20',
+                studentId: '8',
+                employerId: 'e5',
+                employerName: 'Sara Petrovic',
+                companyId: 'c3',
+                companyName: 'DataWorks Analytics',
+                type: 'view',
+                details: 'Viewed profile overview.',
+                ipAddress: '176.53.8.101',
+                timestamp: ago(5, 17),
+            }),
 
             // Olivia Chen (id:'9') — no logs intentionally (tests empty state)
         ];
@@ -1640,7 +1929,7 @@ class MockDataService {
     async getProfileAccessLog(studentId) {
         await this.simulateDelay();
         return this.accessLogs
-            .filter(l => l.studentId === studentId)
+            .filter((l) => l.studentId === studentId)
             .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     }
 
@@ -1649,13 +1938,15 @@ class MockDataService {
         const results = { created: [], failed: [] };
 
         for (const row of rows) {
-            const duplicate = this.users.find(u => u.email.toLowerCase() === row.email.toLowerCase());
+            const duplicate = this.users.find(
+                (u) => u.email.toLowerCase() === row.email.toLowerCase()
+            );
             if (duplicate) {
                 results.failed.push({ row, reason: `Email already registered: ${row.email}` });
                 continue;
             }
 
-            const ids = this.users.map(u => parseInt(u.id)).filter(n => !isNaN(n));
+            const ids = this.users.map((u) => parseInt(u.id)).filter((n) => !isNaN(n));
             const nextId = String(Math.max(0, ...ids) + 1 + results.created.length);
 
             const newUser = new User({
@@ -1675,22 +1966,26 @@ class MockDataService {
             this.users.push(newUser);
 
             const academyAttendance = row.academytrack
-                ? [new AcademyAttendance({
-                    id: 'aa_import_' + nextId,
-                    academyName: row.academyname || 'Avenga Academy',
-                    track: row.academytrack,
-                    startDate: row.academystartdate || '',
-                    endDate: row.academyenddate || '',
-                    status: 'active'
-                })]
+                ? [
+                      new AcademyAttendance({
+                          id: 'aa_import_' + nextId,
+                          academyName: row.academyname || 'Avenga Academy',
+                          track: row.academytrack,
+                          startDate: row.academystartdate || '',
+                          endDate: row.academyenddate || '',
+                          status: 'active',
+                      }),
+                  ]
                 : [];
 
-            this.cvProfiles.push(new CVProfile({
-                userId: nextId,
-                academyAttendance,
-                skills: [],
-                languages: []
-            }));
+            this.cvProfiles.push(
+                new CVProfile({
+                    userId: nextId,
+                    academyAttendance,
+                    skills: [],
+                    languages: [],
+                })
+            );
 
             results.created.push(newUser);
         }
@@ -1708,7 +2003,7 @@ class MockDataService {
             endDate: programmeData.endDate,
             status: programmeData.status,
         });
-        const index = this.cvProfiles.findIndex(cv => cv.userId === userId);
+        const index = this.cvProfiles.findIndex((cv) => cv.userId === userId);
         if (index !== -1) {
             const existing = [...this.cvProfiles[index].academyAttendance];
             if (existing.length > 0) {
@@ -2177,7 +2472,11 @@ class MockDataService {
      */
     generateMockNotifications() {
         const now = Date.now();
+        const h = (n) => n * 60 * 60 * 1000;
+        const d = (n) => n * 24 * 60 * 60 * 1000;
+
         return [
+            // --- application_status ---
             new Notification({
                 id: 'n1',
                 userId: '1',
@@ -2186,18 +2485,44 @@ class MockDataService {
                 message: 'Your application for Frontend Developer at TechCorp is now Under Review.',
                 link: '/applications',
                 read: false,
-                createdAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - h(2)).toISOString(),
             }),
+            new Notification({
+                id: 'n6',
+                userId: '1',
+                type: 'application_status',
+                title: 'Application shortlisted',
+                message:
+                    'Great news! Your application for Full Stack Developer at TechCorp has been shortlisted.',
+                link: '/applications',
+                read: true,
+                createdAt: new Date(now - d(3)).toISOString(),
+            }),
+
+            // --- message_received ---
             new Notification({
                 id: 'n2',
                 userId: '1',
                 type: 'message_received',
-                title: 'New message',
+                title: 'New message from TechCorp',
                 message: 'You have a new message from TechCorp Solutions.',
                 link: '/messages',
                 read: false,
-                createdAt: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - h(6)).toISOString(),
             }),
+            new Notification({
+                id: 'n7',
+                userId: '1',
+                type: 'message_received',
+                title: 'New message from InnoSoft',
+                message:
+                    'InnoSoft has sent you a follow-up about your Backend Developer application.',
+                link: '/messages',
+                read: true,
+                createdAt: new Date(now - d(4)).toISOString(),
+            }),
+
+            // --- event_reminder ---
             new Notification({
                 id: 'n3',
                 userId: '1',
@@ -2206,8 +2531,20 @@ class MockDataService {
                 message: "Don't forget to attend Career Day 2026 next week.",
                 link: '/events',
                 read: true,
-                createdAt: new Date(now - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - d(1)).toISOString(),
             }),
+            new Notification({
+                id: 'n8',
+                userId: '1',
+                type: 'event_reminder',
+                title: 'Web Development Workshop tomorrow',
+                message: 'The Web Development Workshop starts tomorrow at 14:00. Join online.',
+                link: '/events',
+                read: false,
+                createdAt: new Date(now - h(12)).toISOString(),
+            }),
+
+            // --- application_submitted ---
             new Notification({
                 id: 'n4',
                 userId: '1',
@@ -2216,8 +2553,138 @@ class MockDataService {
                 message: 'Your application for Data Analyst Intern was successfully submitted.',
                 link: '/applications',
                 read: true,
-                createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - d(2)).toISOString(),
             }),
+            new Notification({
+                id: 'n9',
+                userId: '1',
+                type: 'application_submitted',
+                title: 'Application submitted',
+                message:
+                    'Your application for Backend Developer at InnoSoft was successfully submitted.',
+                link: '/applications',
+                read: false,
+                createdAt: new Date(now - d(1)).toISOString(),
+            }),
+
+            // --- interview_invitation ---
+            new Notification({
+                id: 'n10',
+                userId: '1',
+                type: 'interview_invitation',
+                title: 'Interview invitation from TechCorp',
+                message:
+                    'TechCorp Solutions has invited you to interview for the Frontend Developer role.',
+                link: '/messages',
+                read: false,
+                createdAt: new Date(now - h(3)).toISOString(),
+            }),
+            new Notification({
+                id: 'n11',
+                userId: '1',
+                type: 'interview_invitation',
+                title: 'Interview scheduled with DataWorks',
+                message:
+                    'Your interview for Data Analyst Intern at DataWorks Analytics is confirmed for next Monday.',
+                link: '/messages',
+                read: true,
+                createdAt: new Date(now - d(5)).toISOString(),
+            }),
+
+            // --- password_changed ---
+            new Notification({
+                id: 'n12',
+                userId: '1',
+                type: 'password_changed',
+                title: 'Password changed successfully',
+                message:
+                    'Your account password was changed. If this was not you, contact support immediately.',
+                link: '',
+                read: true,
+                createdAt: new Date(now - d(7)).toISOString(),
+            }),
+            new Notification({
+                id: 'n13',
+                userId: '1',
+                type: 'password_changed',
+                title: 'Password reset completed',
+                message:
+                    'Your password was reset via the reset link. You are now logged in securely.',
+                link: '',
+                read: true,
+                createdAt: new Date(now - d(14)).toISOString(),
+            }),
+
+            // --- registration_success ---
+            new Notification({
+                id: 'n14',
+                userId: '1',
+                type: 'registration_success',
+                title: 'Welcome to Avy!',
+                message: 'Your account has been created. Complete your profile to get started.',
+                link: '/profile',
+                read: true,
+                createdAt: new Date(now - d(30)).toISOString(),
+            }),
+            new Notification({
+                id: 'n15',
+                userId: '1',
+                type: 'registration_success',
+                title: 'Profile activation confirmed',
+                message: 'Your Avy profile is now active and visible to employers.',
+                link: '/profile',
+                read: true,
+                createdAt: new Date(now - d(20)).toISOString(),
+            }),
+
+            // --- system_alert ---
+            new Notification({
+                id: 'n16',
+                userId: '1',
+                type: 'system_alert',
+                title: 'Your profile is 80% complete',
+                message:
+                    'Add your work experience to reach 100% and improve your visibility to employers.',
+                link: '/profile',
+                read: false,
+                createdAt: new Date(now - h(2)).toISOString(),
+            }),
+            new Notification({
+                id: 'n17',
+                userId: '1',
+                type: 'system_alert',
+                title: '3 new job matches found',
+                message: 'Based on your profile, 3 new jobs match your skills and preferences.',
+                link: '/jobs',
+                read: true,
+                createdAt: new Date(now - d(1)).toISOString(),
+            }),
+
+            // --- info ---
+            new Notification({
+                id: 'n18',
+                userId: '1',
+                type: 'info',
+                title: 'Platform update: new features',
+                message:
+                    'We have added new filtering options and an improved job board. Check it out!',
+                link: '',
+                read: true,
+                createdAt: new Date(now - d(3)).toISOString(),
+            }),
+            new Notification({
+                id: 'n19',
+                userId: '1',
+                type: 'info',
+                title: 'CloudTech Systems joined Avy',
+                message:
+                    'A new employer, CloudTech Systems, is now on the platform and is actively hiring.',
+                link: '/jobs',
+                read: false,
+                createdAt: new Date(now - h(5)).toISOString(),
+            }),
+
+            // --- employer (userId: '3') ---
             new Notification({
                 id: 'n5',
                 userId: '3',
@@ -2226,7 +2693,207 @@ class MockDataService {
                 message: 'John Doe has applied to your Frontend Developer posting.',
                 link: '/employer/jobs',
                 read: false,
-                createdAt: new Date(now - 5 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now - h(5)).toISOString(),
+            }),
+        ];
+    }
+
+    generateDemoNotificationsForUser(userId) {
+        const now = Date.now();
+        const h = (n) => n * 60 * 60 * 1000;
+        const d = (n) => n * 24 * 60 * 60 * 1000;
+        const base = this.notifications.length;
+
+        return [
+            new Notification({
+                id: `n${base + 1}`,
+                userId,
+                type: 'application_status',
+                title: 'Application status updated',
+                message: 'Your application for Frontend Developer at TechCorp is now Under Review.',
+                link: '/applications',
+                read: false,
+                createdAt: new Date(now - h(2)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 2}`,
+                userId,
+                type: 'application_status',
+                title: 'Application shortlisted',
+                message:
+                    'Great news! Your application for Full Stack Developer at TechCorp has been shortlisted.',
+                link: '/applications',
+                read: true,
+                createdAt: new Date(now - d(3)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 3}`,
+                userId,
+                type: 'message_received',
+                title: 'New message from TechCorp',
+                message: 'You have a new message from TechCorp Solutions.',
+                link: '/messages',
+                read: false,
+                createdAt: new Date(now - h(6)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 4}`,
+                userId,
+                type: 'message_received',
+                title: 'New message from InnoSoft',
+                message:
+                    'InnoSoft has sent you a follow-up about your Backend Developer application.',
+                link: '/messages',
+                read: true,
+                createdAt: new Date(now - d(4)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 5}`,
+                userId,
+                type: 'event_reminder',
+                title: 'Career Day 2026 is coming up',
+                message: "Don't forget to attend Career Day 2026 next week.",
+                link: '/events',
+                read: true,
+                createdAt: new Date(now - d(1)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 6}`,
+                userId,
+                type: 'event_reminder',
+                title: 'Web Development Workshop tomorrow',
+                message: 'The Web Development Workshop starts tomorrow at 14:00. Join online.',
+                link: '/events',
+                read: false,
+                createdAt: new Date(now - h(12)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 7}`,
+                userId,
+                type: 'application_submitted',
+                title: 'Application submitted',
+                message: 'Your application for Data Analyst Intern was successfully submitted.',
+                link: '/applications',
+                read: true,
+                createdAt: new Date(now - d(2)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 8}`,
+                userId,
+                type: 'application_submitted',
+                title: 'Application submitted',
+                message:
+                    'Your application for Backend Developer at InnoSoft was successfully submitted.',
+                link: '/applications',
+                read: false,
+                createdAt: new Date(now - d(1)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 9}`,
+                userId,
+                type: 'interview_invitation',
+                title: 'Interview invitation from TechCorp',
+                message:
+                    'TechCorp Solutions has invited you to interview for the Frontend Developer role.',
+                link: '/messages',
+                read: false,
+                createdAt: new Date(now - h(3)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 10}`,
+                userId,
+                type: 'interview_invitation',
+                title: 'Interview scheduled with DataWorks',
+                message:
+                    'Your interview for Data Analyst Intern at DataWorks Analytics is confirmed for next Monday.',
+                link: '/messages',
+                read: true,
+                createdAt: new Date(now - d(5)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 11}`,
+                userId,
+                type: 'password_changed',
+                title: 'Password changed successfully',
+                message:
+                    'Your account password was changed. If this was not you, contact support immediately.',
+                link: '',
+                read: true,
+                createdAt: new Date(now - d(7)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 12}`,
+                userId,
+                type: 'password_changed',
+                title: 'Password reset completed',
+                message:
+                    'Your password was reset via the reset link. You are now logged in securely.',
+                link: '',
+                read: true,
+                createdAt: new Date(now - d(14)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 13}`,
+                userId,
+                type: 'registration_success',
+                title: 'Welcome to Avy!',
+                message: 'Your account has been created. Complete your profile to get started.',
+                link: '/profile',
+                read: true,
+                createdAt: new Date(now - d(30)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 14}`,
+                userId,
+                type: 'registration_success',
+                title: 'Profile activation confirmed',
+                message: 'Your Avy profile is now active and visible to employers.',
+                link: '/profile',
+                read: true,
+                createdAt: new Date(now - d(20)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 15}`,
+                userId,
+                type: 'system_alert',
+                title: 'Your profile is 80% complete',
+                message:
+                    'Add your work experience to reach 100% and improve your visibility to employers.',
+                link: '/profile',
+                read: false,
+                createdAt: new Date(now - h(2)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 16}`,
+                userId,
+                type: 'system_alert',
+                title: '3 new job matches found',
+                message: 'Based on your profile, 3 new jobs match your skills and preferences.',
+                link: '/jobs',
+                read: true,
+                createdAt: new Date(now - d(1)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 17}`,
+                userId,
+                type: 'info',
+                title: 'Platform update: new features',
+                message:
+                    'We have added new filtering options and an improved job board. Check it out!',
+                link: '',
+                read: true,
+                createdAt: new Date(now - d(3)).toISOString(),
+            }),
+            new Notification({
+                id: `n${base + 18}`,
+                userId,
+                type: 'info',
+                title: 'CloudTech Systems joined Avy',
+                message:
+                    'A new employer, CloudTech Systems, is now on the platform and is actively hiring.',
+                link: '/jobs',
+                read: false,
+                createdAt: new Date(now - h(5)).toISOString(),
             }),
         ];
     }
@@ -2234,6 +2901,15 @@ class MockDataService {
     async getNotifications(userId, options = {}) {
         await this.simulateDelay();
         let list = this.notifications.filter((n) => n.userId === userId);
+
+        // Seed demo notifications for any user who has none yet (e.g. users created via mock login)
+        if (list.length === 0) {
+            const demo = this.generateDemoNotificationsForUser(userId);
+            this.notifications.push(...demo);
+            this.saveToStorage();
+            list = demo;
+        }
+
         if (options.unreadOnly) {
             list = list.filter((n) => !n.read);
         }
@@ -2273,6 +2949,48 @@ class MockDataService {
         return true;
     }
 
+    generateMockNotificationPreferences() {
+        return {
+            1: {
+                messages: { enabled: true, channel: 'both' },
+                interviewInvites: { enabled: true, channel: 'browser' },
+                applicationStatus: { enabled: true, channel: 'email' },
+                successfulApplication: { enabled: true, channel: 'browser' },
+                passwordChange: { enabled: true, channel: 'both' },
+            },
+        };
+    }
+
+    async getNotificationPreferences(userId) {
+        await this.simulateDelay();
+
+        if (!this.notificationPreferences) {
+            this.notificationPreferences = this.generateMockNotificationPreferences();
+        }
+
+        if (!this.notificationPreferences[userId]) {
+            this.notificationPreferences[userId] = {
+                messages: { enabled: true, channel: 'both' },
+                interviewInvites: { enabled: true, channel: 'browser' },
+                applicationStatus: { enabled: true, channel: 'email' },
+                successfulApplication: { enabled: true, channel: 'browser' },
+                passwordChange: { enabled: true, channel: 'both' },
+            };
+            this.saveToStorage();
+        }
+
+        return structuredClone(this.notificationPreferences[userId]);
+    }
+
+    async updateNotificationPreferences(userId, preferences) {
+        await this.simulateDelay();
+
+        this.notificationPreferences[userId] = structuredClone(preferences);
+        this.saveToStorage();
+
+        return structuredClone(this.notificationPreferences[userId]);
+    }
+
     /**
      * ANALYTICS
      */
@@ -2310,26 +3028,26 @@ class MockDataService {
 
     async getJobApplicationAnalytics(jobId) {
         await this.simulateDelay();
-        
-        const job = this.jobs.find(j => j.id === jobId);
+
+        const job = this.jobs.find((j) => j.id === jobId);
         if (!job) return null;
-        
-        const applications = this.applications.filter(a => a.jobId === jobId);
-        const company = this.companies.find(c => c.id === job.companyId);
-        
+
+        const applications = this.applications.filter((a) => a.jobId === jobId);
+        const company = this.companies.find((c) => c.id === job.companyId);
+
         // Status breakdown
         const statusBreakdown = {
-            pending: applications.filter(a => a.status === 'pending').length,
-            under_review: applications.filter(a => a.status === 'under_review').length,
-            interview: applications.filter(a => a.status === 'interview').length,
-            rejected: applications.filter(a => a.status === 'rejected').length,
-            hired: applications.filter(a => a.status === 'hired').length,
+            pending: applications.filter((a) => a.status === 'pending').length,
+            under_review: applications.filter((a) => a.status === 'under_review').length,
+            interview: applications.filter((a) => a.status === 'interview').length,
+            rejected: applications.filter((a) => a.status === 'rejected').length,
+            hired: applications.filter((a) => a.status === 'hired').length,
         };
-        
+
         // Application mode breakdown
         const easyApplyCount = applications.length; // All current applications are easy apply
         const fullApplicationCount = 0; // No full applications in current mock data
-        
+
         return {
             job: {
                 id: job.id,
@@ -2348,7 +3066,7 @@ class MockDataService {
             recentApplications: applications
                 .sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt))
                 .slice(0, 5)
-                .map(app => ({
+                .map((app) => ({
                     id: app.id,
                     appliedAt: app.appliedAt,
                     status: app.status,

@@ -5,13 +5,13 @@ import authService from '../services/authService.js';
 
 export default async function landingPageController() {
     const app = document.getElementById('app');
-    
+
     // Check if user is already logged in
     if (authService.isAuthenticated()) {
         window.router.navigate('/dashboard');
         return;
     }
-    
+
     app.innerHTML = `
         <!-- Navigation -->
         <nav class="bg-white shadow-md">
@@ -28,7 +28,7 @@ export default async function landingPageController() {
                 </div>
             </div>
         </nav>
-        
+
         <!-- Hero Section -->
         <section class="bg-[linear-gradient(135deg,#dd2c00_0%,#b02400_100%)] text-white py-20">
             <div class="w-full max-w-[1200px] mx-auto px-4 text-center fade-in">
@@ -51,7 +51,7 @@ export default async function landingPageController() {
                 </div>
             </div>
         </section>
-        
+
         <!-- Features Section -->
         <section class="py-20 bg-gray-50">
             <div class="w-full max-w-[1200px] mx-auto px-4">
@@ -69,7 +69,7 @@ export default async function landingPageController() {
                             <li><i class="fas fa-check text-green-500 mr-2"></i>Track applications</li>
                         </ul>
                     </div>
-                    
+
                     <!-- Evergreen Module -->
                     <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center">
                         <div class="text-5xl mb-4">🏢</div>
@@ -82,7 +82,7 @@ export default async function landingPageController() {
                             <li><i class="fas fa-check text-green-500 mr-2"></i>Find top talent</li>
                         </ul>
                     </div>
-                    
+
                     <!-- Meridian Module -->
                     <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center">
                         <div class="text-5xl mb-4">⚙️</div>
@@ -98,7 +98,7 @@ export default async function landingPageController() {
                 </div>
             </div>
         </section>
-        
+
         <!-- Stats Section -->
         <section class="py-20">
             <div class="w-full max-w-[1200px] mx-auto px-4">
@@ -122,7 +122,7 @@ export default async function landingPageController() {
                 </div>
             </div>
         </section>
-        
+
         <!-- CTA Section -->
         <section class="bg-[linear-gradient(135deg,#dd2c00_0%,#b02400_100%)] text-white py-16">
             <div class="w-full max-w-[1200px] mx-auto px-4 text-center">
@@ -133,7 +133,7 @@ export default async function landingPageController() {
                 </a>
             </div>
         </section>
-        
+
         <!-- Footer -->
         <footer class="bg-gray-800 text-white py-8">
             <div class="w-full max-w-[1200px] mx-auto px-4 text-center">

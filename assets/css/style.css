@@ -92,6 +92,17 @@ body {
     color: white;
 }
 
+.btn-shortlist {
+    background: white;
+    color: #818cf8;
+    border: 1px solid #818cf8;
+}
+
+.btn-shortlist:hover {
+    background-color: #818cf8;
+    color: white;
+}
+
 .card {
     background: white;
     border-radius: 0.75rem;
@@ -146,6 +157,18 @@ body {
 
 .fade-in {
     animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Slide Down Animation */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Form Styles */

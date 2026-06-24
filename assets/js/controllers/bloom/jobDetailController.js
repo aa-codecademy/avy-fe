@@ -46,7 +46,7 @@ export default async function jobDetailController(params = {}) {
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
-        
+
         <div class="bg-gray-50 min-h-screen py-8">
             <div class="w-full max-w-[1200px] mx-auto px-4">
                 <div class="fade-in">
@@ -54,7 +54,7 @@ export default async function jobDetailController(params = {}) {
                         <i class="fas fa-arrow-left mr-2"></i>
                         Back to Jobs
                     </button>
-                    
+
                     <div class="grid lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2">
                             <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
@@ -79,7 +79,7 @@ export default async function jobDetailController(params = {}) {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 ${
                                     job.salaryRange.min && job.salaryRange.max
                                         ? `
@@ -92,22 +92,22 @@ export default async function jobDetailController(params = {}) {
                                 `
                                         : ''
                                 }
-                                
+
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">About the Job</h2>
                                     <p class="text-gray-700 leading-relaxed">${job.description}</p>
                                 </div>
-                                
+
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Responsibilities</h2>
                                     <div class="text-gray-700 leading-relaxed whitespace-pre-line">${job.responsibilities}</div>
                                 </div>
-                                
+
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Required Qualifications</h2>
                                     <div class="text-gray-700 leading-relaxed whitespace-pre-line">${job.qualifications}</div>
                                 </div>
-                                
+
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Required Skills</h2>
                                     <div class="flex flex-wrap gap-2">
@@ -122,7 +122,7 @@ export default async function jobDetailController(params = {}) {
                                             .join('')}
                                     </div>
                                 </div>
-                                
+
                                 ${
                                     job.niceToHaveSkills.length > 0
                                         ? `
@@ -143,7 +143,7 @@ export default async function jobDetailController(params = {}) {
                                 `
                                         : ''
                                 }
-                                
+
                                 ${
                                     job.benefits
                                         ? `
@@ -155,7 +155,7 @@ export default async function jobDetailController(params = {}) {
                                         : ''
                                 }
                             </div>
-                            
+
                             ${
                                 user.role !== 'employer' && !hasApplied
                                     ? `
@@ -164,7 +164,7 @@ export default async function jobDetailController(params = {}) {
                                         <i class="fas fa-paper-plane mr-2"></i>
                                         Apply for this Position
                                     </h2>
-                                    
+
                                     <form id="applicationForm" class="space-y-4">
                                         <div class="p-4 bg-blue-50 rounded-lg">
                                             <p class="text-blue-900 text-sm">
@@ -172,18 +172,28 @@ export default async function jobDetailController(params = {}) {
                                                 Your profile information will be automatically shared with the employer
                                             </p>
                                         </div>
-                                        
+
                                         <div class="mb-6">
                                             <label class="mb-2 block font-medium text-slate-700">Cover Letter (Optional)</label>
-                                            <textarea 
-                                                id="coverLetter" 
-                                                class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" 
-                                                rows="6" 
+                                            <textarea
+                                                id="coverLetter"
+                                                class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
+                                                rows="6"
                                                 placeholder="Tell us why you're interested in this position..."
                                             ></textarea>
                                         </div>
-                                        
-                                        <div class="mb-6">
+
+                                        <div class="form-group">
+                                            <label class="form-label">Comment (Optional)</label>
+                                            <textarea
+                                                id="comment"
+                                                class="form-input"
+                                                rows="4"
+                                                placeholder="Add any additional comments..."
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="form-group">
                                             <div class="bg-white border border-gray-200 rounded-3xl pt-6 px-6 pb-0 shadow-sm">
                                                 <div class="flex items-start gap-4 mb-6">
                                                     <div class="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center shrink-0">
@@ -196,8 +206,9 @@ export default async function jobDetailController(params = {}) {
                                                                 Upload CV / Documents
                                                             </h3>
 
-                                                            <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold">
-                                                                Optional
+                                                            <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold flex items-center gap-1">
+                                                                <span class="italic">*</span>
+                                                                <span>Required</span>
                                                             </span>
                                                         </div>
 
@@ -251,7 +262,7 @@ export default async function jobDetailController(params = {}) {
                                                 <div id="uploadedDocumentsList" class="space-y-2"></div>
                                             </div>
                                         </div>
-                                        
+
                                         <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full text-lg">
                                             <i class="fas fa-paper-plane mr-2"></i>
                                             Submit Application
@@ -275,11 +286,11 @@ export default async function jobDetailController(params = {}) {
                                       : ''
                             }
                         </div>
-                        
+
                         <div class="lg:col-span-1">
                             <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6 sticky top-4">
                                 <h3 class="text-xl font-bold text-gray-800 mb-4">Job Information</h3>
-                                
+
                                 <div class="space-y-3 text-sm">
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-calendar-alt w-6 text-purple-600"></i>
@@ -288,7 +299,7 @@ export default async function jobDetailController(params = {}) {
                                             <p>${new Date(job.createdAt).toLocaleDateString()}</p>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-clock w-6 text-purple-600"></i>
                                         <div>
@@ -296,7 +307,7 @@ export default async function jobDetailController(params = {}) {
                                             <p>${new Date(job.applicationDeadline).toLocaleDateString()} (${daysUntilDeadline} days)</p>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-users w-6 text-purple-600"></i>
                                         <div>
@@ -312,7 +323,7 @@ export default async function jobDetailController(params = {}) {
                                             <p>${(job.applicationMode || 'easy_apply') === 'cv_required' ? 'CV upload required' : 'Easy Apply'}</p>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-eye w-6 text-purple-600"></i>
                                         <div>
@@ -321,15 +332,15 @@ export default async function jobDetailController(params = {}) {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <hr class="my-4" />
-                                
+
                                 <h3 class="text-xl font-bold text-gray-800 mb-3">About ${company.name}</h3>
                                 <p class="text-gray-700 text-sm mb-3">${company.description}</p>
                                 <a href="/companies/${company.id}" data-link class="text-purple-600 hover:text-purple-800 text-sm font-semibold">
                                     View Company Profile <i class="fas fa-arrow-right ml-1"></i>
                                 </a>
-                                
+
                                 ${
                                     company.website
                                         ? `
@@ -357,7 +368,80 @@ export default async function jobDetailController(params = {}) {
     const uploadedDocumentsTitle = document.getElementById('uploadedDocumentsTitle');
     const uploadedDocumentsSize = document.getElementById('uploadedDocumentsSize');
 
+    const submitBtn = applicationForm?.querySelector('button[type="submit"]');
+
     let selectedFiles = [];
+    const requiresCv = true;
+
+    function updateSubmitState() {
+        if (!submitBtn) return;
+
+        const isValid = !requiresCv || selectedFiles.length > 0;
+
+        submitBtn.disabled = !isValid;
+        submitBtn.classList.toggle('opacity-50', !isValid);
+        submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+    }
+
+    function showToast(message, type = 'success') {
+        const oldToast = document.getElementById('appToast');
+        if (oldToast) oldToast.remove();
+
+        const toastStyles = {
+            success: {
+                icon: 'fa-check-circle',
+                title: 'Success',
+                classes: 'border-green-200 bg-green-50 text-green-800',
+                iconColor: 'text-green-600',
+            },
+            error: {
+                icon: 'fa-times-circle',
+                title: 'Error',
+                classes: 'border-red-200 bg-red-50 text-red-800',
+                iconColor: 'text-red-600',
+            },
+            warning: {
+                icon: 'fa-exclamation-circle',
+                title: 'Warning',
+                classes: 'border-yellow-200 bg-yellow-50 text-yellow-800',
+                iconColor: 'text-yellow-600',
+            },
+        };
+
+        const config = toastStyles[type] || toastStyles.success;
+
+        const toast = document.createElement('div');
+        toast.id = 'appToast';
+        toast.className = `
+        fixed top-6 right-6 z-[9999] w-[360px] max-w-[calc(100%-32px)]
+        ${config.classes}
+        border rounded-2xl shadow-xl p-4 flex items-start gap-3
+        transition-all duration-300
+    `;
+
+        toast.innerHTML = `
+        <i class="fas ${config.icon} ${config.iconColor} text-2xl mt-1"></i>
+
+        <div class="flex-1">
+            <p class="font-bold mb-1">${config.title}</p>
+            <p class="text-sm leading-relaxed">${message}</p>
+        </div>
+
+        <button type="button" class="text-gray-400 hover:text-gray-700 transition">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+        toast.querySelector('button').addEventListener('click', () => {
+            toast.remove();
+        });
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3500);
+    }
 
     function renderUploadedDocuments() {
         if (!uploadedDocumentsList) return;
@@ -408,6 +492,7 @@ export default async function jobDetailController(params = {}) {
             btn.addEventListener('click', () => {
                 selectedFiles.splice(Number(btn.dataset.index), 1);
                 renderUploadedDocuments();
+                updateSubmitState();
             });
         });
     }
@@ -417,12 +502,15 @@ export default async function jobDetailController(params = {}) {
 
         files.forEach((file) => {
             if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-                alert(`${file.name} is not allowed. Only PDF, DOC and DOCX files are accepted.`);
+                showToast(
+                    `${file.name} is not allowed. Only PDF, DOC and DOCX files are accepted.`,
+                    'error'
+                );
                 return;
             }
 
             if (file.size > MAX_FILE_SIZE) {
-                alert(`${file.name} is too large. Maximum file size is 5MB.`);
+                showToast(`${file.name} is too large. Maximum file size is 5MB.`, 'error');
                 return;
             }
 
@@ -431,7 +519,7 @@ export default async function jobDetailController(params = {}) {
             );
 
             if (alreadyAdded) {
-                alert(`${file.name} is already added.`);
+                showToast(`${file.name} is already added.`, 'warning');
                 return;
             }
 
@@ -441,16 +529,17 @@ export default async function jobDetailController(params = {}) {
         const availableSlots = MAX_FILES - selectedFiles.length;
 
         if (availableSlots <= 0) {
-            alert(`You can upload maximum ${MAX_FILES} files.`);
+            showToast(`You can upload maximum ${MAX_FILES} files.`, 'warning');
             return;
         }
 
         if (validFiles.length > availableSlots) {
-            alert(`You can upload maximum ${MAX_FILES} files.`);
+            showToast(`You can upload maximum ${MAX_FILES} files.`, 'warning');
         }
 
         selectedFiles = [...selectedFiles, ...validFiles.slice(0, availableSlots)];
         renderUploadedDocuments();
+        updateSubmitState();
     }
 
     if (cvUpload) {
@@ -485,7 +574,12 @@ export default async function jobDetailController(params = {}) {
             e.preventDefault();
 
             const coverLetter = document.getElementById('coverLetter').value;
-            const submitBtn = applicationForm.querySelector('button[type="submit"]');
+            const comment = document.getElementById('comment').value;
+
+            if (requiresCv && selectedFiles.length === 0) {
+                showToast('You must upload a CV before submitting this application.', 'warning');
+                return;
+            }
 
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
@@ -495,14 +589,18 @@ export default async function jobDetailController(params = {}) {
                     jobId: job.id,
                     userId: user.id,
                     coverLetter: coverLetter,
+                    comment: comment,
                 });
 
-                alert('Application submitted successfully!');
-                window.location.reload();
+                showToast('Application submitted successfully!', 'success');
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
             } catch (error) {
-                alert('Failed to submit application. Please try again.');
-                submitBtn.disabled = false;
+                showToast('Failed to submit application. Please try again.', 'error');
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Submit Application';
+                updateSubmitState();
             }
         });
     }
@@ -511,6 +609,7 @@ export default async function jobDetailController(params = {}) {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => authService.logout());
     }
+    updateSubmitState();
 }
 
 function formatFileSize(bytes) {

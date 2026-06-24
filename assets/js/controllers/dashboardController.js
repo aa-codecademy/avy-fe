@@ -142,7 +142,7 @@ async function renderStudentDashboard(app, user, path) {
                         <div class="space-y-4">
                             ${renderMockApplications()}
                         </div>
-                        <a href="/jobs" data-link class="text-purple-600 hover:text-purple-800 font-semibold mt-4 inline-block">
+                        <a href="/applications" data-link class="text-purple-600 hover:text-purple-800 font-semibold mt-4 inline-block">
                             View All Applications <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
@@ -261,7 +261,7 @@ function renderEmployerDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
 
-        <div class="w-full max-w-[1200px] mx-auto px-4 py-8">
+        <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -271,7 +271,7 @@ function renderEmployerDashboard(app, user, path) {
                 </div>
 
                 <div class="grid md:grid-cols-4 gap-6 mb-8">
-                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
+                    <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Active Jobs</p>
@@ -281,7 +281,7 @@ function renderEmployerDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
+                    <a href="/employer/jobs" data-link class="card hover:shadow-lg transition cursor-pointer block no-underline text-inherit">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Applications</p>
@@ -289,9 +289,9 @@ function renderEmployerDashboard(app, user, path) {
                             </div>
                             <i class="fas fa-file-alt text-4xl text-indigo-200"></i>
                         </div>
-                    </div>
+                    </a>
 
-                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
+                    <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Interviews</p>
@@ -301,7 +301,7 @@ function renderEmployerDashboard(app, user, path) {
                         </div>
                     </div>
 
-                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
+                    <div class="card">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-600 text-sm">Hired</p>
@@ -313,21 +313,21 @@ function renderEmployerDashboard(app, user, path) {
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-8">
-                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
+                    <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                            <i class="fas fa-clipboard-list text-purple-600 mr-2"></i>
+                            <i class="fas fa-clipboard-list text-purple-600  mr-2"></i>
                             Your Job Postings
                         </h2>
                         <div class="space-y-4">
                             ${renderMockEmployerJobs()}
                         </div>
-                        <a href="/employer/post-job" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] mt-4 inline-flex items-center">
+                        <a href="/employer/post-job" data-link class="btn btn-primary mt-4 inline-flex items-center">
                             <i class="fas fa-plus mr-2"></i>
                             Post New Job
                         </a>
                     </div>
 
-                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
+                    <div class="card">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">
                             <i class="fas fa-users text-indigo-600 mr-2"></i>
                             Recent Candidates

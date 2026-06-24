@@ -11,7 +11,7 @@
  *  - mockDataService.markAllAsRead(userId)
  */
 import authService from '../../services/authService.js';
-import { renderAppHeader } from '../../views/appHeader.js';
+import { renderAppHeader, refreshHeaderBadge } from '../../views/appHeader.js';
 import mockDataService from '../../services/mockDataService.js';
 
 const POLL_INTERVAL_MS = 30000; // 30 seconds
@@ -39,10 +39,13 @@ function getNotificationIcon(type) {
 function showBrowserNotification(title, body) {
     if (!('Notification' in window)) return;
     if (Notification.permission !== 'granted') return;
+    const iconPath =
+        window.router?.resolveAssetPath('/assets/img/notification-icon.png') ??
+        './assets/img/notification-icon.png';
 
     new Notification(title, {
         body,
-        icon: '/assets/img/notification-icon.png',
+        icon: iconPath,
     });
 }
 
@@ -100,6 +103,7 @@ async function loadNotifications(user) {
     }
 
     container.innerHTML = notifications
+        .filter(n => n.type !== 'message_received')
         .map((notification) => renderNotificationItem(notification))
         .join('');
 
@@ -138,6 +142,7 @@ async function refreshNotifications(user) {
     const count = await mockDataService.getUnreadCount(user.id);
     const badge = document.getElementById('notificationBadge');
     if (badge) badge.textContent = count > 0 ? count : '';
+    refreshHeaderBadge(user.id);
 }
 
 async function markAllAsRead(user) {
@@ -193,6 +198,12 @@ export default async function employerNotificationsController() {
             await markAllAsRead(user);
         });
     }
+
+    // Pre-seed seen IDs with all existing notifications so the initial render
+    // doesn't fire browser popups for pre-existing data — only truly new
+    // notifications arriving after page load should trigger desktop alerts.
+    const existing = await mockDataService.getNotifications(user.id, { unreadOnly: false });
+    existing.forEach(n => seenNotificationIds.add(n.id));
 
     await refreshNotifications(user);
 

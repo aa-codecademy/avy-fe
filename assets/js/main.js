@@ -25,6 +25,7 @@ import myJobsController from './controllers/evergreen/myJobsController.js';
 import employerNotificationsController from './controllers/evergreen/notificationsController.js';
 import postJobController from './controllers/evergreen/postJobController.js';
 import landingController from './controllers/landingController.js';
+import designSystemController from './controllers/designSystemController.js';
 import loginController from './controllers/loginController.js';
 import companyProfileController from './controllers/evergreen/companyProfileController.js';
 import adminUsersController from './controllers/meridian/adminUsersController.js';
@@ -46,6 +47,7 @@ import adminRolePermissionsController from './controllers/meridian/adminRolePerm
 import adminSettingsController from './controllers/meridian/adminSettingsController.js';
 import adminTemplatesController from './controllers/meridian/adminTemplatesController.js';
 import notFoundController from './controllers/notFoundController.js';
+
 // feature/forgot-password-at-login [Ognen]
 import resetPasswordController from './controllers/resetPasswordController.js';
 // END Ognen Manevski
@@ -53,11 +55,18 @@ import resetPasswordController from './controllers/resetPasswordController.js';
 // Import services (make available globally)
 import authService from './services/authService.js';
 import { initAppBackToTop } from './views/appBackToTop.js';
-import { renderAppHeader } from './views/appHeader.js';
+import { renderAppHeader, initializeLanguageSelector } from './views/appHeader.js';
+import { refreshHeaderBadge, refreshMessagesHeaderBadge } from './views/appHeader.js';
+import mockDataService from './services/mockDataService.js';
+import { initEmailJS } from './services/notificationService.js';
 
 // Make router globally available
 window.router = router;
 window.authService = authService;
+window.mockDataService = mockDataService;
+window.refreshHeaderBadge = refreshHeaderBadge;
+window.refreshMessagesHeaderBadge = refreshMessagesHeaderBadge;
+window.initializeLanguageSelector = initializeLanguageSelector;
 
 /**
  * Initialize application
@@ -68,6 +77,9 @@ async function initApp() {
         'color: #667eea; font-size: 16px; font-weight: bold;'
     );
     console.log('%c📦 Phase 1: Frontend Only Mode', 'color: #764ba2; font-size: 12px;');
+
+    // Initialize EmailJS for email notifications
+    initEmailJS();
 
     // Register routes
     registerRoutes();
@@ -85,6 +97,7 @@ async function initApp() {
 function registerRoutes() {
     // Public routes
     router.addRoute('/', landingController, false);
+    router.addRoute('/design-system', designSystemController, false);
     router.addRoute('/login', loginController, false);
     // feature/forgot-password-at-login [Ognen]
     router.addRoute('/reset-password', resetPasswordController, false);
@@ -123,12 +136,6 @@ function registerRoutes() {
     router.addRoute('/employer/messages', employerMessagesController, true, ['employer']);
     router.addRoute('/employer/notifications', employerNotificationsController, true, ['employer']);
 
-    router.addRoute(
-        '/employer/jobs',
-        createPlaceholderController('My Jobs', 'Manage your job postings'),
-        true,
-        ['employer']
-    );
     router.addRoute('/employer/company-profile', companyProfileController, true, ['employer']);
 
     // Admin routes (Meridian module)
@@ -208,3 +215,12 @@ if (document.readyState === 'loading') {
 } else {
     initApp();
 }
+
+// Poll badge every 60 seconds to pick up any changes
+setInterval(() => {
+    const user = authService.getCurrentUser();
+    if (user) {
+        refreshHeaderBadge(user.id);
+        refreshMessagesHeaderBadge(user.id);
+    }
+}, 60_000);

@@ -131,8 +131,11 @@ export default async function loginController() {
         loginForm.querySelector('button[type="submit"]').disabled = true;
         
         try {
-            await authService.login(email, password);
-            
+            const user = await authService.login(email, password);
+
+            // Seed demo notifications immediately so the header badge shows on first render
+            window.mockDataService?._seedCurrentUserNotifications();
+
             // Success - navigate to dashboard
             window.router.navigate('/dashboard');
         } catch (error) {
