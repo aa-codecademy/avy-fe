@@ -27,7 +27,7 @@ export default async function eventsController() {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -36,7 +36,7 @@ export default async function eventsController() {
                         </h1>
                         <p class="text-gray-600">Upcoming career days, workshops, and networking events</p>
                     </div>
-                    <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-center py-16">
+                    <div class="card text-center py-16">
                         <i class="fas fa-tools text-6xl text-gray-300 mb-4"></i>
                         <h3 class="text-2xl font-bold text-gray-600 mb-2">TODO: Events listing</h3>
                         <p class="text-gray-500">Implement events grid, filters, and registration flow.</p>

@@ -94,7 +94,7 @@ async function loadNotifications(user) {
 
     if (!notifications.length) {
         container.innerHTML = `
-            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] p-8 text-center bg-white rounded-lg shadow-sm">
+            <div class="card p-8 text-center bg-white rounded-lg shadow-sm">
                 <h3 class="text-xl font-semibold text-gray-800">No notifications yet</h3>
                 <p class="text-gray-500 mt-2">New application and candidate response alerts will appear here.</p>
             </div>
@@ -164,7 +164,7 @@ export default async function employerNotificationsController() {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>

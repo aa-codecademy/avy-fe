@@ -34,7 +34,7 @@ export function renderAdminSettingsLayout({
     return `
         ${renderAppHeader(user, currentPath)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
                         <div>

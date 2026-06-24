@@ -519,7 +519,7 @@ export default async function jobApplicantsController(params = {}) {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
 
                     <!-- Page header -->

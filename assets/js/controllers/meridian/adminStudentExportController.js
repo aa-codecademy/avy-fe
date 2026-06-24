@@ -4,34 +4,34 @@ import { renderAppHeader } from '../../views/appHeader.js';
 
 const EXPORT_COLUMNS = [
     // Account Info
-    { key: 'name',               label: 'Name',              group: 'Account Info',       checked: true },
-    { key: 'email',              label: 'Email',             group: 'Account Info',       checked: true },
-    { key: 'phone',              label: 'Phone',             group: 'Account Info',       checked: false },
-    { key: 'dateOfBirth',        label: 'Date of Birth',     group: 'Account Info',       checked: false },
-    { key: 'citizenship',        label: 'Citizenship',       group: 'Account Info',       checked: false },
-    { key: 'accountStatus',      label: 'Account Status',    group: 'Account Info',       checked: true },
-    { key: 'profileStatus',      label: 'Profile Status',    group: 'Account Info',       checked: true },
-    { key: 'profileVisibility',  label: 'Visibility',        group: 'Account Info',       checked: false },
-    { key: 'currentPosition',    label: 'Current Position',  group: 'Account Info',       checked: false },
-    { key: 'linkedIn',           label: 'LinkedIn',          group: 'Account Info',       checked: false },
-    { key: 'portfolio',          label: 'Portfolio',         group: 'Account Info',       checked: false },
-    { key: 'createdAt',          label: 'Joined Date',       group: 'Account Info',       checked: true },
+    { key: 'name', label: 'Name', group: 'Account Info', checked: true },
+    { key: 'email', label: 'Email', group: 'Account Info', checked: true },
+    { key: 'phone', label: 'Phone', group: 'Account Info', checked: false },
+    { key: 'dateOfBirth', label: 'Date of Birth', group: 'Account Info', checked: false },
+    { key: 'citizenship', label: 'Citizenship', group: 'Account Info', checked: false },
+    { key: 'accountStatus', label: 'Account Status', group: 'Account Info', checked: true },
+    { key: 'profileStatus', label: 'Profile Status', group: 'Account Info', checked: true },
+    { key: 'profileVisibility', label: 'Visibility', group: 'Account Info', checked: false },
+    { key: 'currentPosition', label: 'Current Position', group: 'Account Info', checked: false },
+    { key: 'linkedIn', label: 'LinkedIn', group: 'Account Info', checked: false },
+    { key: 'portfolio', label: 'Portfolio', group: 'Account Info', checked: false },
+    { key: 'createdAt', label: 'Joined Date', group: 'Account Info', checked: true },
     // Academy Programme
-    { key: 'academyTrack',       label: 'Academy Track',     group: 'Academy Programme',  checked: true },
-    { key: 'academyName',        label: 'Academy Name',      group: 'Academy Programme',  checked: false },
-    { key: 'academyStartDate',   label: 'Start Date',        group: 'Academy Programme',  checked: false },
-    { key: 'academyEndDate',     label: 'End Date',          group: 'Academy Programme',  checked: false },
-    { key: 'academyStatus',      label: 'Programme Status',  group: 'Academy Programme',  checked: false },
+    { key: 'academyTrack', label: 'Academy Track', group: 'Academy Programme', checked: true },
+    { key: 'academyName', label: 'Academy Name', group: 'Academy Programme', checked: false },
+    { key: 'academyStartDate', label: 'Start Date', group: 'Academy Programme', checked: false },
+    { key: 'academyEndDate', label: 'End Date', group: 'Academy Programme', checked: false },
+    { key: 'academyStatus', label: 'Programme Status', group: 'Academy Programme', checked: false },
     // Education
-    { key: 'educationDegree',    label: 'Education Degree',  group: 'Education',          checked: true },
-    { key: 'educationInstitution', label: 'Institution',     group: 'Education',          checked: false },
-    { key: 'educationGrade',     label: 'Grade',             group: 'Education',          checked: false },
+    { key: 'educationDegree', label: 'Education Degree', group: 'Education', checked: true },
+    { key: 'educationInstitution', label: 'Institution', group: 'Education', checked: false },
+    { key: 'educationGrade', label: 'Grade', group: 'Education', checked: false },
     // Skills & Languages
-    { key: 'skills',             label: 'Skills',            group: 'Skills & Languages', checked: true },
-    { key: 'languages',          label: 'Languages',         group: 'Skills & Languages', checked: false },
+    { key: 'skills', label: 'Skills', group: 'Skills & Languages', checked: true },
+    { key: 'languages', label: 'Languages', group: 'Skills & Languages', checked: false },
 ];
 
-const COL_GROUPS = [...new Set(EXPORT_COLUMNS.map(c => c.group))];
+const COL_GROUPS = [...new Set(EXPORT_COLUMNS.map((c) => c.group))];
 
 export default async function adminStudentExportController() {
     const app = document.getElementById('app');
@@ -48,12 +48,12 @@ export default async function adminStudentExportController() {
 }
 
 function renderExportPage(app, user, allStudents) {
-    const allTracks = [...new Set(allStudents.map(s => s.academyTrack).filter(Boolean))].sort();
+    const allTracks = [...new Set(allStudents.map((s) => s.academyTrack).filter(Boolean))].sort();
 
     app.innerHTML = `
         ${renderAppHeader(user, '/admin/students')}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
 
                     <div class="mb-6">
@@ -85,7 +85,7 @@ function renderExportPage(app, user, allStudents) {
                                 <label class="mb-2 block font-medium text-slate-700">Academy Track</label>
                                 <select id="exportTrack" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                     <option value="">All Tracks</option>
-                                    ${allTracks.map(t => `<option value="${t}">${t}</option>`).join('')}
+                                    ${allTracks.map((t) => `<option value="${t}">${t}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
@@ -139,15 +139,17 @@ function renderExportPage(app, user, allStudents) {
                             </div>
                         </div>
                         <div class="space-y-5">
-                            ${COL_GROUPS.map(group => {
-                                const cols = EXPORT_COLUMNS.filter(c => c.group === group);
+                            ${COL_GROUPS.map((group) => {
+                                const cols = EXPORT_COLUMNS.filter((c) => c.group === group);
                                 return `
                                 <div>
                                     <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
                                         ${group}
                                     </p>
                                     <div class="flex flex-wrap gap-2">
-                                        ${cols.map(col => `
+                                        ${cols
+                                            .map(
+                                                (col) => `
                                         <label
                                             id="colLabel-${col.key}"
                                             class="export-col-label inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition select-none ${col.checked ? 'border-purple-400 bg-purple-50' : 'border-gray-200 hover:border-purple-200'}">
@@ -157,7 +159,9 @@ function renderExportPage(app, user, allStudents) {
                                                 data-key="${col.key}"
                                                 ${col.checked ? 'checked' : ''} />
                                             <span class="text-sm text-gray-700">${col.label}</span>
-                                        </label>`).join('')}
+                                        </label>`
+                                            )
+                                            .join('')}
                                     </div>
                                 </div>`;
                             }).join('')}
@@ -237,8 +241,8 @@ function setupEventListeners(allStudents) {
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     const getSelectedColumns = () =>
-        EXPORT_COLUMNS.filter(col =>
-            document.querySelector(`.export-col-checkbox[data-key="${col.key}"]`)?.checked
+        EXPORT_COLUMNS.filter(
+            (col) => document.querySelector(`.export-col-checkbox[data-key="${col.key}"]`)?.checked
         );
 
     const syncColLabel = (checkbox) => {
@@ -254,7 +258,7 @@ function setupEventListeners(allStudents) {
     };
 
     const syncFormatLabels = () => {
-        document.querySelectorAll('input[name="exportFormat"]').forEach(radio => {
+        document.querySelectorAll('input[name="exportFormat"]').forEach((radio) => {
             const label = document.getElementById(`fmtLabel-${radio.value}`);
             if (!label) return;
             if (radio.checked) {
@@ -268,14 +272,14 @@ function setupEventListeners(allStudents) {
     };
 
     const updateUI = () => {
-        const badge      = document.getElementById('exportMatchBadge');
+        const badge = document.getElementById('exportMatchBadge');
         const noStudents = document.getElementById('exportNoStudents');
         const noColsWarn = document.getElementById('noColsWarning');
-        const exportBtn  = document.getElementById('exportBtn');
-        const btnLabel   = document.getElementById('exportBtnLabel');
+        const exportBtn = document.getElementById('exportBtn');
+        const btnLabel = document.getElementById('exportBtnLabel');
         const selectedCols = getSelectedColumns();
-        const hasStudents  = filtered.length > 0;
-        const hasCols      = selectedCols.length > 0;
+        const hasStudents = filtered.length > 0;
+        const hasCols = selectedCols.length > 0;
 
         // Match badge
         if (hasStudents) {
@@ -309,21 +313,25 @@ function setupEventListeners(allStudents) {
     // ── Filters ───────────────────────────────────────────────────────────────
 
     const applyFilters = () => {
-        const search        = document.getElementById('exportSearch').value.toLowerCase().trim();
-        const track         = document.getElementById('exportTrack').value;
-        const visibility    = document.getElementById('exportVisibility').value;
-        const status        = document.getElementById('exportStatus').value;
+        const search = document.getElementById('exportSearch').value.toLowerCase().trim();
+        const track = document.getElementById('exportTrack').value;
+        const visibility = document.getElementById('exportVisibility').value;
+        const status = document.getElementById('exportStatus').value;
         const accountStatus = document.getElementById('exportAccountStatus').value;
 
-        filtered = allStudents.filter(s => {
-            const matchSearch = !search ||
+        filtered = allStudents.filter((s) => {
+            const matchSearch =
+                !search ||
                 s.name.toLowerCase().includes(search) ||
                 s.email.toLowerCase().includes(search);
-            const matchTrack         = !track         || s.academyTrack  === track;
-            const matchVisibility    = !visibility    || s.profileVisibility === visibility;
-            const matchStatus        = !status        || s.profileStatus === status;
-            const matchAccountStatus = !accountStatus || (s.accountStatus || 'active') === accountStatus;
-            return matchSearch && matchTrack && matchVisibility && matchStatus && matchAccountStatus;
+            const matchTrack = !track || s.academyTrack === track;
+            const matchVisibility = !visibility || s.profileVisibility === visibility;
+            const matchStatus = !status || s.profileStatus === status;
+            const matchAccountStatus =
+                !accountStatus || (s.accountStatus || 'active') === accountStatus;
+            return (
+                matchSearch && matchTrack && matchVisibility && matchStatus && matchAccountStatus
+            );
         });
 
         updateUI();
@@ -340,10 +348,10 @@ function setupEventListeners(allStudents) {
     document.getElementById('exportAccountStatus').addEventListener('change', applyFilters);
 
     document.getElementById('clearExportFiltersBtn').addEventListener('click', () => {
-        document.getElementById('exportSearch').value       = '';
-        document.getElementById('exportTrack').value        = '';
-        document.getElementById('exportVisibility').value   = '';
-        document.getElementById('exportStatus').value       = '';
+        document.getElementById('exportSearch').value = '';
+        document.getElementById('exportTrack').value = '';
+        document.getElementById('exportVisibility').value = '';
+        document.getElementById('exportStatus').value = '';
         document.getElementById('exportAccountStatus').value = '';
         filtered = [...allStudents];
         updateUI();
@@ -351,7 +359,7 @@ function setupEventListeners(allStudents) {
 
     // ── Column checkboxes ────────────────────────────────────────────────────
 
-    document.querySelectorAll('.export-col-checkbox').forEach(cb => {
+    document.querySelectorAll('.export-col-checkbox').forEach((cb) => {
         cb.addEventListener('change', () => {
             syncColLabel(cb);
             updateUI();
@@ -359,7 +367,7 @@ function setupEventListeners(allStudents) {
     });
 
     document.getElementById('selectAllColsBtn').addEventListener('click', () => {
-        document.querySelectorAll('.export-col-checkbox').forEach(cb => {
+        document.querySelectorAll('.export-col-checkbox').forEach((cb) => {
             cb.checked = true;
             syncColLabel(cb);
         });
@@ -367,7 +375,7 @@ function setupEventListeners(allStudents) {
     });
 
     document.getElementById('clearAllColsBtn').addEventListener('click', () => {
-        document.querySelectorAll('.export-col-checkbox').forEach(cb => {
+        document.querySelectorAll('.export-col-checkbox').forEach((cb) => {
             cb.checked = false;
             syncColLabel(cb);
         });
@@ -376,7 +384,7 @@ function setupEventListeners(allStudents) {
 
     // ── Format radios ─────────────────────────────────────────────────────────
 
-    document.querySelectorAll('input[name="exportFormat"]').forEach(radio => {
+    document.querySelectorAll('input[name="exportFormat"]').forEach((radio) => {
         radio.addEventListener('change', syncFormatLabels);
     });
 
@@ -387,15 +395,15 @@ function setupEventListeners(allStudents) {
         const selectedCols = getSelectedColumns();
         if (selectedCols.length === 0) return;
 
-        const btn    = document.getElementById('exportBtn');
-        const label  = document.getElementById('exportBtnLabel');
+        const btn = document.getElementById('exportBtn');
+        const label = document.getElementById('exportBtnLabel');
         const format = document.querySelector('input[name="exportFormat"]:checked')?.value || 'csv';
 
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Exporting…';
 
         // Yield to browser paint before doing synchronous work
-        await new Promise(r => setTimeout(r, 30));
+        await new Promise((r) => setTimeout(r, 30));
 
         try {
             const filename = `avy_students_${formatDateForFilename(new Date())}`;
@@ -431,22 +439,23 @@ function setupEventListeners(allStudents) {
 // ── CSV / XLS generators ───────────────────────────────────────────────────────
 
 function buildCSV(students, columns) {
-    const BOM    = '﻿'; // UTF-8 BOM so Excel opens it correctly
-    const header = columns.map(c => csvEscape(c.label)).join(',');
-    const rows   = students.map(s =>
-        columns.map(c => csvEscape(formatCell(s[c.key]))).join(',')
-    );
+    const BOM = '﻿'; // UTF-8 BOM so Excel opens it correctly
+    const header = columns.map((c) => csvEscape(c.label)).join(',');
+    const rows = students.map((s) => columns.map((c) => csvEscape(formatCell(s[c.key]))).join(','));
     return BOM + [header, ...rows].join('\r\n');
 }
 
 function buildXLS(students, columns) {
     // SpreadsheetML (Office 2003 XML) — natively opened by Excel and LibreOffice
     const headerRow = `<Row>
-        ${columns.map(c => `<Cell ss:StyleID="header"><Data ss:Type="String">${xmlEscape(c.label)}</Data></Cell>`).join('')}
+        ${columns.map((c) => `<Cell ss:StyleID="header"><Data ss:Type="String">${xmlEscape(c.label)}</Data></Cell>`).join('')}
     </Row>`;
-    const dataRows = students.map(s =>
-        `<Row>${columns.map(c => `<Cell><Data ss:Type="String">${xmlEscape(formatCell(s[c.key]))}</Data></Cell>`).join('')}</Row>`
-    ).join('\n');
+    const dataRows = students
+        .map(
+            (s) =>
+                `<Row>${columns.map((c) => `<Cell><Data ss:Type="String">${xmlEscape(formatCell(s[c.key]))}</Data></Cell>`).join('')}</Row>`
+        )
+        .join('\n');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
@@ -474,7 +483,12 @@ function formatCell(value) {
     // Format ISO date strings to readable dates
     if (/^\d{4}-\d{2}-\d{2}(T.*)?$/.test(str)) {
         const d = new Date(str);
-        if (!isNaN(d)) return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        if (!isNaN(d))
+            return d.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+            });
     }
     return str;
 }
@@ -500,9 +514,9 @@ function xmlEscape(str) {
 
 function downloadBlob(content, filename, mimeType) {
     const blob = new Blob([content], { type: mimeType });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);

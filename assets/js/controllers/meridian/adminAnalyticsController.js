@@ -507,7 +507,7 @@ export default async function adminAnalyticsController() {
     ${renderAppHeader(user, window.location.pathname)}
 
     <div class="bg-gray-50 min-h-screen py-8" style="overflow-x: hidden;">
-        <div class="w-full max-w-[1200px] mx-auto px-4">
+        <div class="container mx-auto px-4">
 
             <!-- MAIN LAYOUT -->
             <div class="flex flex-col gap-8 lg:flex-row">

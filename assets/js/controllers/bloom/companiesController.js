@@ -16,13 +16,12 @@ export default async function companiesController() {
     }
     
     const companies = await mockDataService.getAllCompanies();
-    const activeCompanies = companies.filter((c) => !c.suspended);
     
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -36,13 +35,13 @@ export default async function companiesController() {
                         <input 
                             type="text" 
                             id="searchInput" 
-                            class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-full max-w-2xl" 
+                            class="form-input w-full max-w-2xl" 
                             placeholder="Search companies by name or industry..."
                         />
                     </div>
                     
                     <div id="companiesGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        ${renderCompaniesGrid(activeCompanies)}
+                        ${renderCompaniesGrid(companies)}
                     </div>
                     
                     <div id="emptyState" class="hidden text-center py-20">
@@ -58,7 +57,7 @@ export default async function companiesController() {
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        const filtered = activeCompanies.filter(c => 
+        const filtered = companies.filter(c => 
             c.name.toLowerCase().includes(searchTerm) ||
             c.industry.toLowerCase().includes(searchTerm) ||
             c.description.toLowerCase().includes(searchTerm)
@@ -84,7 +83,7 @@ export default async function companiesController() {
 
 function renderCompaniesGrid(companies) {
     return companies.map(company => `
-        <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-xl transition">
+        <div class="card hover:shadow-xl transition">
             <div class="text-center mb-4">
                 <img src="${company.logo}" alt="${company.name}" class="w-24 h-24 mx-auto rounded-lg mb-3" />
                 <h3 class="text-xl font-bold text-gray-800 mb-1">${company.name}</h3>
@@ -109,11 +108,11 @@ function renderCompaniesGrid(companies) {
             </div>
             
             <div class="flex gap-2">
-                <button onclick="window.router.navigate('/jobs?company=${company.id}')" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] flex-1 text-sm">
+                <button onclick="window.router.navigate('/jobs?company=${company.id}')" class="btn btn-primary flex-1 text-sm">
                     <i class="fas fa-briefcase mr-1"></i> View Jobs
                 </button>
                 ${company.website ? `
-                    <a href="${company.website}" target="_blank" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white text-sm">
+                    <a href="${company.website}" target="_blank" class="btn btn-secondary text-sm">
                         <i class="fas fa-external-link-alt"></i>
                     </a>
                 ` : ''}

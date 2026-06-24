@@ -40,7 +40,7 @@ export default async function adminJobsController() {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">

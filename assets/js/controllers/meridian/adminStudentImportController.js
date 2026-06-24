@@ -51,7 +51,7 @@ function renderImportPage(app, user) {
     app.innerHTML = `
         ${renderAppHeader(user, '/admin/students')}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
 
                     <div class="mb-6">
@@ -207,21 +207,37 @@ function setupEventListeners(app, user) {
         const type = item ? item.type : '';
         // Browsers often return '' for file MIME during dragover (security sandbox).
         // We can only reliably detect "definitely not CSV" when a non-text type is exposed.
-        const definitelyWrong = type && type !== 'text/csv' && type !== 'text/plain' && !type.startsWith('text/');
-        dropZone.classList.remove('border-purple-400', 'bg-purple-50', 'border-red-400', 'bg-red-50');
+        const definitelyWrong =
+            type && type !== 'text/csv' && type !== 'text/plain' && !type.startsWith('text/');
+        dropZone.classList.remove(
+            'border-purple-400',
+            'bg-purple-50',
+            'border-red-400',
+            'bg-red-50'
+        );
         dropZone.classList.add(
             definitelyWrong ? 'border-red-400' : 'border-purple-400',
-            definitelyWrong ? 'bg-red-50'      : 'bg-purple-50'
+            definitelyWrong ? 'bg-red-50' : 'bg-purple-50'
         );
     });
 
     dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('border-purple-400', 'bg-purple-50', 'border-red-400', 'bg-red-50');
+        dropZone.classList.remove(
+            'border-purple-400',
+            'bg-purple-50',
+            'border-red-400',
+            'bg-red-50'
+        );
     });
 
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
-        dropZone.classList.remove('border-purple-400', 'bg-purple-50', 'border-red-400', 'bg-red-50');
+        dropZone.classList.remove(
+            'border-purple-400',
+            'bg-purple-50',
+            'border-red-400',
+            'bg-red-50'
+        );
         const file = e.dataTransfer.files[0];
         if (file) handleFile(file);
     });
@@ -274,7 +290,9 @@ function setupEventListeners(app, user) {
 
         const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
         if (file.size > MAX_SIZE) {
-            showParseError(`File is too large (${formatBytes(file.size)}). Maximum allowed size is 5 MB.`);
+            showParseError(
+                `File is too large (${formatBytes(file.size)}). Maximum allowed size is 5 MB.`
+            );
             showFileInfo(null);
             return;
         }
@@ -289,7 +307,9 @@ function setupEventListeners(app, user) {
                 const text = e.target.result;
                 // Null bytes indicate a binary file renamed to .csv
                 if (text.includes('\0')) {
-                    throw new Error('This file appears to be binary, not a CSV. Please export your data as a plain .csv file.');
+                    throw new Error(
+                        'This file appears to be binary, not a CSV. Please export your data as a plain .csv file.'
+                    );
                 }
                 const existingUsers = await mockDataService.getAllUsers();
                 const existingEmails = new Set(existingUsers.map((u) => u.email.toLowerCase()));
@@ -443,7 +463,7 @@ function renderResultsView(app, user, results, totalParsed) {
     app.innerHTML = `
         ${renderAppHeader(user, '/admin/students')}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
 
                     <div class="mb-7">

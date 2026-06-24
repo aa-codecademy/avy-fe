@@ -46,18 +46,18 @@ export default async function jobDetailController(params = {}) {
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
-
+        
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
                     <button onclick="window.router.navigate('/jobs')" class="mb-6 text-gray-600 hover:text-purple-600 transition">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Back to Jobs
                     </button>
-
+                    
                     <div class="grid lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2">
-                            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6">
+                            <div class="card mb-6">
                                 <div class="flex items-start gap-4 mb-6">
                                     <img src="${company.logo}" alt="${company.name}" class="w-20 h-20 rounded-lg" />
                                     <div class="flex-1">
@@ -79,7 +79,7 @@ export default async function jobDetailController(params = {}) {
                                         </div>
                                     </div>
                                 </div>
-
+                                
                                 ${
                                     job.salaryRange.min && job.salaryRange.max
                                         ? `
@@ -92,22 +92,22 @@ export default async function jobDetailController(params = {}) {
                                 `
                                         : ''
                                 }
-
+                                
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">About the Job</h2>
                                     <p class="text-gray-700 leading-relaxed">${job.description}</p>
                                 </div>
-
+                                
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Responsibilities</h2>
                                     <div class="text-gray-700 leading-relaxed whitespace-pre-line">${job.responsibilities}</div>
                                 </div>
-
+                                
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Required Qualifications</h2>
                                     <div class="text-gray-700 leading-relaxed whitespace-pre-line">${job.qualifications}</div>
                                 </div>
-
+                                
                                 <div class="mb-6">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-3">Required Skills</h2>
                                     <div class="flex flex-wrap gap-2">
@@ -122,7 +122,7 @@ export default async function jobDetailController(params = {}) {
                                             .join('')}
                                     </div>
                                 </div>
-
+                                
                                 ${
                                     job.niceToHaveSkills.length > 0
                                         ? `
@@ -143,7 +143,7 @@ export default async function jobDetailController(params = {}) {
                                 `
                                         : ''
                                 }
-
+                                
                                 ${
                                     job.benefits
                                         ? `
@@ -155,16 +155,16 @@ export default async function jobDetailController(params = {}) {
                                         : ''
                                 }
                             </div>
-
+                            
                             ${
                                 user.role !== 'employer' && !hasApplied
                                     ? `
-                                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
+                                <div class="card">
                                     <h2 class="text-2xl font-bold text-gray-800 mb-4">
                                         <i class="fas fa-paper-plane mr-2"></i>
                                         Apply for this Position
                                     </h2>
-
+                                    
                                     <form id="applicationForm" class="space-y-4">
                                         <div class="p-4 bg-blue-50 rounded-lg">
                                             <p class="text-blue-900 text-sm">
@@ -172,23 +172,23 @@ export default async function jobDetailController(params = {}) {
                                                 Your profile information will be automatically shared with the employer
                                             </p>
                                         </div>
-
-                                        <div class="mb-6">
-                                            <label class="mb-2 block font-medium text-slate-700">Cover Letter (Optional)</label>
-                                            <textarea
-                                                id="coverLetter"
-                                                class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
-                                                rows="6"
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">Cover Letter (Optional)</label>
+                                            <textarea 
+                                                id="coverLetter" 
+                                                class="form-input" 
+                                                rows="6" 
                                                 placeholder="Tell us why you're interested in this position..."
                                             ></textarea>
                                         </div>
-
+                                        
                                         <div class="form-group">
                                             <label class="form-label">Comment (Optional)</label>
-                                            <textarea
-                                                id="comment"
-                                                class="form-input"
-                                                rows="4"
+                                            <textarea 
+                                                id="comment" 
+                                                class="form-input" 
+                                                rows="4" 
                                                 placeholder="Add any additional comments..."
                                             ></textarea>
                                         </div>
@@ -262,8 +262,8 @@ export default async function jobDetailController(params = {}) {
                                                 <div id="uploadedDocumentsList" class="space-y-2"></div>
                                             </div>
                                         </div>
-
-                                        <button type="submit" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full text-lg">
+                                        
+                                        <button type="submit" class="btn btn-primary w-full text-lg">
                                             <i class="fas fa-paper-plane mr-2"></i>
                                             Submit Application
                                         </button>
@@ -272,12 +272,12 @@ export default async function jobDetailController(params = {}) {
                             `
                                     : hasApplied
                                       ? `
-                                <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] bg-green-50 border-2 border-green-200">
+                                <div class="card bg-green-50 border-2 border-green-200">
                                     <div class="text-center">
                                         <i class="fas fa-check-circle text-6xl text-green-600 mb-4"></i>
                                         <h3 class="text-2xl font-bold text-green-800 mb-2">Application Submitted!</h3>
                                         <p class="text-green-700">You have already applied for this position.</p>
-                                        <a href="/dashboard" data-link class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] mt-4">
+                                        <a href="/dashboard" data-link class="btn btn-primary mt-4">
                                             View Your Applications
                                         </a>
                                     </div>
@@ -286,11 +286,11 @@ export default async function jobDetailController(params = {}) {
                                       : ''
                             }
                         </div>
-
+                        
                         <div class="lg:col-span-1">
-                            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] mb-6 sticky top-4">
+                            <div class="card mb-6 sticky top-4">
                                 <h3 class="text-xl font-bold text-gray-800 mb-4">Job Information</h3>
-
+                                
                                 <div class="space-y-3 text-sm">
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-calendar-alt w-6 text-purple-600"></i>
@@ -299,7 +299,7 @@ export default async function jobDetailController(params = {}) {
                                             <p>${new Date(job.createdAt).toLocaleDateString()}</p>
                                         </div>
                                     </div>
-
+                                    
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-clock w-6 text-purple-600"></i>
                                         <div>
@@ -307,7 +307,7 @@ export default async function jobDetailController(params = {}) {
                                             <p>${new Date(job.applicationDeadline).toLocaleDateString()} (${daysUntilDeadline} days)</p>
                                         </div>
                                     </div>
-
+                                    
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-users w-6 text-purple-600"></i>
                                         <div>
@@ -323,7 +323,7 @@ export default async function jobDetailController(params = {}) {
                                             <p>${(job.applicationMode || 'easy_apply') === 'cv_required' ? 'CV upload required' : 'Easy Apply'}</p>
                                         </div>
                                     </div>
-
+                                    
                                     <div class="flex items-center text-gray-700">
                                         <i class="fas fa-eye w-6 text-purple-600"></i>
                                         <div>
@@ -332,15 +332,15 @@ export default async function jobDetailController(params = {}) {
                                         </div>
                                     </div>
                                 </div>
-
+                                
                                 <hr class="my-4" />
-
+                                
                                 <h3 class="text-xl font-bold text-gray-800 mb-3">About ${company.name}</h3>
                                 <p class="text-gray-700 text-sm mb-3">${company.description}</p>
                                 <a href="/companies/${company.id}" data-link class="text-purple-600 hover:text-purple-800 text-sm font-semibold">
                                     View Company Profile <i class="fas fa-arrow-right ml-1"></i>
                                 </a>
-
+                                
                                 ${
                                     company.website
                                         ? `

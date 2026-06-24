@@ -12,10 +12,10 @@ const TRACKS = [
 
 const trackColors = {
     'Frontend Development': 'bg-blue-100 text-blue-800',
-    'Backend Development':  'bg-green-100 text-green-800',
-    'QA Engineering':       'bg-yellow-100 text-yellow-800',
-    'Data Analytics':       'bg-orange-100 text-orange-800',
-    'UX/UI Design':         'bg-pink-100 text-pink-800',
+    'Backend Development': 'bg-green-100 text-green-800',
+    'QA Engineering': 'bg-yellow-100 text-yellow-800',
+    'Data Analytics': 'bg-orange-100 text-orange-800',
+    'UX/UI Design': 'bg-pink-100 text-pink-800',
 };
 
 export default async function adminStudentProgrammeController(params = {}) {
@@ -30,7 +30,7 @@ export default async function adminStudentProgrammeController(params = {}) {
     const studentId = params.id;
     const [student, cv] = await Promise.all([
         mockDataService.getUserById(studentId),
-        mockDataService.getCVProfile(studentId)
+        mockDataService.getCVProfile(studentId),
     ]);
 
     if (!student || student.role !== 'student') {
@@ -44,7 +44,7 @@ export default async function adminStudentProgrammeController(params = {}) {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="max-w-3xl mx-auto fade-in">
 
                     <div class="mb-6">
@@ -77,11 +77,12 @@ export default async function adminStudentProgrammeController(params = {}) {
                                 <p class="font-bold text-gray-800">${student.name}</p>
                                 <p class="text-sm text-gray-500 truncate">${student.email}</p>
                             </div>
-                            ${hasProgramme
-                                ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${trackColors[primaryProgramme.track] || 'bg-purple-100 text-purple-800'} flex-shrink-0">
+                            ${
+                                hasProgramme
+                                    ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${trackColors[primaryProgramme.track] || 'bg-purple-100 text-purple-800'} flex-shrink-0">
                                        <i class="fas fa-graduation-cap mr-1.5"></i>${primaryProgramme.track}
                                    </span>`
-                                : `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-500 flex-shrink-0">
+                                    : `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-500 flex-shrink-0">
                                        <i class="fas fa-question-circle mr-1.5"></i>No Programme
                                    </span>`
                             }
@@ -95,12 +96,13 @@ export default async function adminStudentProgrammeController(params = {}) {
                         <h2 class="text-xl font-bold text-gray-800 mb-5">
                             <i class="fas fa-university text-purple-500 mr-2"></i>${hasProgramme ? 'Change Programme' : 'Assign Programme'}
                         </h2>
-                        ${hasProgramme
-                            ? `<div class="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                        ${
+                            hasProgramme
+                                ? `<div class="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
                                    <i class="fas fa-info-circle mr-2"></i>
                                    This will update the student's primary programme. The change will be reflected in their dashboard content, resource recommendations, and employer matching.
                                </div>`
-                            : `<div class="mb-5 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                                : `<div class="mb-5 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
                                    <i class="fas fa-info-circle mr-2"></i>
                                    Assigning a programme will personalise this student's dashboard content, resource recommendations, and employer matching.
                                </div>`
@@ -115,7 +117,7 @@ export default async function adminStudentProgrammeController(params = {}) {
                             <div>
                                 <label class="mb-2 block font-medium text-slate-700">Track <span class="text-red-500">*</span></label>
                                 <select id="progTrack" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
-                                    ${TRACKS.map(t => `<option value="${t}" ${hasProgramme && primaryProgramme.track === t ? 'selected' : ''}>${t}</option>`).join('')}
+                                    ${TRACKS.map((t) => `<option value="${t}" ${hasProgramme && primaryProgramme.track === t ? 'selected' : ''}>${t}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
@@ -164,15 +166,21 @@ export default async function adminStudentProgrammeController(params = {}) {
 }
 
 function renderCurrentProgrammeCard(programme) {
-    const formatDate = d => d
-        ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-        : 'Present';
+    const formatDate = (d) =>
+        d
+            ? new Date(d).toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+              })
+            : 'Present';
 
-    const statusBadge = programme.status === 'active'
-        ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+    const statusBadge =
+        programme.status === 'active'
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
                <i class="fas fa-circle text-blue-400 mr-1" style="font-size:6px"></i>Active
            </span>`
-        : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+            : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
                <i class="fas fa-check-circle mr-1"></i>Completed
            </span>`;
 

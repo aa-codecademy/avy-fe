@@ -13,13 +13,13 @@ export default async function adminStudentsController() {
 
     const students = await mockDataService.getStudentsWithProfiles();
 
-    const allTracks = [...new Set(students.map(s => s.academyTrack).filter(Boolean))].sort();
-    const pendingCount = students.filter(s => s.profileStatus === 'pending').length;
+    const allTracks = [...new Set(students.map((s) => s.academyTrack).filter(Boolean))].sort();
+    const pendingCount = students.filter((s) => s.profileStatus === 'pending').length;
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
                         <div>
@@ -41,7 +41,9 @@ export default async function adminStudentsController() {
                         </div>
                     </div>
 
-                    ${pendingCount > 0 ? `
+                    ${
+                        pendingCount > 0
+                            ? `
                     <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
                         <i class="fas fa-clock text-amber-500 text-lg"></i>
                         <p class="text-sm text-amber-800 font-medium">
@@ -52,7 +54,9 @@ export default async function adminStudentsController() {
                             class="ml-auto text-xs font-semibold text-amber-700 hover:text-amber-900 underline">
                             View pending
                         </button>
-                    </div>` : ''}
+                    </div>`
+                            : ''
+                    }
 
                     <div class="grid lg:grid-cols-4 gap-6">
                         <!-- Filters sidebar -->
@@ -76,7 +80,7 @@ export default async function adminStudentsController() {
                                         <label class="mb-2 block font-medium text-slate-700">Academy Track</label>
                                         <select id="filterTrack" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
                                             <option value="">All Tracks</option>
-                                            ${allTracks.map(t => `<option value="${t}">${t}</option>`).join('')}
+                                            ${allTracks.map((t) => `<option value="${t}">${t}</option>`).join('')}
                                         </select>
                                     </div>
                                     <div>
@@ -167,9 +171,13 @@ function renderStudentCard(student) {
            </span>`;
 
     const statusBadgeConfig = {
-        pending:  { icon: 'fa-clock',        cls: 'bg-amber-100 text-amber-700', label: 'Pending' },
-        approved: { icon: 'fa-check-circle',  cls: 'bg-emerald-100 text-emerald-700', label: 'Approved' },
-        rejected: { icon: 'fa-times-circle',  cls: 'bg-red-100 text-red-700',    label: 'Rejected' },
+        pending: { icon: 'fa-clock', cls: 'bg-amber-100 text-amber-700', label: 'Pending' },
+        approved: {
+            icon: 'fa-check-circle',
+            cls: 'bg-emerald-100 text-emerald-700',
+            label: 'Approved',
+        },
+        rejected: { icon: 'fa-times-circle', cls: 'bg-red-100 text-red-700', label: 'Rejected' },
     };
     const statusCfg = statusBadgeConfig[student.profileStatus] || statusBadgeConfig.pending;
     const statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusCfg.cls}">
@@ -177,17 +185,22 @@ function renderStudentCard(student) {
                          </span>`;
 
     const accountStatusConfig = {
-        active:      { icon: 'fa-check-circle', cls: 'bg-green-100 text-green-700',   label: 'Active' },
-        suspended:   { icon: 'fa-pause-circle', cls: 'bg-orange-100 text-orange-700', label: 'Suspended' },
-        deactivated: { icon: 'fa-ban',          cls: 'bg-red-100 text-red-700',        label: 'Deactivated' },
+        active: { icon: 'fa-check-circle', cls: 'bg-green-100 text-green-700', label: 'Active' },
+        suspended: {
+            icon: 'fa-pause-circle',
+            cls: 'bg-orange-100 text-orange-700',
+            label: 'Suspended',
+        },
+        deactivated: { icon: 'fa-ban', cls: 'bg-red-100 text-red-700', label: 'Deactivated' },
     };
     const acctStatus = student.accountStatus || 'active';
     const acctCfg = accountStatusConfig[acctStatus] || accountStatusConfig.active;
-    const accountStatusBadge = acctStatus !== 'active'
-        ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${acctCfg.cls}">
+    const accountStatusBadge =
+        acctStatus !== 'active'
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${acctCfg.cls}">
                <i class="fas ${acctCfg.icon} mr-1"></i>${acctCfg.label}
            </span>`
-        : '';
+            : '';
 
     const trackColors = {
         'Frontend Development': 'bg-blue-100 text-blue-800',
@@ -202,15 +215,21 @@ function renderStudentCard(student) {
            </span>`
         : '';
 
-    const skillChips = (student.skills || []).slice(0, 5).map(
-        s => `<span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">${s}</span>`
-    ).join('');
-    const extraSkills = (student.skills || []).length > 5
-        ? `<span class="px-2 py-0.5 text-gray-400 text-xs">+${student.skills.length - 5} more</span>`
-        : '';
+    const skillChips = (student.skills || [])
+        .slice(0, 5)
+        .map(
+            (s) => `<span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">${s}</span>`
+        )
+        .join('');
+    const extraSkills =
+        (student.skills || []).length > 5
+            ? `<span class="px-2 py-0.5 text-gray-400 text-xs">+${student.skills.length - 5} more</span>`
+            : '';
 
     const joinedDate = new Date(student.createdAt).toLocaleDateString('en-GB', {
-        day: 'numeric', month: 'short', year: 'numeric'
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
     });
 
     const cardOpacity = acctStatus === 'deactivated' ? 'opacity-60' : '';
@@ -286,20 +305,24 @@ function setupEventListeners(allStudents) {
         const accountStatus = document.getElementById('filterAccountStatus').value;
         const sort = document.getElementById('sortStudents').value;
 
-        filtered = allStudents.filter(s => {
-            const matchSearch = !search ||
+        filtered = allStudents.filter((s) => {
+            const matchSearch =
+                !search ||
                 s.name.toLowerCase().includes(search) ||
                 s.email.toLowerCase().includes(search) ||
-                (s.skills || []).some(sk => sk.toLowerCase().includes(search)) ||
+                (s.skills || []).some((sk) => sk.toLowerCase().includes(search)) ||
                 (s.academyTrack || '').toLowerCase().includes(search) ||
                 (s.educationLabel || '').toLowerCase().includes(search);
 
             const matchTrack = !track || s.academyTrack === track;
             const matchVisibility = !visibility || s.profileVisibility === visibility;
             const matchStatus = !status || s.profileStatus === status;
-            const matchAccountStatus = !accountStatus || (s.accountStatus || 'active') === accountStatus;
+            const matchAccountStatus =
+                !accountStatus || (s.accountStatus || 'active') === accountStatus;
 
-            return matchSearch && matchTrack && matchVisibility && matchStatus && matchAccountStatus;
+            return (
+                matchSearch && matchTrack && matchVisibility && matchStatus && matchAccountStatus
+            );
         });
 
         if (sort === 'name') {

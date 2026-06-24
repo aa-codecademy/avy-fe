@@ -178,7 +178,7 @@ function createPlaceholderController(title, description) {
         app.innerHTML = `
             ${renderAppHeader(user, window.location.pathname)}
 
-            <div class="w-full max-w-[1200px] mx-auto px-4 py-20 text-center">
+            <div class="container mx-auto px-4 py-20 text-center">
                 <div class="max-w-2xl mx-auto fade-in">
                     <div class="text-6xl mb-6">🚧</div>
                     <h1 class="text-4xl font-bold text-gray-800 mb-4">${title}</h1>

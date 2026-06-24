@@ -14,7 +14,7 @@ export default async function adminStudentDetailController(params = {}) {
     const studentId = params.id;
     const [student, cv] = await Promise.all([
         mockDataService.getUserById(studentId),
-        mockDataService.getCVProfile(studentId)
+        mockDataService.getCVProfile(studentId),
     ]);
 
     if (!student || student.role !== 'student') {
@@ -27,7 +27,7 @@ export default async function adminStudentDetailController(params = {}) {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
 
                     <div class="mb-6">
@@ -96,7 +96,9 @@ function setupAdminActions(studentId, currentProfileStatus, currentAccountStatus
         deactivateBtn.addEventListener('click', () => showDeactivateModal(studentId));
     }
     if (reactivateBtn) {
-        reactivateBtn.addEventListener('click', () => showReactivateModal(studentId, currentAccountStatus));
+        reactivateBtn.addEventListener('click', () =>
+            showReactivateModal(studentId, currentAccountStatus)
+        );
     }
 }
 
@@ -147,7 +149,9 @@ function showRejectModal(studentId) {
     const close = () => overlay.remove();
     document.getElementById('closeRejectModal').addEventListener('click', close);
     document.getElementById('cancelRejectBtn').addEventListener('click', close);
-    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
 
     document.getElementById('confirmRejectBtn').addEventListener('click', async () => {
         const note = document.getElementById('rejectionNote').value.trim();
@@ -173,21 +177,21 @@ function renderAccountStatusCard(student) {
     const configs = {
         active: {
             wrapperCls: 'border border-green-200 bg-green-50',
-            badgeCls:   'bg-green-100 text-green-800',
-            icon:       'fa-check-circle',
-            label:      'Active',
+            badgeCls: 'bg-green-100 text-green-800',
+            icon: 'fa-check-circle',
+            label: 'Active',
         },
         suspended: {
             wrapperCls: 'border border-orange-200 bg-orange-50',
-            badgeCls:   'bg-orange-100 text-orange-800',
-            icon:       'fa-pause-circle',
-            label:      'Suspended',
+            badgeCls: 'bg-orange-100 text-orange-800',
+            icon: 'fa-pause-circle',
+            label: 'Suspended',
         },
         deactivated: {
             wrapperCls: 'border border-red-200 bg-red-50',
-            badgeCls:   'bg-red-100 text-red-800',
-            icon:       'fa-ban',
-            label:      'Deactivated',
+            badgeCls: 'bg-red-100 text-red-800',
+            icon: 'fa-ban',
+            label: 'Deactivated',
         },
     };
 
@@ -196,18 +200,21 @@ function renderAccountStatusCard(student) {
 
     const updatedAt = student.accountStatusUpdatedAt
         ? new Date(student.accountStatusUpdatedAt).toLocaleDateString('en-GB', {
-              day: 'numeric', month: 'short', year: 'numeric'
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
           })
         : null;
 
-    const noteBlock = (accountStatus !== 'active' && student.accountStatusNote)
-        ? `<div class="mt-3 p-3 bg-white rounded-lg border ${accountStatus === 'suspended' ? 'border-orange-100' : 'border-red-100'}">
+    const noteBlock =
+        accountStatus !== 'active' && student.accountStatusNote
+            ? `<div class="mt-3 p-3 bg-white rounded-lg border ${accountStatus === 'suspended' ? 'border-orange-100' : 'border-red-100'}">
                <p class="text-xs font-semibold ${accountStatus === 'suspended' ? 'text-orange-700' : 'text-red-700'} mb-1">
                    <i class="fas fa-sticky-note mr-1"></i>Reason:
                </p>
                <p class="text-xs ${accountStatus === 'suspended' ? 'text-orange-600' : 'text-red-600'} leading-relaxed">${student.accountStatusNote}</p>
            </div>`
-        : '';
+            : '';
 
     let actions = '';
     if (accountStatus === 'active') {
@@ -308,7 +315,9 @@ function showSuspendModal(studentId) {
     const close = () => overlay.remove();
     document.getElementById('closeSuspendModal').addEventListener('click', close);
     document.getElementById('cancelSuspendBtn').addEventListener('click', close);
-    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
 
     document.getElementById('confirmSuspendBtn').addEventListener('click', async () => {
         const note = document.getElementById('suspendNote').value.trim();
@@ -382,7 +391,9 @@ function showDeactivateModal(studentId) {
     const close = () => overlay.remove();
     document.getElementById('closeDeactivateModal').addEventListener('click', close);
     document.getElementById('cancelDeactivateBtn').addEventListener('click', close);
-    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
 
     document.getElementById('confirmDeactivateBtn').addEventListener('click', async () => {
         const note = document.getElementById('deactivateNote').value.trim();
@@ -419,9 +430,11 @@ function showReactivateModal(studentId, currentAccountStatus) {
                 </button>
             </div>
             <p class="text-sm text-gray-600 mb-6">
-                ${fromSuspended
-                    ? 'The suspension will be lifted and the student will regain full access to the platform.'
-                    : 'This account was permanently deactivated. Reactivating it will restore the student\'s full access to the platform.'}
+                ${
+                    fromSuspended
+                        ? 'The suspension will be lifted and the student will regain full access to the platform.'
+                        : "This account was permanently deactivated. Reactivating it will restore the student's full access to the platform."
+                }
             </p>
             <div class="flex gap-3">
                 <button id="cancelReactivateBtn" class="flex-1 inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white" style="padding: 0.6rem 1rem; font-size: 0.875rem;">
@@ -440,7 +453,9 @@ function showReactivateModal(studentId, currentAccountStatus) {
     const close = () => overlay.remove();
     document.getElementById('closeReactivateModal').addEventListener('click', close);
     document.getElementById('cancelReactivateBtn').addEventListener('click', close);
-    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
 
     document.getElementById('confirmReactivateBtn').addEventListener('click', async () => {
         const confirmBtn = document.getElementById('confirmReactivateBtn');
@@ -455,20 +470,25 @@ function showReactivateModal(studentId, currentAccountStatus) {
 
 function computeCompleteness(student, cv) {
     const checks = [
-        { label: 'Phone number',       done: !!student.phone },
-        { label: 'Date of birth',      done: !!student.dateOfBirth },
-        { label: 'Citizenship',        done: !!student.citizenship },
-        { label: 'LinkedIn profile',   done: !!student.linkedIn },
-        { label: 'Portfolio link',     done: !!student.portfolio },
-        { label: 'Current position',   done: !!student.currentPosition },
-        { label: 'Work experience',    done: (cv.workExperience || []).length > 0 },
-        { label: 'Education',          done: (cv.education || []).length > 0 },
-        { label: 'Skills',             done: (cv.skills || []).length > 0 },
-        { label: 'Languages',          done: (cv.languages || []).length > 0 },
+        { label: 'Phone number', done: !!student.phone },
+        { label: 'Date of birth', done: !!student.dateOfBirth },
+        { label: 'Citizenship', done: !!student.citizenship },
+        { label: 'LinkedIn profile', done: !!student.linkedIn },
+        { label: 'Portfolio link', done: !!student.portfolio },
+        { label: 'Current position', done: !!student.currentPosition },
+        { label: 'Work experience', done: (cv.workExperience || []).length > 0 },
+        { label: 'Education', done: (cv.education || []).length > 0 },
+        { label: 'Skills', done: (cv.skills || []).length > 0 },
+        { label: 'Languages', done: (cv.languages || []).length > 0 },
         { label: 'Academy attendance', done: (cv.academyAttendance || []).length > 0 },
     ];
-    const done = checks.filter(c => c.done).length;
-    return { checks, done, total: checks.length, percent: Math.round((done / checks.length) * 100) };
+    const done = checks.filter((c) => c.done).length;
+    return {
+        checks,
+        done,
+        total: checks.length,
+        percent: Math.round((done / checks.length) * 100),
+    };
 }
 
 function renderAdminActionsCard(student, cv) {
@@ -477,21 +497,21 @@ function renderAdminActionsCard(student, cv) {
     const configs = {
         pending: {
             wrapperCls: 'border border-amber-200 bg-amber-50',
-            badgeCls:   'bg-amber-100 text-amber-800',
-            icon:       'fa-clock',
-            label:      'Pending Review',
+            badgeCls: 'bg-amber-100 text-amber-800',
+            icon: 'fa-clock',
+            label: 'Pending Review',
         },
         approved: {
             wrapperCls: 'border border-emerald-200 bg-emerald-50',
-            badgeCls:   'bg-emerald-100 text-emerald-800',
-            icon:       'fa-check-circle',
-            label:      'Approved',
+            badgeCls: 'bg-emerald-100 text-emerald-800',
+            icon: 'fa-check-circle',
+            label: 'Approved',
         },
         rejected: {
             wrapperCls: 'border border-red-200 bg-red-50',
-            badgeCls:   'bg-red-100 text-red-800',
-            icon:       'fa-times-circle',
-            label:      'Rejected',
+            badgeCls: 'bg-red-100 text-red-800',
+            icon: 'fa-times-circle',
+            label: 'Rejected',
         },
     };
 
@@ -499,18 +519,21 @@ function renderAdminActionsCard(student, cv) {
 
     const updatedAt = student.profileStatusUpdatedAt
         ? new Date(student.profileStatusUpdatedAt).toLocaleDateString('en-GB', {
-              day: 'numeric', month: 'short', year: 'numeric'
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
           })
         : null;
 
-    const noteBlock = student.profileStatus === 'rejected' && student.profileStatusNote
-        ? `<div class="mt-3 p-3 bg-white rounded-lg border border-red-100">
+    const noteBlock =
+        student.profileStatus === 'rejected' && student.profileStatusNote
+            ? `<div class="mt-3 p-3 bg-white rounded-lg border border-red-100">
                <p class="text-xs font-semibold text-red-700 mb-1">
                    <i class="fas fa-sticky-note mr-1"></i>Rejection note:
                </p>
                <p class="text-xs text-red-600 leading-relaxed">${student.profileStatusNote}</p>
            </div>`
-        : '';
+            : '';
 
     let actions = '';
     if (student.profileStatus === 'pending') {
@@ -576,10 +599,10 @@ function renderAdminActionsCard(student, cv) {
 
 const trackColors = {
     'Frontend Development': 'bg-blue-100 text-blue-800',
-    'Backend Development':  'bg-green-100 text-green-800',
-    'QA Engineering':       'bg-yellow-100 text-yellow-800',
-    'Data Analytics':       'bg-orange-100 text-orange-800',
-    'UX/UI Design':         'bg-pink-100 text-pink-800',
+    'Backend Development': 'bg-green-100 text-green-800',
+    'QA Engineering': 'bg-yellow-100 text-yellow-800',
+    'Data Analytics': 'bg-orange-100 text-orange-800',
+    'UX/UI Design': 'bg-pink-100 text-pink-800',
 };
 
 function renderHeroCard(student, cv) {
@@ -601,7 +624,9 @@ function renderHeroCard(student, cv) {
         : '';
 
     const joinedDate = new Date(student.createdAt).toLocaleDateString('en-GB', {
-        day: 'numeric', month: 'long', year: 'numeric'
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
     });
 
     return `
@@ -610,11 +635,13 @@ function renderHeroCard(student, cv) {
                  class="w-24 h-24 rounded-full border-4 border-purple-200 mx-auto mb-4" />
             <h2 class="text-xl font-bold text-gray-800 mb-1">${student.name}</h2>
             <p class="text-sm text-gray-500 mb-3">${student.email}</p>
-            ${student.currentPosition
-                ? `<p class="text-sm text-gray-600 font-medium mb-3">
+            ${
+                student.currentPosition
+                    ? `<p class="text-sm text-gray-600 font-medium mb-3">
                        <i class="fas fa-briefcase text-gray-400 mr-1"></i>${student.currentPosition}
                    </p>`
-                : ''}
+                    : ''
+            }
             <div class="flex flex-wrap justify-center gap-2 mb-4">
                 ${trackBadge}
                 ${visibilityBadge}
@@ -627,13 +654,14 @@ function renderHeroCard(student, cv) {
 }
 
 function renderCompletenessCard(completeness) {
-    const barColor = completeness.percent >= 80
-        ? 'bg-green-500'
-        : completeness.percent >= 50
-            ? 'bg-yellow-400'
-            : 'bg-red-400';
+    const barColor =
+        completeness.percent >= 80
+            ? 'bg-green-500'
+            : completeness.percent >= 50
+              ? 'bg-yellow-400'
+              : 'bg-red-400';
 
-    const missing = completeness.checks.filter(c => !c.done);
+    const missing = completeness.checks.filter((c) => !c.done);
 
     return `
         <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
@@ -647,20 +675,28 @@ function renderCompletenessCard(completeness) {
             <div class="w-full bg-gray-100 rounded-full h-2 mb-4">
                 <div class="${barColor} h-2 rounded-full transition-all" style="width: ${completeness.percent}%"></div>
             </div>
-            ${missing.length > 0 ? `
+            ${
+                missing.length > 0
+                    ? `
                 <p class="text-xs font-semibold text-gray-500 mb-2">Missing:</p>
                 <ul class="space-y-1">
-                    ${missing.map(c => `
+                    ${missing
+                        .map(
+                            (c) => `
                         <li class="text-xs text-gray-400 flex items-center gap-1.5">
                             <i class="fas fa-circle text-gray-200" style="font-size:6px"></i>${c.label}
                         </li>
-                    `).join('')}
+                    `
+                        )
+                        .join('')}
                 </ul>
-            ` : `
+            `
+                    : `
                 <p class="text-xs text-green-600 font-medium">
                     <i class="fas fa-check-circle mr-1"></i>Profile fully complete
                 </p>
-            `}
+            `
+            }
         </div>
     `;
 }
@@ -671,7 +707,11 @@ function renderContactCard(student) {
         : null;
 
     const dob = student.dateOfBirth
-        ? new Date(student.dateOfBirth).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+        ? new Date(student.dateOfBirth).toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+          })
         : null;
 
     const rows = [
@@ -735,21 +775,26 @@ function renderContactCard(student) {
 function renderAcademyCard(cv) {
     const entries = cv.academyAttendance || [];
 
-    const statusBadge = status => status === 'active'
-        ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+    const statusBadge = (status) =>
+        status === 'active'
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
                <i class="fas fa-circle text-blue-400 mr-1" style="font-size:6px"></i>Active
            </span>`
-        : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+            : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
                <i class="fas fa-check-circle mr-1"></i>Completed
            </span>`;
 
-    const formatDate = d => d
-        ? new Date(d).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
-        : 'Present';
+    const formatDate = (d) =>
+        d
+            ? new Date(d).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+            : 'Present';
 
-    const content = entries.length === 0
-        ? `<p class="text-sm text-gray-400 italic">No academy attendance recorded.</p>`
-        : entries.map(a => `
+    const content =
+        entries.length === 0
+            ? `<p class="text-sm text-gray-400 italic">No academy attendance recorded.</p>`
+            : entries
+                  .map(
+                      (a) => `
             <div class="border-l-4 border-purple-300 pl-4">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
                     <p class="font-semibold text-gray-800 text-sm">${a.academyName}</p>
@@ -764,7 +809,9 @@ function renderAcademyCard(cv) {
                     <i class="fas fa-calendar mr-1"></i>${formatDate(a.startDate)} – ${formatDate(a.endDate)}
                 </p>
             </div>
-        `).join('');
+        `
+                  )
+                  .join('');
 
     return `
         <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
@@ -779,13 +826,17 @@ function renderAcademyCard(cv) {
 function renderEducationCard(cv) {
     const entries = cv.education || [];
 
-    const formatDate = d => d
-        ? new Date(d).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
-        : 'Present';
+    const formatDate = (d) =>
+        d
+            ? new Date(d).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+            : 'Present';
 
-    const content = entries.length === 0
-        ? `<p class="text-sm text-gray-400 italic">No education records found.</p>`
-        : entries.map(e => `
+    const content =
+        entries.length === 0
+            ? `<p class="text-sm text-gray-400 italic">No education records found.</p>`
+            : entries
+                  .map(
+                      (e) => `
             <div class="border-l-4 border-blue-200 pl-4">
                 <p class="font-semibold text-gray-800 text-sm mb-0.5">${e.institution}</p>
                 <p class="text-sm text-gray-600 mb-1">${e.degree} in ${e.fieldOfStudy}</p>
@@ -794,7 +845,9 @@ function renderEducationCard(cv) {
                     ${e.grade ? `<span><i class="fas fa-star mr-1 text-yellow-400"></i>${e.grade}</span>` : ''}
                 </div>
             </div>
-        `).join('');
+        `
+                  )
+                  .join('');
 
     return `
         <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
@@ -809,13 +862,17 @@ function renderEducationCard(cv) {
 function renderWorkExperienceCard(cv) {
     const entries = cv.workExperience || [];
 
-    const formatDate = d => d
-        ? new Date(d).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
-        : 'Present';
+    const formatDate = (d) =>
+        d
+            ? new Date(d).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+            : 'Present';
 
-    const content = entries.length === 0
-        ? `<p class="text-sm text-gray-400 italic">No work experience listed.</p>`
-        : entries.map(w => `
+    const content =
+        entries.length === 0
+            ? `<p class="text-sm text-gray-400 italic">No work experience listed.</p>`
+            : entries
+                  .map(
+                      (w) => `
             <div class="border-l-4 border-green-200 pl-4">
                 <p class="font-semibold text-gray-800 text-sm mb-0.5">${w.position}</p>
                 <p class="text-sm text-gray-600 mb-1">${w.company}</p>
@@ -824,7 +881,9 @@ function renderWorkExperienceCard(cv) {
                 </p>
                 ${w.description ? `<p class="text-sm text-gray-600 leading-relaxed">${w.description}</p>` : ''}
             </div>
-        `).join('');
+        `
+                  )
+                  .join('');
 
     return `
         <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
@@ -839,14 +898,19 @@ function renderWorkExperienceCard(cv) {
 function renderSkillsCard(cv) {
     const skills = cv.skills || [];
 
-    const content = skills.length === 0
-        ? `<p class="text-sm text-gray-400 italic">No skills listed.</p>`
-        : `<div class="flex flex-wrap gap-2">
-               ${skills.map(s => `
+    const content =
+        skills.length === 0
+            ? `<p class="text-sm text-gray-400 italic">No skills listed.</p>`
+            : `<div class="flex flex-wrap gap-2">
+               ${skills
+                   .map(
+                       (s) => `
                    <span class="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-sm font-medium">
                        ${s}
                    </span>
-               `).join('')}
+               `
+                   )
+                   .join('')}
            </div>`;
 
     return `
@@ -863,21 +927,26 @@ function renderSkillsCard(cv) {
 function renderLanguagesCard(cv) {
     const languages = cv.languages || [];
 
-    const levelColor = level => {
+    const levelColor = (level) => {
         if (level.startsWith('C')) return 'bg-green-100 text-green-800 border border-green-200';
         if (level.startsWith('B')) return 'bg-blue-100 text-blue-800 border border-blue-200';
         return 'bg-gray-100 text-gray-700 border border-gray-200';
     };
 
-    const content = languages.length === 0
-        ? `<p class="text-sm text-gray-400 italic">No languages listed.</p>`
-        : `<div class="space-y-2">
-               ${languages.map(l => `
+    const content =
+        languages.length === 0
+            ? `<p class="text-sm text-gray-400 italic">No languages listed.</p>`
+            : `<div class="space-y-2">
+               ${languages
+                   .map(
+                       (l) => `
                    <div class="flex items-center justify-between">
                        <span class="text-sm text-gray-700 font-medium">${l.language}</span>
                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${levelColor(l.level)}">${l.level}</span>
                    </div>
-               `).join('')}
+               `
+                   )
+                   .join('')}
            </div>`;
 
     return `

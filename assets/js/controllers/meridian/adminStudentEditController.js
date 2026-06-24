@@ -14,7 +14,7 @@ export default async function adminStudentEditController(params = {}) {
     const studentId = params.id;
     const [student, cv] = await Promise.all([
         mockDataService.getUserById(studentId),
-        mockDataService.getCVProfile(studentId)
+        mockDataService.getCVProfile(studentId),
     ]);
 
     if (!student || student.role !== 'student') {
@@ -23,12 +23,12 @@ export default async function adminStudentEditController(params = {}) {
     }
 
     const editedSkills = [...(cv.skills || [])];
-    const editedAcademy = (cv.academyAttendance || []).map(a => ({ ...a }));
+    const editedAcademy = (cv.academyAttendance || []).map((a) => ({ ...a }));
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto fade-in">
 
                     <div class="mb-6">
@@ -169,7 +169,9 @@ function renderAcademyEntriesList(entries) {
         'UX/UI Design',
     ];
 
-    return entries.map((a, idx) => `
+    return entries
+        .map(
+            (a, idx) => `
         <div class="border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
             <div class="flex items-center justify-between mb-4">
                 <span class="text-sm font-semibold text-purple-700">
@@ -190,7 +192,7 @@ function renderAcademyEntriesList(entries) {
                 <div>
                     <label class="mb-2 block font-medium text-slate-700">Track</label>
                     <select class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] academy-track" data-idx="${idx}">
-                        ${tracks.map(t => `<option value="${t}" ${a.track === t ? 'selected' : ''}>${t}</option>`).join('')}
+                        ${tracks.map((t) => `<option value="${t}" ${a.track === t ? 'selected' : ''}>${t}</option>`).join('')}
                     </select>
                 </div>
                 <div>
@@ -210,14 +212,18 @@ function renderAcademyEntriesList(entries) {
                 </div>
             </div>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function renderEditSkillsList(skills) {
     if (skills.length === 0) {
         return '<p class="text-sm text-gray-400 italic">No skills added yet.</p>';
     }
-    return skills.map(skill => `
+    return skills
+        .map(
+            (skill) => `
         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-sm font-medium">
             ${skill}
             <button type="button" onclick="removeEditSkill('${skill}')"
@@ -225,7 +231,9 @@ function renderEditSkillsList(skills) {
                 <i class="fas fa-times text-xs"></i>
             </button>
         </span>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 function collectAcademyFromDOM(editedAcademy) {
@@ -234,7 +242,9 @@ function collectAcademyFromDOM(editedAcademy) {
         if (!nameEl) break;
         editedAcademy[i].academyName = nameEl.value;
         editedAcademy[i].track = document.querySelector(`.academy-track[data-idx="${i}"]`).value;
-        editedAcademy[i].startDate = document.querySelector(`.academy-start[data-idx="${i}"]`).value;
+        editedAcademy[i].startDate = document.querySelector(
+            `.academy-start[data-idx="${i}"]`
+        ).value;
         editedAcademy[i].endDate = document.querySelector(`.academy-end[data-idx="${i}"]`).value;
         editedAcademy[i].status = document.querySelector(`.academy-status[data-idx="${i}"]`).value;
     }
@@ -254,11 +264,12 @@ function setupEditListeners(studentId, originalCV, editedSkills, editedAcademy) 
         const skill = skillInput.value.trim();
         if (skill && !editedSkills.includes(skill)) {
             editedSkills.push(skill);
-            document.getElementById('editSkillsList').innerHTML = renderEditSkillsList(editedSkills);
+            document.getElementById('editSkillsList').innerHTML =
+                renderEditSkillsList(editedSkills);
             skillInput.value = '';
         }
     });
-    skillInput.addEventListener('keypress', e => {
+    skillInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             document.getElementById('addEditSkillBtn').click();
@@ -266,7 +277,7 @@ function setupEditListeners(studentId, originalCV, editedSkills, editedAcademy) 
     });
 
     // Skills — remove (global for inline onclick)
-    window.removeEditSkill = skill => {
+    window.removeEditSkill = (skill) => {
         const idx = editedSkills.indexOf(skill);
         if (idx > -1) editedSkills.splice(idx, 1);
         document.getElementById('editSkillsList').innerHTML = renderEditSkillsList(editedSkills);
@@ -283,14 +294,16 @@ function setupEditListeners(studentId, originalCV, editedSkills, editedAcademy) 
             endDate: '',
             status: 'active',
         });
-        document.getElementById('academyEntriesList').innerHTML = renderAcademyEntriesList(editedAcademy);
+        document.getElementById('academyEntriesList').innerHTML =
+            renderAcademyEntriesList(editedAcademy);
     });
 
     // Academy — remove entry (global for inline onclick)
-    window.removeEditAcademy = idx => {
+    window.removeEditAcademy = (idx) => {
         collectAcademyFromDOM(editedAcademy);
         editedAcademy.splice(idx, 1);
-        document.getElementById('academyEntriesList').innerHTML = renderAcademyEntriesList(editedAcademy);
+        document.getElementById('academyEntriesList').innerHTML =
+            renderAcademyEntriesList(editedAcademy);
     };
 
     // Save

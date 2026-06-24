@@ -17,19 +17,21 @@ export default async function jobBoardController() {
 
     const [jobs, companies] = await Promise.all([
         mockDataService.getAllJobs({ status: 'active' }),
-        mockDataService.getAllCompanies(),
+        mockDataService.getAllCompanies()
     ]);
 
     const companyMap = {};
-    companies.forEach((c) => (companyMap[c.id] = c));
+    companies.forEach(c => companyMap[c.id] = c);
 
-    const industries = [...new Set(companies.map((c) => c.industry).filter(Boolean))].sort();
+    const industries = [...new Set(
+        companies.map((c) => c.industry).filter(Boolean)
+    )].sort();
 
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
 
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
 
                     <div class="mb-8">
@@ -47,48 +49,57 @@ export default async function jobBoardController() {
 
                         <!-- FILTERS -->
                         <div class="lg:col-span-1">
-                            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] sticky top-4">
+                            <div class="card sticky top-4">
+
                                 <h2 class="text-xl font-bold text-gray-800 mb-4">
                                     <i class="fas fa-filter mr-2"></i>
                                     Filters
                                 </h2>
 
                                 <div class="mb-4">
-                                    <label class="mb-2 block font-medium text-slate-700">Search</label>
+                                    <label class="form-label">Search</label>
+
                                     <input
                                         type="text"
                                         id="searchInput"
-                                        class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]"
+                                        class="form-input"
                                         placeholder="Title, company, location, skills..."
                                     />
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="mb-2 block font-medium text-slate-700">Industry</label>
-                                    <select id="industryFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
+                                    <label class="form-label">Industry</label>
+
+                                    <select id="industryFilter" class="form-input">
                                         <option value="">All industries</option>
 
-                                        ${industries
-                                            .map(
-                                                (ind) => `
+                                        ${industries.map((ind) => `
                                             <option value="${ind}">
                                                 ${ind}
                                             </option>
-                                        `
-                                            )
-                                            .join('')}
+                                        `).join('')}
                                     </select>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="mb-2 block font-medium text-slate-700">Skills</label>
-                                    <input type="text" id="skillsFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]" placeholder="e.g. React, SQL" />
-                                    <p class="text-xs text-gray-500 mt-1">Comma-separated</p>
+                                    <label class="form-label">Skills</label>
+
+                                    <input
+                                        type="text"
+                                        id="skillsFilter"
+                                        class="form-input"
+                                        placeholder="e.g. React, SQL"
+                                    />
+
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Comma-separated
+                                    </p>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="mb-2 block font-medium text-slate-700">Employment Type</label>
-                                    <select id="employmentTypeFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
+                                    <label class="form-label">Employment Type</label>
+
+                                    <select id="employmentTypeFilter" class="form-input">
                                         <option value="">All</option>
                                         <option value="full-time">Full-time</option>
                                         <option value="part-time">Part-time</option>
@@ -99,8 +110,9 @@ export default async function jobBoardController() {
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="mb-2 block font-medium text-slate-700">Work Mode</label>
-                                    <select id="workModeFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
+                                    <label class="form-label">Work Mode</label>
+
+                                    <select id="workModeFilter" class="form-input">
                                         <option value="">All</option>
                                         <option value="onsite">On-site</option>
                                         <option value="remote">Remote</option>
@@ -109,8 +121,9 @@ export default async function jobBoardController() {
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="mb-2 block font-medium text-slate-700">Experience Level</label>
-                                    <select id="experienceLevelFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
+                                    <label class="form-label">Experience Level</label>
+
+                                    <select id="experienceLevelFilter" class="form-input">
                                         <option value="">All</option>
                                         <option value="intern">Intern</option>
                                         <option value="junior">Junior</option>
@@ -120,27 +133,30 @@ export default async function jobBoardController() {
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="mb-2 block font-medium text-slate-700">Company</label>
-                                    <select id="companyFilter" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)]">
+                                    <label class="form-label">Company</label>
+
+                                    <select id="companyFilter" class="form-input">
                                         <option value="">All Companies</option>
 
-                                        ${companies
-                                            .map(
-                                                (c) => `
+                                        ${companies.map(c => `
                                             <option value="${c.id}">
                                                 ${c.name}
                                             </option>
-                                        `
-                                            )
-                                            .join('')}
+                                        `).join('')}
                                     </select>
                                 </div>
 
-                                <button id="applyFiltersBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)] w-full">
+                                <button
+                                    id="applyFiltersBtn"
+                                    class="btn btn-primary w-full"
+                                >
                                     Apply Filters
                                 </button>
 
-                                <button id="clearFiltersBtn" class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white w-full mt-2">
+                                <button
+                                    id="clearFiltersBtn"
+                                    class="btn btn-secondary w-full mt-2"
+                                >
                                     Clear All
                                 </button>
 
@@ -154,7 +170,8 @@ export default async function jobBoardController() {
                                 <p class="text-gray-600">
                                     <span id="jobCount">${jobs.length}</span> jobs found
                                 </p>
-                                <select id="sortBy" class="w-full rounded-lg border border-slate-200 px-3 py-3 text-base text-slate-800 transition focus:border-[#dd2c00] focus:outline-none focus:ring-4 focus:ring-[rgba(221,44,0,0.1)] w-auto">
+
+                                <select id="sortBy" class="form-input w-auto">
                                     <option value="newest">Newest First</option>
                                     <option value="oldest">Oldest First</option>
                                     <option value="mostApplicants">Most Applicants</option>
@@ -198,22 +215,30 @@ export default async function jobBoardController() {
 }
 
 function renderJobGrid(jobs, companyMap) {
+
     if (jobs.length === 0) {
         return '';
     }
 
-    return jobs
-        .map((job) => {
-            const company = companyMap[job.companyId] || {};
+    return jobs.map(job => {
 
-            const isNew = new Date() - new Date(job.createdAt) < 3 * 24 * 60 * 60 * 1000;
+        const company = companyMap[job.companyId] || {};
 
-            const daysUntilDeadline = Math.ceil(
-                (new Date(job.applicationDeadline) - new Date()) / (24 * 60 * 60 * 1000)
-            );
+        const isNew =
+            (new Date() - new Date(job.createdAt))
+            < (3 * 24 * 60 * 60 * 1000);
 
-            return `
-            <div class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-xl transition cursor-pointer" onclick="window.router.navigate('/jobs/${job.id}')">
+        const daysUntilDeadline = Math.ceil(
+            (new Date(job.applicationDeadline) - new Date())
+            / (24 * 60 * 60 * 1000)
+        );
+
+        return `
+            <div
+                class="card hover:shadow-xl transition cursor-pointer job-card"
+                data-job-id="${job.id}"
+            >
+
                 <div class="flex items-start gap-4">
 
                     <img
@@ -230,25 +255,17 @@ function renderJobGrid(jobs, companyMap) {
                                 <h3 class="text-xl font-bold text-gray-800 mb-1">
                                     ${job.title}
 
-                                    ${
-                                        isNew
-                                            ? `
+                                    ${isNew ? `
                                         <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
                                             NEW
                                         </span>
-                                    `
-                                            : ''
-                                    }
+                                    ` : ''}
 
-                                    ${
-                                        job.isPriority
-                                            ? `
+                                    ${job.isPriority ? `
                                         <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
                                             ⭐ FEATURED
                                         </span>
-                                    `
-                                            : ''
-                                    }
+                                    ` : ''}
                                 </h3>
 
                                 <p class="text-gray-600">
@@ -288,45 +305,32 @@ function renderJobGrid(jobs, companyMap) {
 
                         <div class="flex flex-wrap gap-2 mb-3">
 
-                            ${job.requiredSkills
-                                .slice(0, 5)
-                                .map(
-                                    (skill) => `
+                            ${job.requiredSkills.slice(0, 5).map(skill => `
                                 <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
                                     ${skill}
                                 </span>
-                            `
-                                )
-                                .join('')}
+                            `).join('')}
 
-                            ${
-                                job.requiredSkills.length > 5
-                                    ? `
+                            ${job.requiredSkills.length > 5 ? `
                                 <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
                                     +${job.requiredSkills.length - 5} more
                                 </span>
-                            `
-                                    : ''
-                            }
+                            ` : ''}
                         </div>
 
                         <div class="flex justify-between items-center">
 
                             <div class="text-sm text-gray-600">
-                                ${
-                                    job.salaryRange.min && job.salaryRange.max
-                                        ? `
+                                ${job.salaryRange.min && job.salaryRange.max ? `
                                     <i class="fas fa-money-bill-wave mr-1"></i>
                                     ${job.salaryRange.min}
                                     -
                                     ${job.salaryRange.max}
                                     ${job.salaryRange.currency}
-                                `
-                                        : `
+                                ` : `
                                     <i class="fas fa-money-bill-wave mr-1"></i>
                                     Negotiable
-                                `
-                                }
+                                `}
                             </div>
 
                             <div class="flex items-center gap-3">
@@ -362,11 +366,11 @@ function renderJobGrid(jobs, companyMap) {
                 </div>
             </div>
         `;
-        })
-        .join('');
+    }).join('');
 }
 
 function setupEventListeners(allJobs, companyMap) {
+
     const searchInput = document.getElementById('searchInput');
     const industryFilter = document.getElementById('industryFilter');
     const skillsFilter = document.getElementById('skillsFilter');
@@ -385,38 +389,46 @@ function setupEventListeners(allJobs, companyMap) {
         sessionStorage.removeItem('avy_job_search');
     }
 
-    const setupInterestButtons = () => {
-        if (window.__interestListener) return;
-        window.__interestListener = true;
+   
+const setupInterestButtons = () => {
 
-        document.addEventListener('click', (e) => {
-            const btn = e.target.closest('.interest-btn');
-            if (!btn) return;
+    if(window.__interestListener) return;
+    window.__interestListener = true;
 
-            e.stopPropagation();
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.interest-btn');
+        if (!btn) return;
 
-            const jobId = btn.dataset.jobId;
-            const job = allJobs.find((j) => String(j.id) === String(jobId));
-            if (!job) return;
+        e.stopPropagation();
 
-            const existing = JSON.parse(localStorage.getItem('interestedJobs') || '[]');
+        const jobId = btn.dataset.jobId;
+        const job = allJobs.find(j => String(j.id) === String(jobId));
+        if (!job) return;
 
-            if (existing.some((j) => j.id === job.id)) {
-                alert('Already added to saved jobs');
-                return;
-            }
+        const existing = JSON.parse(localStorage.getItem('interestedJobs') || '[]');
 
-            localStorage.setItem('interestedJobs', JSON.stringify([...existing, job]));
+        if (existing.some(j => j.id === job.id)) {
+            alert('Already added to saved jobs');
+            return;
+        }
 
-            alert('Saved successfully');
-        });
-    };
+        localStorage.setItem(
+            'interestedJobs',
+            JSON.stringify([...existing, job])
+        );
+
+        alert('Saved successfully');
+    });
+};
 
     const setupJobCardNavigation = () => {
+
         const jobCards = document.querySelectorAll('.job-card');
 
-        jobCards.forEach((card) => {
+        jobCards.forEach(card => {
+
             card.addEventListener('click', () => {
+
                 const jobId = card.dataset.jobId;
 
                 window.router.navigate(`/jobs/${jobId}`);
@@ -425,19 +437,27 @@ function setupEventListeners(allJobs, companyMap) {
     };
 
     const setupEasyApplyButtons = () => {
-        const easyApplyButtons = document.querySelectorAll('.easy-apply-btn');
+
+        const easyApplyButtons =
+            document.querySelectorAll('.easy-apply-btn');
 
         easyApplyButtons.forEach((button) => {
+
             button.addEventListener('click', async (e) => {
+
                 e.stopPropagation();
 
                 const jobId = button.dataset.jobId;
 
                 try {
+
                     const user = authService.getCurrentUser();
 
                     if (!user?.cvUrl) {
-                        alert('Please upload your CV before using Easy Apply.');
+
+                        alert(
+                            'Please upload your CV before using Easy Apply.'
+                        );
 
                         window.router.navigate('/profile');
 
@@ -445,13 +465,16 @@ function setupEventListeners(allJobs, companyMap) {
                     }
 
                     // Prevent duplicate applications
-                    const existingApplications = await mockDataService.getApplicationsByUser(
-                        user.id
-                    );
+                    const existingApplications =
+                        await mockDataService.getApplicationsByUser(user.id);
 
-                    const alreadyApplied = existingApplications.some((app) => app.jobId === jobId);
+                    const alreadyApplied =
+                        existingApplications.some(
+                            app => app.jobId === jobId
+                        );
 
                     if (alreadyApplied) {
+
                         alert('You already applied for this job.');
 
                         return;
@@ -463,7 +486,7 @@ function setupEventListeners(allJobs, companyMap) {
                         applicantId: user.id,
                         cvUrl: user.cvUrl,
                         appliedAt: new Date().toISOString(),
-                        status: 'submitted',
+                        status: 'submitted'
                     });
 
                     // Update button UI
@@ -479,7 +502,9 @@ function setupEventListeners(allJobs, companyMap) {
                     button.classList.add('btn-secondary');
 
                     alert('Application submitted successfully!');
+
                 } catch (error) {
+
                     console.error('Easy Apply failed:', error);
 
                     alert('Failed to apply. Please try again.');
@@ -489,13 +514,14 @@ function setupEventListeners(allJobs, companyMap) {
     };
 
     const applyFilters = async () => {
+
         const skillsRaw = skillsFilter.value.trim();
 
         const skillsList = skillsRaw
             ? skillsRaw
-                  .split(',')
-                  .map((s) => s.trim())
-                  .filter(Boolean)
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean)
             : [];
 
         const filters = {
@@ -506,31 +532,39 @@ function setupEventListeners(allJobs, companyMap) {
             employmentType: employmentTypeFilter.value,
             workMode: workModeFilter.value,
             experienceLevel: experienceLevelFilter.value,
-            companyId: companyFilter.value,
+            companyId: companyFilter.value
         };
 
-        const filteredJobs = await mockDataService.getAllJobs(filters);
+        const filteredJobs =
+            await mockDataService.getAllJobs(filters);
 
         sortJobs(filteredJobs, sortBy.value);
 
         const jobGrid = document.getElementById('jobGrid');
 
-        const emptyState = document.getElementById('emptyState');
+        const emptyState =
+            document.getElementById('emptyState');
 
-        const jobCount = document.getElementById('jobCount');
+        const jobCount =
+            document.getElementById('jobCount');
 
         if (filteredJobs.length === 0) {
+
             jobGrid.innerHTML = '';
 
             emptyState.classList.remove('hidden');
+
         } else {
-            jobGrid.innerHTML = renderJobGrid(filteredJobs, companyMap);
+
+            jobGrid.innerHTML =
+                renderJobGrid(filteredJobs, companyMap);
 
             emptyState.classList.add('hidden');
 
             setupJobCardNavigation();
 
             setupEasyApplyButtons();
+
         }
 
         jobCount.textContent = filteredJobs.length;
@@ -539,6 +573,7 @@ function setupEventListeners(allJobs, companyMap) {
     applyFiltersBtn.addEventListener('click', applyFilters);
 
     clearFiltersBtn.addEventListener('click', () => {
+
         searchInput.value = '';
         industryFilter.value = '';
         skillsFilter.value = '';
@@ -554,6 +589,7 @@ function setupEventListeners(allJobs, companyMap) {
     sortBy.addEventListener('change', applyFilters);
 
     searchInput.addEventListener('keypress', (e) => {
+
         if (e.key === 'Enter') {
             applyFilters();
         }
@@ -572,24 +608,45 @@ function setupEventListeners(allJobs, companyMap) {
 }
 
 function sortJobs(jobs, sortBy) {
-    switch (sortBy) {
+
+    switch(sortBy) {
+
         case 'newest':
-            jobs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            jobs.sort(
+                (a, b) =>
+                    new Date(b.createdAt)
+                    - new Date(a.createdAt)
+            );
 
             break;
 
         case 'oldest':
-            jobs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+            jobs.sort(
+                (a, b) =>
+                    new Date(a.createdAt)
+                    - new Date(b.createdAt)
+            );
 
             break;
 
         case 'mostApplicants':
-            jobs.sort((a, b) => b.applications - a.applications);
+
+            jobs.sort(
+                (a, b) =>
+                    b.applications - a.applications
+            );
 
             break;
 
         case 'salary':
-            jobs.sort((a, b) => (b.salaryRange?.max || 0) - (a.salaryRange?.max || 0));
+
+            jobs.sort(
+                (a, b) =>
+                    (b.salaryRange?.max || 0)
+                    - (a.salaryRange?.max || 0)
+            );
 
             break;
     }

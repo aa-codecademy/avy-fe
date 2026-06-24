@@ -28,30 +28,28 @@ export default async function applicationsController() {
         const [realApplications, companies, allJobs] = await Promise.all([
             mockDataService.getApplications({ userId: user.id }),
             mockDataService.getAllCompanies(),
-            mockDataService.getAllJobs({ status: 'active' }),
+            mockDataService.getAllJobs({ status: 'active' })
         ]);
 
-        const enrichedRealApps = await Promise.all(
-            realApplications.map(async (app) => {
-                const job = await mockDataService.getJobById(app.jobId);
-                const company = job ? await mockDataService.getCompanyById(job.companyId) : null;
-                return {
-                    id: app.id,
-                    jobId: app.jobId,
-                    userId: app.userId,
-                    status: app.status,
-                    appliedDate: app.appliedAt,
-                    updatedAt: app.updatedAt || app.appliedAt,
-                    notes: app.notes || app.coverLetter?.substring(0, 100) || 'No additional notes',
-                    jobTitle: job?.title || 'Unknown Position',
-                    companyId: job?.companyId,
-                    companyName: company?.name || 'Unknown Company',
-                    companyEmail: company?.contactEmail || 'hr@company.com',
-                    location: job?.location || 'Not specified',
-                    employmentType: job?.employmentType || 'full-time',
-                };
-            })
-        );
+        const enrichedRealApps = await Promise.all(realApplications.map(async (app) => {
+            const job = await mockDataService.getJobById(app.jobId);
+            const company = job ? await mockDataService.getCompanyById(job.companyId) : null;
+            return {
+                id: app.id,
+                jobId: app.jobId,
+                userId: app.userId,
+                status: app.status,
+                appliedDate: app.appliedAt,
+                updatedAt: app.updatedAt || app.appliedAt,
+                notes: app.notes || app.coverLetter?.substring(0, 100) || 'No additional notes',
+                jobTitle: job?.title || 'Unknown Position',
+                companyId: job?.companyId,
+                companyName: company?.name || 'Unknown Company',
+                companyEmail: company?.contactEmail || 'hr@company.com',
+                location: job?.location || 'Not specified',
+                employmentType: job?.employmentType || 'full-time'
+            };
+        }));
 
         const demoApps = generateDemoApplications(allJobs, companies, user);
         let allApplications = [...enrichedRealApps, ...demoApps];
@@ -59,16 +57,16 @@ export default async function applicationsController() {
         allApplications.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
 
         const stats = {
-            pending: allApplications.filter((a) => a.status === 'pending').length,
-            under_review: allApplications.filter((a) => a.status === 'under_review').length,
-            interview: allApplications.filter((a) => a.status === 'interview').length,
-            accepted: allApplications.filter((a) => a.status === 'accepted').length,
-            rejected: allApplications.filter((a) => a.status === 'rejected').length,
-            declined: allApplications.filter((a) => a.status === 'declined').length,
+            pending: allApplications.filter(a => a.status === 'pending').length,
+            under_review: allApplications.filter(a => a.status === 'under_review').length,
+            interview: allApplications.filter(a => a.status === 'interview').length,
+            accepted: allApplications.filter(a => a.status === 'accepted').length,
+            rejected: allApplications.filter(a => a.status === 'rejected').length,
+            declined: allApplications.filter(a => a.status === 'declined').length
         };
 
         const companyMap = {};
-        companies.forEach((c) => (companyMap[c.id] = c));
+        companies.forEach(c => companyMap[c.id] = c);
 
         app.innerHTML = `
             ${renderAppHeader(user, window.location.pathname)}
@@ -131,6 +129,7 @@ export default async function applicationsController() {
         if (logoutBtn) logoutBtn.addEventListener('click', () => authService.logout());
 
         return cleanup;
+
     } catch (error) {
         console.error('Failed to load applications:', error);
         showToast('Failed to load applications. Please try again.', 'error');
@@ -169,13 +168,10 @@ function setupEventListeners(allApplications, companyMap, user) {
             status: statusFilter?.value || 'all',
             company: companyFilter?.value || '',
             date: dateFilter?.value || 'all',
-            sort: sortBy?.value || 'newest',
+            sort: sortBy?.value || 'newest'
         };
 
-        if (
-            JSON.stringify(currentFilterState) === JSON.stringify(lastFilterState) &&
-            cachedFiltered
-        ) {
+        if (JSON.stringify(currentFilterState) === JSON.stringify(lastFilterState) && cachedFiltered) {
             renderApplications(cachedFiltered);
             return;
         }
@@ -186,35 +182,29 @@ function setupEventListeners(allApplications, companyMap, user) {
 
         const selectedStatus = statusFilter?.value;
         if (selectedStatus && selectedStatus !== 'all') {
-            filtered = filtered.filter((app) => app.status === selectedStatus);
+            filtered = filtered.filter(app => app.status === selectedStatus);
         }
 
         const selectedCompany = companyFilter?.value;
         if (selectedCompany) {
-            filtered = filtered.filter((app) => app.companyId === selectedCompany);
+            filtered = filtered.filter(app => app.companyId === selectedCompany);
         }
 
         const selectedDate = dateFilter?.value;
         if (selectedDate && selectedDate !== 'all') {
             const now = new Date();
             let cutoffDate;
-            switch (selectedDate) {
-                case 'week':
-                    cutoffDate = new Date(now.setDate(now.getDate() - 7));
-                    break;
-                case 'month':
-                    cutoffDate = new Date(now.setMonth(now.getMonth() - 1));
-                    break;
-                case 'quarter':
-                    cutoffDate = new Date(now.setMonth(now.getMonth() - 3));
-                    break;
+            switch(selectedDate) {
+                case 'week': cutoffDate = new Date(now.setDate(now.getDate() - 7)); break;
+                case 'month': cutoffDate = new Date(now.setMonth(now.getMonth() - 1)); break;
+                case 'quarter': cutoffDate = new Date(now.setMonth(now.getMonth() - 3)); break;
             }
             if (cutoffDate) {
-                filtered = filtered.filter((app) => new Date(app.appliedDate) >= cutoffDate);
+                filtered = filtered.filter(app => new Date(app.appliedDate) >= cutoffDate);
             }
         }
 
-        switch (sortBy?.value) {
+        switch(sortBy?.value) {
             case 'newest':
                 filtered.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
                 break;
@@ -229,14 +219,7 @@ function setupEventListeners(allApplications, companyMap, user) {
                 });
                 break;
             case 'status':
-                const order = {
-                    pending: 1,
-                    under_review: 2,
-                    interview: 3,
-                    accepted: 4,
-                    rejected: 5,
-                    declined: 6,
-                };
+                const order = { pending: 1, under_review: 2, interview: 3, accepted: 4, rejected: 5, declined: 6 };
                 filtered.sort((a, b) => (order[a.status] || 99) - (order[b.status] || 99));
                 break;
         }
@@ -246,15 +229,13 @@ function setupEventListeners(allApplications, companyMap, user) {
     };
 
     const attachWithdrawEventListeners = (apps) => {
-        document.querySelectorAll('.withdraw-btn').forEach((btn) => {
+        document.querySelectorAll('.withdraw-btn').forEach(btn => {
             btn.onclick = async (e) => {
                 e.stopPropagation();
                 const appId = btn.dataset.id;
-                const application = apps.find((a) => a.id === appId);
+                const application = apps.find(a => a.id === appId);
                 if (application) {
-                    await handleWithdraw(application, user, btn.dataset.email, () =>
-                        applyFilters()
-                    );
+                    await handleWithdraw(application, user, btn.dataset.email, () => applyFilters());
                 }
             };
         });

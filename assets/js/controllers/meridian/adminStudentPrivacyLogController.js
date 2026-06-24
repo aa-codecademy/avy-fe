@@ -66,7 +66,7 @@ export default async function adminStudentPrivacyLogController(params = {}) {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
 
                     <div class="mb-6">
@@ -86,7 +86,7 @@ export default async function adminStudentPrivacyLogController(params = {}) {
                                 <span class="font-semibold text-gray-700">${student.name}</span>
                             </p>
                         </div>
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold ${ isPrivate ? 'bg-gray-100 text-gray-700 border border-gray-200' : 'bg-green-100 text-green-700 border border-green-200' }">
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold ${isPrivate ? 'bg-gray-100 text-gray-700 border border-gray-200' : 'bg-green-100 text-green-700 border border-green-200'}">
                             <i class="fas ${isPrivate ? 'fa-lock' : 'fa-globe'} mr-1.5"></i>
                             ${isPrivate ? 'Private Profile' : 'Public Profile'}
                         </span>

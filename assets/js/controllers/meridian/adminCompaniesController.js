@@ -29,7 +29,7 @@ export default async function adminCompaniesController() {
     app.innerHTML = `
         ${renderAppHeader(user, window.location.pathname)}
         <div class="bg-gray-50 min-h-screen py-8">
-            <div class="w-full max-w-[1200px] mx-auto px-4">
+            <div class="container mx-auto px-4">
                 <div class="fade-in">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -305,9 +305,9 @@ function renderCompanyManagementRows(companies) {
                     </td>
                     <td class="px-4 py-4 align-top">
                         <div class="flex flex-col gap-2">
-                            <button 
-                                data-toggle-featured 
-                                data-company-id="${company.id}" 
+                            <button
+                                data-toggle-featured
+                                data-company-id="${company.id}"
                                 data-featured="${isFeatured}"
                                 class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${isFeatured ? 'border-2 border-[#dd2c00] bg-white text-[#dd2c00] hover:bg-[#dd2c00] hover:text-white' : 'bg-gradient-to-r from-[#dd2c00] to-[#0257b4] text-white hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(221,44,0,0.3)]'} text-sm"
                                 ${isSuspended ? 'disabled' : ''}
@@ -315,9 +315,9 @@ function renderCompanyManagementRows(companies) {
                                 <i class="fas fa-star mr-1"></i>
                                 ${isFeatured ? 'Unfeature' : 'Feature'}
                             </button>
-                            <button 
-                                data-toggle-suspend 
-                                data-company-id="${company.id}" 
+                            <button
+                                data-toggle-suspend
+                                data-company-id="${company.id}"
                                 data-suspended="${isSuspended}"
                                 class="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold no-underline transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${isSuspended ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700'} text-sm"
                             >
@@ -347,14 +347,15 @@ function bindFeatureToggleButtons() {
                 const company = await mockDataService.getCompanyById(companyId);
                 if (company) {
                     company.featured = newFeaturedStatus;
-                    
+
                     // Show success message
                     const action = newFeaturedStatus ? 'featured' : 'unfeatured';
                     alert(`Company ${action} successfully!`);
-                    
+
                     // Refresh the table
                     const updatedCompanies = await mockDataService.getAllCompanies();
-                    document.getElementById('companyManagementTableBody').innerHTML = renderCompanyManagementRows(updatedCompanies);
+                    document.getElementById('companyManagementTableBody').innerHTML =
+                        renderCompanyManagementRows(updatedCompanies);
                     bindFeatureToggleButtons();
                     bindSuspendToggleButtons();
                 }
@@ -381,14 +382,15 @@ function bindSuspendToggleButtons() {
                 const company = await mockDataService.getCompanyById(companyId);
                 if (company) {
                     company.suspended = newSuspendedStatus;
-                    
+
                     // Show success message
                     const action = newSuspendedStatus ? 'suspended' : 'unsuspended';
                     alert(`Company ${action} successfully!`);
-                    
+
                     // Refresh the table
                     const updatedCompanies = await mockDataService.getAllCompanies();
-                    document.getElementById('companyManagementTableBody').innerHTML = renderCompanyManagementRows(updatedCompanies);
+                    document.getElementById('companyManagementTableBody').innerHTML =
+                        renderCompanyManagementRows(updatedCompanies);
                     bindFeatureToggleButtons();
                     bindSuspendToggleButtons();
                 }

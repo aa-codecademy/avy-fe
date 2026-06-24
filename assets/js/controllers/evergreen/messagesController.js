@@ -14,6 +14,7 @@ import authService from '../../services/authService.js';
 import mockDataService from '../../services/mockDataService.js';
 import { renderAppHeader } from '../../views/appHeader.js';
 
+
 function timeAgo(dateStr) {
     const diff = Date.now() - new Date(dateStr).getTime();
     const minutes = Math.floor(diff / 60000);
@@ -68,17 +69,16 @@ export default async function employerMessagesController() {
     document.getElementById('logoutBtn')?.addEventListener('click', () => authService.logout());
 
     const allNotifications = await mockDataService.getNotifications(user.id);
-    const notifications = allNotifications.filter((n) => n.type === 'message_received');
+    const notifications = allNotifications.filter(n => n.type === 'message_received');
 
     function renderPage() {
-        const unreadCount = notifications.filter((n) => !n.read).length;
-        const feedHtml =
-            notifications.length === 0
-                ? `<div class="card no-hover text-center py-16">
+        const unreadCount = notifications.filter(n => !n.read).length;
+        const feedHtml = notifications.length === 0
+            ? `<div class="card no-hover text-center py-16">
                     <i class="fas fa-envelope-open text-5xl text-gray-300 mb-4"></i>
                     <p class="text-gray-500 text-lg">No messages yet.</p>
                </div>`
-                : notifications.map(renderMessageRow).join('');
+            : notifications.map(renderMessageRow).join('');
 
         return `
             ${renderAppHeader(user, window.location.pathname)}
@@ -93,15 +93,11 @@ export default async function employerMessagesController() {
                                 <p class="text-gray-500">Conversations with candidates</p>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                ${
-                                    unreadCount > 0
-                                        ? `
+                                ${unreadCount > 0 ? `
                                     <button id="markAllReadBtn" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
                                         <i class="fas fa-check-double mr-2"></i>Mark all as read
                                     </button>
-                                `
-                                        : ''
-                                }
+                                ` : ''}
                             </div>
                         </div>
                         <div id="messagesFeed">${feedHtml}</div>
@@ -112,16 +108,15 @@ export default async function employerMessagesController() {
     }
 
     function attachEvents() {
-        document.querySelectorAll('.notification-row').forEach((row) => {
+        document.querySelectorAll('.notification-row').forEach(row => {
             row.addEventListener('click', async () => {
                 const id = row.dataset.id;
                 const link = row.dataset.link;
-                const n = notifications.find((item) => item.id === id);
+                const n = notifications.find(item => item.id === id);
                 if (n && !n.read) {
                     await mockDataService.markNotificationAsRead(id);
                     n.read = true;
-                    if (typeof window.refreshMessagesHeaderBadge === 'function')
-                        window.refreshMessagesHeaderBadge(user.id);
+                    if (typeof window.refreshMessagesHeaderBadge === 'function') window.refreshMessagesHeaderBadge(user.id);
                     app.innerHTML = renderPage();
                     attachEvents();
                 }
@@ -131,16 +126,9 @@ export default async function employerMessagesController() {
 
         document.getElementById('markAllReadBtn')?.addEventListener('click', async () => {
             // Only mark message_received notifications as read — don't touch other types
-            await Promise.all(
-                notifications
-                    .filter((n) => !n.read)
-                    .map((n) => mockDataService.markNotificationAsRead(n.id))
-            );
-            notifications.forEach((n) => {
-                n.read = true;
-            });
-            if (typeof window.refreshMessagesHeaderBadge === 'function')
-                window.refreshMessagesHeaderBadge(user.id);
+            await Promise.all(notifications.filter(n => !n.read).map(n => mockDataService.markNotificationAsRead(n.id)));
+            notifications.forEach(n => { n.read = true; });
+            if (typeof window.refreshMessagesHeaderBadge === 'function') window.refreshMessagesHeaderBadge(user.id);
             app.innerHTML = renderPage();
             attachEvents();
         });

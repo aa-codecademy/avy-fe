@@ -184,7 +184,7 @@ class Router {
         } catch (error) {
             console.error('Error loading route:', error);
             this.appContainer.innerHTML = `
-                <div class="w-full max-w-[1200px] mx-auto px-4 py-20 text-center">
+                <div class="container mx-auto px-4 py-20 text-center">
                     <h1 class="text-4xl font-bold text-red-600 mb-4">Error</h1>
                     <p class="text-gray-600">Failed to load page. Please try again.</p>
                 </div>

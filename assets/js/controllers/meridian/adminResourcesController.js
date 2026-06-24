@@ -50,7 +50,7 @@ const ResourceManager = {
             app.innerHTML = `
             ${renderAppHeader(ResourceManager.user, window.location.pathname)}
             <div class="bg-gray-50 min-h-screen py-8">
-                <div class="w-full max-w-[1200px] mx-auto px-4">
+                <div class="container mx-auto px-4">
                     <div class="fade-in">
                     <div class="relative bg-white shadow-md rounded-2xl mb-6">
                         <div class="max-w-full px-4 py-6 sm:px-6 lg:px-8">

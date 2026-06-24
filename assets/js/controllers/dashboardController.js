@@ -47,7 +47,7 @@ async function renderStudentDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
 
-        <div class="w-full max-w-[1200px] mx-auto px-4 py-8">
+        <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
@@ -363,7 +363,7 @@ async function renderAdminDashboard(app, user, path) {
     app.innerHTML = `
         ${renderAppHeader(user, path)}
 
-        <div class="w-full max-w-[1200px] mx-auto px-4 py-8">
+        <div class="container mx-auto px-4 py-8">
             <div class="fade-in">
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold text-gray-800 mb-2">
