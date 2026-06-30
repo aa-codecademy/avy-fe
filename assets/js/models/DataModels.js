@@ -40,6 +40,7 @@ export class CVProfile {
         this.skills = data.skills || []; // Array of strings
         this.languages = data.languages || []; // Array of Language
         this.updatedAt = data.updatedAt || new Date().toISOString();
+        this.experienceLevel = data.experienceLevel || 'senior'; // intern, entry, mid, senior
     }
 }
 

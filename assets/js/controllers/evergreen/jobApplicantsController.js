@@ -34,7 +34,6 @@ const EXPERIENCE_LEVELS = [
 
 const APPLICATION_STATUSES = [
     { value: '', label: 'All Statuses' },
-    { value: 'pending', label: 'Pending' },
     { value: 'under_review', label: 'Under Review' },
     { value: 'shortlisted', label: 'Shortlisted' },
     { value: 'interview', label: 'Interview' },
@@ -210,18 +209,17 @@ function renderActiveFilters(filters) {
 }
 
 function statusToColumn(status) {
-    if (['pending', 'under_review', 'applied'].includes(status)) return 'applied';
+    if (['pending', 'under_review', 'applied'].includes(status)) return 'under_review';
     if (status === 'shortlisted') return 'shortlisted';
     if (status === 'interview') return 'interview';
     if (status === 'hired') return 'hired';
     if (status === 'rejected') return 'rejected';
-    return 'applied';
+    return 'under_review';
 }
 
 function getGroupedApplicants(applicants) {
     return {
-        pending: applicants.filter((a) => a.status === 'pending'),
-        under_review: applicants.filter((a) => a.status === 'under_review'),
+        under_review: applicants.filter((a) => ['applied', 'pending', 'under_review'].includes(a.status)),
         shortlisted: applicants.filter((a) => a.status === 'shortlisted'),
         interview: applicants.filter((a) => a.status === 'interview'),
         rejected: applicants.filter((a) => a.status === 'rejected'),
@@ -443,24 +441,51 @@ const renderApplicantCard = (applicant, matchedTokens = []) => {
             ${applicant.coverLetter ? `<p class="text-sm text-gray-700 mb-3 italic">"${applicant.coverLetter.substring(0, 100)}..."</p>` : ''}
 
             <div class="flex gap-2 mt-3 flex-wrap">
-                <button class="btn btn-primary text-xs px-2 py-1 rounded view-profile-btn" data-id="${applicant.id}" data-user-id="${applicant.userId}">
+                <button class="btn btn-primary text-xs px-2 py-1 rounded view-profile-btn"
+                        data-id="${applicant.id}"
+                        data-user-id="${applicant.userId}">
                     <i class="fas fa-user-circle mr-1"></i> View Profile
                 </button>
-                <button class="btn btn-secondary text-xs px-2 py-1 rounded open-notes-btn" data-id="${applicant.id}">
+
+                <button class="btn btn-secondary text-xs px-2 py-1 rounded open-notes-btn"
+                        data-id="${applicant.id}">
                     <i class="fas fa-sticky-note mr-1"></i> Notes
                 </button>
-                <button class="btn btn-shortlist text-xs px-2 py-1 rounded status-btn" data-id="${applicant.id}" data-status="shortlisted">
-                    <i class="fas fa-star mr-1"></i> Shortlist
-                </button>
-                <button class="btn btn-secondary text-xs px-2 py-1 rounded status-btn" data-id="${applicant.id}" data-status="interview">
-                    <i class="fas fa-calendar-check mr-1"></i> Interview
-                </button>
-                <button class="btn btn-secondary border-0 text-xs px-2 py-1 rounded status-btn" data-id="${applicant.id}" data-status="rejected">
-                    <i class="fas fa-times mr-1"></i> Reject
-                </button>
-                <button class="btn text-green-600 hover:bg-green-600 hover:text-white border-0 text-xs px-2 py-1 rounded status-btn" data-id="${applicant.id}" data-status="hired">
-                    <i class="fas fa-check mr-1"></i> Hire
-                </button>
+
+                <div class="relative status-dropdown">
+                    <button
+                        class="btn btn-status w-full text-left text-xs px-2 py-1 rounded flex items-center gap-1 status-toggle"
+                        type="button">
+                        Status
+                        <i class="fas fa-chevron-down text-[10px]"></i>
+                    </button>
+
+                    <div class="hidden absolute -right-19 mt-1 w-28 bg-white border rounded shadow-lg z-50 status-menu">
+                        <button class="btn btn-shortlist w-full text-left text-xs px-3 py-2 rounded-none status-btn"
+                                data-id="${applicant.id}"
+                                data-status="shortlisted">
+                            <i class="fas fa-star mr-1"></i> Shortlist
+                        </button>
+
+                        <button class="btn text-yellow-600 hover:bg-yellow-600 hover:text-white border-0 w-full text-left text-xs px-3 py-2 rounded-none status-btn"
+                                data-id="${applicant.id}"
+                                data-status="interview">
+                            <i class="fas fa-calendar-check mr-1"></i> Interview
+                        </button>
+
+                        <button class="btn text-red-600 hover:bg-red-600 hover:text-white border-0 w-full text-left text-xs px-3 py-2 rounded-none status-btn"
+                                data-id="${applicant.id}"
+                                data-status="rejected">
+                            <i class="fas fa-times mr-1"></i> Reject
+                        </button>
+
+                        <button class="btn text-green-600 hover:bg-green-600 hover:text-white border-0 w-full text-left text-xs px-3 py-2 rounded-none status-btn"
+                                data-id="${applicant.id}"
+                                data-status="hired">
+                            <i class="fas fa-check mr-1"></i> Hire
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     `;
@@ -487,9 +512,9 @@ function renderPipelineCard(appItem) {
             </div>
             <div class="mt-3 flex flex-wrap gap-2 text-xs">
                 <button class="btn btn-shortlist status-btn px-2 py-1 rounded" data-id="${appItem.id}" data-status="shortlisted">Shortlist</button>
-                <button class="btn btn-secondary status-btn px-2 py-1 rounded" data-id="${appItem.id}" data-status="interview">Interview</button>
-                <button class="btn btn-secondary status-btn px-2 py-1 rounded" data-id="${appItem.id}" data-status="rejected">Reject</button>
-                <button class="btn text-green-600 hover:bg-green-600 hover:text-white border-0 status-btn px-2 py-1 rounded" data-id="${appItem.id}" data-status="hired">Hire</button>
+                <button class="btn text-yellow-600 hover:bg-yellow-600 hover:text-white border-0 px-2 py-1 rounded status-btn" data-id="${appItem.id}" data-status="interview">Interview</button>
+                <button class="btn text-red-600 hover:bg-red-600 hover:text-white border-0 px-2 py-1 rounded status-btn" data-id="${appItem.id}" data-status="rejected">Reject</button>
+                <button class="btn text-green-600 hover:bg-green-600 hover:text-white border-0 px-2 py-1 rounded status-btn" data-id="${appItem.id}" data-status="hired">Hire</button>
             </div>
         </div>
     `;
@@ -537,8 +562,8 @@ export default async function jobApplicantsController(params = {}) {
                     <!-- Pipeline Board -->
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-6" id="pipelineBoard">
                         <div class="card p-4 flex flex-col">
-                            <h3 class="font-semibold mb-3 flex-shrink-0">Applied</h3>
-                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="applied" id="col-applied"></div>
+                            <h3 class="font-semibold mb-3 flex-shrink-0">Under Review</h3>
+                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="under_review" id="col-under_review"></div>
                         </div>
                         <div class="card p-4 flex flex-col">
                             <h3 class="font-semibold mb-3 flex-shrink-0">Shortlisted</h3>
@@ -559,10 +584,10 @@ export default async function jobApplicantsController(params = {}) {
                     </div>
 
                     <!-- Summary / quick stats -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mb-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 mb-6">
                         <div class="card text-center p-2 no-hover">
-                            <div class="text-xl font-bold text-gray-800" id="summaryAppliedCount">${groupedApplicants.pending.length + groupedApplicants.under_review.length}</div>
-                            <div class="text-xs text-gray-700">Applied</div>
+                            <div class="text-xl font-bold text-gray-800" id="summaryUnderReviewCount">${groupedApplicants.under_review.length}</div>
+                            <div class="text-xs text-gray-700">Under Review</div>
                         </div>
                         <div class="card text-center p-2 no-hover">
                             <div class="text-xl font-bold text-indigo-600" id="summaryShortlistedCount">${groupedApplicants.shortlisted.length}</div>
@@ -580,10 +605,6 @@ export default async function jobApplicantsController(params = {}) {
                             <div class="text-xl font-bold text-red-600" id="summaryRejectedCount">${groupedApplicants.rejected.length}</div>
                             <div class="text-xs text-gray-700">Rejected</div>
                         </div>
-                        <div class="card text-center p-2 no-hover">
-                            <div class="text-sm text-gray-600">Job: <strong>${job?.title || ''}</strong></div>
-                            ${job?.company ? `<div class="text-sm text-gray-600">Company: <strong>${job.company}</strong></div>` : ''}
-                        </div>
                     </div>
 
                     <!-- Main content: filter sidebar + applicants list -->
@@ -591,7 +612,7 @@ export default async function jobApplicantsController(params = {}) {
 
                         <!-- Filters sidebar -->
                         <div class="lg:col-span-1">
-                            <div class="card sticky top-4">
+                            <div class="card sticky top-4 no-hover">
                                 <h3 class="text-lg font-bold text-gray-800 mb-5">
                                     <i class="fa-solid fa-filter mr-2 text-purple-600"></i>Filters
                                 </h3>
@@ -646,7 +667,7 @@ export default async function jobApplicantsController(params = {}) {
 
                         <!-- Results panel -->
                         <div class="lg:col-span-3">
-                            <div class="card mb-4">
+                            <div class="card mb-4 no-hover">
                                 <div class="flex flex-wrap justify-between items-center gap-3">
                                     <h3 class="text-xl font-bold text-gray-800">
                                         <span id="applicantCount">${allApplicants.length}</span>
@@ -731,7 +752,7 @@ export default async function jobApplicantsController(params = {}) {
     };
 
     const updateSummaryCounts = () => {
-        document.getElementById('summaryAppliedCount').textContent = allApplicants.filter((a) =>
+        document.getElementById('summaryUnderReviewCount').textContent = allApplicants.filter((a) =>
             ['pending', 'under_review', 'applied'].includes(a.status)
         ).length;
         document.getElementById('summaryShortlistedCount').textContent = allApplicants.filter(
@@ -750,7 +771,7 @@ export default async function jobApplicantsController(params = {}) {
 
     const renderPipeline = () => {
         const cols = {
-            applied: document.getElementById('col-applied'),
+            under_review: document.getElementById('col-under_review'),
             shortlisted: document.getElementById('col-shortlisted'),
             interview: document.getElementById('col-interview'),
             hired: document.getElementById('col-hired'),
@@ -1183,7 +1204,7 @@ export default async function jobApplicantsController(params = {}) {
 
         const targetKey = column.getAttribute('data-status-column');
         const statusMap = {
-            applied: 'under_review',
+            under_review: 'under_review',
             shortlisted: 'shortlisted',
             interview: 'interview',
             hired: 'hired',
@@ -1191,6 +1212,22 @@ export default async function jobApplicantsController(params = {}) {
         };
 
         await updateApplicantStatus(appId, statusMap[targetKey] || 'under_review');
+    });
+
+    document.addEventListener('click', (e) => {
+        const toggle = e.target.closest('.status-toggle');
+
+        // Open/close dropdown
+        if (toggle) {
+            const menu = toggle.parentElement.querySelector('.status-menu');
+            menu.classList.toggle('hidden');
+            return;
+        }
+
+        // Close all dropdowns when clicking elsewhere
+        document.querySelectorAll('.status-menu').forEach((menu) => {
+            menu.classList.add('hidden');
+        });
     });
 
     // Initial render

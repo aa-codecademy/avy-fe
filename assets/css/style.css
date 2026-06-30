@@ -92,10 +92,15 @@ body {
     color: white;
 }
 
+.btn-status {
+    background: white;
+    color: var(--color-text);
+    border: 2px solid var(--color-border);
+}
+
 .btn-shortlist {
     background: white;
     color: #818cf8;
-    border: 1px solid #818cf8;
 }
 
 .btn-shortlist:hover {
