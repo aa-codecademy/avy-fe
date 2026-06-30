@@ -219,7 +219,9 @@ function statusToColumn(status) {
 
 function getGroupedApplicants(applicants) {
     return {
-        under_review: applicants.filter((a) => ['applied', 'pending', 'under_review'].includes(a.status)),
+        under_review: applicants.filter((a) =>
+            ['applied', 'pending', 'under_review'].includes(a.status)
+        ),
         shortlisted: applicants.filter((a) => a.status === 'shortlisted'),
         interview: applicants.filter((a) => a.status === 'interview'),
         rejected: applicants.filter((a) => a.status === 'rejected'),
@@ -1139,6 +1141,12 @@ export default async function jobApplicantsController(params = {}) {
     });
 
     // ─── Delegated card/list/pipeline actions ────────────────────────────────
+    const closeAllStatusMenus = () => {
+        document.querySelectorAll('.status-menu').forEach((menu) => {
+            menu.classList.add('hidden');
+        });
+    };
+
     const handleActionClick = async (e) => {
         const viewBtn = e.target.closest('.view-profile-btn');
         const statusBtn = e.target.closest('.status-btn');
@@ -1146,15 +1154,34 @@ export default async function jobApplicantsController(params = {}) {
 
         if (viewBtn) {
             e.preventDefault();
+            e.stopPropagation();
             await openApplicantProfile(viewBtn.dataset.id, viewBtn.dataset.userId);
         } else if (notesBtn) {
             e.preventDefault();
+            e.stopPropagation();
             openNotesModal(notesBtn.dataset.id);
         } else if (statusBtn) {
             e.preventDefault();
+            e.stopPropagation();
+            closeAllStatusMenus();
             await updateApplicantStatus(statusBtn.dataset.id, statusBtn.dataset.status);
         }
     };
+
+    document.addEventListener('click', (e) => {
+        const toggle = e.target.closest('.status-toggle');
+        if (toggle) {
+            e.stopPropagation();
+            const menu = toggle.parentElement.querySelector('.status-menu');
+            if (menu) {
+                closeAllStatusMenus();
+                menu.classList.toggle('hidden');
+            }
+            return;
+        }
+
+        closeAllStatusMenus();
+    });
 
     document.getElementById('applicantsContainer').addEventListener('click', handleActionClick);
 
@@ -1212,22 +1239,6 @@ export default async function jobApplicantsController(params = {}) {
         };
 
         await updateApplicantStatus(appId, statusMap[targetKey] || 'under_review');
-    });
-
-    document.addEventListener('click', (e) => {
-        const toggle = e.target.closest('.status-toggle');
-
-        // Open/close dropdown
-        if (toggle) {
-            const menu = toggle.parentElement.querySelector('.status-menu');
-            menu.classList.toggle('hidden');
-            return;
-        }
-
-        // Close all dropdowns when clicking elsewhere
-        document.querySelectorAll('.status-menu').forEach((menu) => {
-            menu.classList.add('hidden');
-        });
     });
 
     // Initial render
