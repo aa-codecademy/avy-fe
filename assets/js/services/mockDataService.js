@@ -1422,6 +1422,7 @@ class MockDataService {
         return [
             new CVProfile({
                 userId: '1',
+                experienceLevel: 'senior',
                 workExperience: [
                     new WorkExperience({
                         id: 'we1',

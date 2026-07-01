@@ -54,6 +54,7 @@ export class CVProfile {
         this.salaryExpectation = data.salaryExpectation || { min: 0, max: 0, currency: 'EUR' }; // Expected salary range
         this.yearsOfExperience = data.yearsOfExperience || 0; // Calculated total years of experience
         this.updatedAt = data.updatedAt || new Date().toISOString();
+        this.experienceLevel = data.experienceLevel || 'senior'; // intern, entry, mid, senior
     }
 }
 
