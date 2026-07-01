@@ -512,12 +512,6 @@ function renderPipelineCard(appItem) {
                     <button class="open-notes-btn text-sm text-gray-500 hover:text-gray-700" data-id="${appItem.id}" title="Internal notes"><i class="fas fa-sticky-note"></i></button>
                 </div>
             </div>
-            <div class="mt-3 flex flex-wrap gap-2 text-xs">
-                <button class="btn btn-shortlist status-btn px-2 py-1 rounded" data-id="${appItem.id}" data-status="shortlisted">Shortlist</button>
-                <button class="btn text-yellow-600 hover:bg-yellow-600 hover:text-white border-0 px-2 py-1 rounded status-btn" data-id="${appItem.id}" data-status="interview">Interview</button>
-                <button class="btn text-red-600 hover:bg-red-600 hover:text-white border-0 px-2 py-1 rounded status-btn" data-id="${appItem.id}" data-status="rejected">Reject</button>
-                <button class="btn text-green-600 hover:bg-green-600 hover:text-white border-0 px-2 py-1 rounded status-btn" data-id="${appItem.id}" data-status="hired">Hire</button>
-            </div>
         </div>
     `;
 }
@@ -565,23 +559,23 @@ export default async function jobApplicantsController(params = {}) {
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-6" id="pipelineBoard">
                         <div class="card p-4 flex flex-col">
                             <h3 class="font-semibold mb-3 flex-shrink-0">Under Review</h3>
-                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="under_review" id="col-under_review"></div>
+                            <div class="space-y-2 overflow-hidden flex-1" data-status-column="under_review" id="col-under_review"></div>
                         </div>
                         <div class="card p-4 flex flex-col">
                             <h3 class="font-semibold mb-3 flex-shrink-0">Shortlisted</h3>
-                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="shortlisted" id="col-shortlisted"></div>
+                            <div class="space-y-2 overflow-hidden flex-1" data-status-column="shortlisted" id="col-shortlisted"></div>
                         </div>
                         <div class="card p-4 flex flex-col">
                             <h3 class="font-semibold mb-3 flex-shrink-0">Interview</h3>
-                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="interview" id="col-interview"></div>
+                            <div class="space-y-2 overflow-hidden flex-1" data-status-column="interview" id="col-interview"></div>
                         </div>
                         <div class="card p-4 flex flex-col">
                             <h3 class="font-semibold mb-3 flex-shrink-0">Hired</h3>
-                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="hired" id="col-hired"></div>
+                            <div class="space-y-2 overflow-hidden flex-1" data-status-column="hired" id="col-hired"></div>
                         </div>
                         <div class="card p-4 flex flex-col">
                             <h3 class="font-semibold mb-3 flex-shrink-0">Rejected</h3>
-                            <div class="space-y-3 overflow-hidden flex-1" data-status-column="rejected" id="col-rejected"></div>
+                            <div class="space-y-2 overflow-hidden flex-1" data-status-column="rejected" id="col-rejected"></div>
                         </div>
                     </div>
 
