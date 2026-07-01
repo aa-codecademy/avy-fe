@@ -34,6 +34,7 @@ class MockDataService {
             if (!this.notificationPreferences) this.notificationPreferences = this.generateMockNotificationPreferences();
         } else {
             this.initializeMockData();
+            this.saveToStorage();
         }
 
         // Eagerly seed demo notifications for the currently logged-in user
@@ -71,6 +72,28 @@ class MockDataService {
         this.notifications = this.generateMockNotifications();
         this.notificationPreferences = this.generateMockNotificationPreferences();
         this.analytics = this.generateMockAnalytics();
+    }
+
+    /**
+     * Save current mock data state to localStorage (for persistence across reloads)
+     */
+    saveToStorage() {
+        localStorage.setItem(
+            'mockData',
+            JSON.stringify({
+                users: this.users,
+                companies: this.companies,
+                jobs: this.jobs,
+                applications: this.applications,
+                cvProfiles: this.cvProfiles,
+                successStories: this.successStories,
+                events: this.events,
+                messages: this.messages,
+                notifications: this.notifications,
+                notificationPreferences: this.notificationPreferences,
+                analytics: this.analytics,
+            })
+        );
     }
 
     /**
