@@ -677,7 +677,7 @@ export default async function jobApplicantsController(params = {}) {
 
                             <div id="activeFiltersBar"></div>
 
-                            <div id="applicantsContainer" class="space-y-0">
+                            <div id="applicantsContainer" class="space-y-4">
                                 ${allApplicants.map((a) => renderApplicantCard(a)).join('')}
                             </div>
 
